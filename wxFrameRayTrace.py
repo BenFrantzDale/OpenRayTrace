@@ -102,10 +102,12 @@ class wxFrameRayTrace(wxFrame):
         self.grid1.SetDefaultCellAlignment(wxALIGN_CENTRE,wxALIGN_CENTRE)
         self.grid1.AutoSizeRow(True)
         self.grid1.AutoSizeColumns(True)
-                
+                
+
         for row in range(self.rows):
             for col in range(len(col_label)):
-                self.grid1.SetCellEditor(row, col, apply(wxGridCellFloatEditor,[]))
+                self.grid1.SetCellEditor(row, col, apply(wxGridCellFloatEditor,[]))
+
             
 
 
@@ -187,7 +189,7 @@ class wxFrameRayTrace(wxFrame):
                         LAp[i] = -Hp[i]/tan(Up[i])
                 self.can.set_ray_list(rayList)
                 
-                print Up, LAp, Hp
+                #print Up, LAp, Hp
                 
         else:
             print 'you must enter a number!!!!'
@@ -329,16 +331,22 @@ class wxFrameRayTrace(wxFrame):
 ##        glEnd()
                         
         n+=1
-        
+        
+
         #draw part of lens surface
-        if( h*h < r*r ):
+        if( h*h < r*r ):
+
             b = pow(r*r - h*h, 0.5)        
         else:
             b = 0
-            
-        if(r > 0):
-            a = r - b    
-        else:
+            
+
+        if(r > 0):
+
+            a = r - b    
+
+        else:
+
             a = r + b            
         inc = a / n        
         
@@ -352,15 +360,22 @@ class wxFrameRayTrace(wxFrame):
                 y[i] = pow(r2 - x2[i],.5)
             else:
                 y[i] = 0
-                                    
-        glBegin(GL_LINE_STRIP)    
-        for i in range(n):                    
-            glVertex3f(x[i],y[i],0)            
+                                    
+
+        glBegin(GL_LINE_STRIP)    
+
+        for i in range(n):                    
+
+            glVertex3f(x[i],y[i],0)            
+
         glEnd()
       
-        glBegin(GL_LINE_STRIP)    
-        for i in range(n):                    
-            glVertex3f(x[i],-y[i],0)            
+        glBegin(GL_LINE_STRIP)    
+
+        for i in range(n):                    
+
+            glVertex3f(x[i],-y[i],0)            
+
         glEnd()
               
         return (x[i],y[i])

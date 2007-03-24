@@ -131,7 +131,7 @@ class wxMainFrame(wx.MDIParentFrame):
         self.paraxial = wxMDIChildFrame_paraxial_data.create(self)
         self.spot     = wxMDIChildFrame_spot_diagram.create(self)
         
-        self.abr      = wxMDIChildFrame_aberrations.create(self)
+        #self.abr      = wxMDIChildFrame_aberrations.create(self)
         self.img      = wxMDIChildFrame_image.create(self)
         
         self.paraxial.Hide()        
@@ -235,7 +235,7 @@ class wxMainFrame(wx.MDIParentFrame):
         self.ogl.clear_list()
         self.spot.clear_list()
         self.img.clear_list()
-        self.abr.clear_list()
+        #self.abr.clear_list()
         self.saveable = False
             
         self.file_cnt += 1

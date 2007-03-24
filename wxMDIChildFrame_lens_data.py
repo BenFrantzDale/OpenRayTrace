@@ -109,7 +109,7 @@ def create(parent):
  wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_POWER, 
  wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_RADIUS, 
  wxID_WXMDICHILDFRAME_LENS_DATASTATICBOX1, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT1, 
+ wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXTEFFECTIVEFOCALLENGTH, 
  wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_EFL, 
  wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MAG, 
  wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MG, 
@@ -132,6 +132,71 @@ def create(parent):
 [wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS] = [wx.NewId() for _init_coll_menu_thickness_Items in range(1)]
 
 class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
+    def _init_coll_boxSizerBottom_Items(self, parent):
+        # generated method, don't edit
+
+        parent.AddWindow(self.grid1, 1, border=0, flag=0)
+
+    def _init_coll_staticBoxSizer1_Items(self, parent):
+        # generated method, don't edit
+
+        parent.AddSizer(self.gridBagSizerComputations, 0, border=0, flag=0)
+
+    def _init_coll_flexGridSizerLensDataMain_Items(self, parent):
+        # generated method, don't edit
+
+        parent.AddSizer(self.boxSizertop, 0, border=0, flag=0)
+        parent.AddSizer(self.boxSizerBottom, 0, border=0, flag=0)
+
+    def _init_coll_flexGridSizerLensDataMain_Growables(self, parent):
+        # generated method, don't edit
+
+        parent.AddGrowableRow(1)
+        parent.AddGrowableCol(0)
+
+    def _init_coll_gridBagSizerTop_Items(self, parent):
+        # generated method, don't edit
+
+        parent.AddWindow(self.radioButton_const_power, (0, 0), border=0, flag=0,
+              span=(1, 1))
+        parent.AddWindow(self.radioButton_const_radius, (1, 0), border=0,
+              flag=0, span=(1, 1))
+        parent.AddWindow(self.checkBox_autofocus, (2, 0), border=0, flag=0,
+              span=(1, 1))
+        parent.AddWindow(self.staticText_obj_height, (0, 1), border=0, flag=0,
+              span=(1, 1))
+        parent.AddWindow(self.textCtrl_object_height, (1, 1), border=0, flag=0,
+              span=(1, 1))
+        parent.AddWindow(self.button_wave_lengths, (2, 1), border=0, flag=0,
+              span=(1, 1))
+        parent.AddSizer(self.staticBoxSizer1, (0, 2), border=0, flag=0, span=(3,
+              1))
+        parent.AddWindow(self.staticText_efl, (2, 8), border=0, flag=0, span=(1,
+              1))
+        parent.AddWindow(self.staticText_mg, (1, 7), border=0, flag=0, span=(1,
+              1))
+        parent.AddWindow(self.staticText_mag, (1, 8), border=0, flag=0, span=(1,
+              1))
+        parent.AddWindow(self.staticTextEffectiveFocalLength, (2, 7), border=0,
+              flag=0, span=(1, 1))
+        parent.AddWindow(self.staticText_paraxial_focus, (3, 7), border=0,
+              flag=0, span=(1, 1))
+
+    def _init_coll_boxSizertop_Items(self, parent):
+        # generated method, don't edit
+
+        parent.AddSizer(self.gridBagSizerTop, 0, border=0, flag=0)
+
+    def _init_coll_gridBagSizerComputations_Items(self, parent):
+        # generated method, don't edit
+
+        parent.AddWindow(self.button_spot_diagrams, (0, 0), border=0, flag=0,
+              span=(1, 1))
+        parent.AddWindow(self.button_image, (1, 0), border=0, flag=0, span=(1,
+              1))
+        parent.AddWindow(self.button_compute_all, (0, 1), border=0, flag=0,
+              span=(1, 1))
+
     def _init_coll_row_menu_Items(self, parent):
         # generated method, don't edit
 
@@ -180,6 +245,32 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.Bind(wx.EVT_MENU, self.OnMenu_thicknessitems0Menu,
               id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS)
 
+    def _init_sizers(self):
+        # generated method, don't edit
+        self.flexGridSizerLensDataMain = wx.FlexGridSizer(cols=0, hgap=0,
+              rows=2, vgap=0)
+
+        self.boxSizertop = wx.BoxSizer(orient=wx.HORIZONTAL)
+
+        self.boxSizerBottom = wx.BoxSizer(orient=wx.HORIZONTAL)
+
+        self.gridBagSizerTop = wx.GridBagSizer(hgap=0, vgap=0)
+
+        self.staticBoxSizer1 = wx.StaticBoxSizer(box=self.staticBox1,
+              orient=wx.VERTICAL)
+
+        self.gridBagSizerComputations = wx.GridBagSizer(hgap=0, vgap=0)
+
+        self._init_coll_flexGridSizerLensDataMain_Items(self.flexGridSizerLensDataMain)
+        self._init_coll_flexGridSizerLensDataMain_Growables(self.flexGridSizerLensDataMain)
+        self._init_coll_boxSizertop_Items(self.boxSizertop)
+        self._init_coll_boxSizerBottom_Items(self.boxSizerBottom)
+        self._init_coll_gridBagSizerTop_Items(self.gridBagSizerTop)
+        self._init_coll_staticBoxSizer1_Items(self.staticBoxSizer1)
+        self._init_coll_gridBagSizerComputations_Items(self.gridBagSizerComputations)
+
+        self.SetSizer(self.flexGridSizerLensDataMain)
+
     def _init_utils(self):
         # generated method, don't edit
         self.menu_thickness = wx.Menu(title='')
@@ -195,15 +286,15 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_LENS_DATA,
-              name='wxMDIChildFrame_lens_data', parent=prnt, pos=wx.Point(844,
-              257), size=wx.Size(847, 807), style=wx.DEFAULT_FRAME_STYLE,
+              name='wxMDIChildFrame_lens_data', parent=prnt, pos=wx.Point(505,
+              364), size=wx.Size(847, 373), style=wx.DEFAULT_FRAME_STYLE,
               title='Lens Data')
         self._init_utils()
-        self.SetClientSize(wx.Size(839, 773))
+        self.SetClientSize(wx.Size(839, 339))
         self.Bind(EVT_CLOSE, self.OnWxmdichildframe_lens_dataClose)
 
         self.grid1 = wx.grid.Grid(id=wxID_WXMDICHILDFRAME_LENS_DATAGRID1,
-              name='grid1', parent=self, pos=wx.Point(0, 96), size=wx.Size(839,
+              name='grid1', parent=self, pos=wx.Point(0, 87), size=wx.Size(839,
               773), style=0)
         self.grid1.Bind(EVT_GRID_CELL_CHANGE, self.OnGrid1GridCellChange)
         self.grid1.Bind(EVT_GRID_CELL_RIGHT_CLICK,
@@ -213,29 +304,29 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
         self.radioButton_const_power = wx.RadioButton(id=wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_POWER,
               label='Const Power/F-length', name='radioButton_const_power',
-              parent=self, pos=wx.Point(8, 8), size=wx.Size(136, 13), style=0)
+              parent=self, pos=wx.Point(0, 0), size=wx.Size(136, 13), style=0)
         self.radioButton_const_power.SetValue(True)
         self.radioButton_const_power.Bind(EVT_RADIOBUTTON,
               self.OnRadiobutton_const_powerRadiobutton)
 
         self.radioButton_const_radius = wx.RadioButton(id=wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_RADIUS,
               label='Const Radius', name='radioButton_const_radius',
-              parent=self, pos=wx.Point(8, 32), size=wx.Size(79, 13), style=0)
+              parent=self, pos=wx.Point(0, 22), size=wx.Size(79, 13), style=0)
         self.radioButton_const_radius.SetValue(False)
         self.radioButton_const_radius.Bind(EVT_RADIOBUTTON,
               self.OnRadiobutton_const_radiusRadiobutton)
 
         self.staticText_paraxial_focus = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_PARAXIAL_FOCUS,
               label='', name='staticText_paraxial_focus', parent=self,
-              pos=wx.Point(928, 312), size=wx.Size(0, 13), style=0)
+              pos=wx.Point(436, 67), size=wx.Size(0, 13), style=0)
 
         self.checkBox_autofocus = wx.CheckBox(id=wxID_WXMDICHILDFRAME_LENS_DATACHECKBOX_AUTOFOCUS,
               label='Autofocus (paraxial)', name='checkBox_autofocus',
-              parent=self, pos=wx.Point(8, 56), size=wx.Size(120, 13), style=0)
+              parent=self, pos=wx.Point(0, 44), size=wx.Size(120, 13), style=0)
         self.checkBox_autofocus.SetValue(False)
 
         self.textCtrl_object_height = wx.TextCtrl(id=wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT,
-              name='textCtrl_object_height', parent=self, pos=wx.Point(208, 24),
+              name='textCtrl_object_height', parent=self, pos=wx.Point(136, 22),
               size=wx.Size(100, 21),
               style=wx.TAB_TRAVERSAL | wx.TE_PROCESS_TAB | wx.TE_PROCESS_ENTER,
               value='1.0')
@@ -247,51 +338,53 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
         self.button_compute_all = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_COMPUTE_ALL,
               label='Compute All', name='button_compute_all', parent=self,
-              pos=wx.Point(544, 56), size=wx.Size(75, 23), style=0)
+              pos=wx.Point(316, 17), size=wx.Size(75, 23), style=0)
         self.button_compute_all.Bind(EVT_BUTTON,
               self.OnButton_compute_allButton)
 
         self.staticText_obj_height = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_OBJ_HEIGHT,
               label='Object Height', name='staticText_obj_height', parent=self,
-              pos=wx.Point(224, 8), size=wx.Size(65, 13), style=0)
+              pos=wx.Point(136, 0), size=wx.Size(65, 13), style=0)
 
         self.button_wave_lengths = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_WAVE_LENGTHS,
               label='Wave Lengths', name='button_wave_lengths', parent=self,
-              pos=wx.Point(216, 64), size=wx.Size(88, 23), style=0)
+              pos=wx.Point(136, 44), size=wx.Size(88, 23), style=0)
         self.button_wave_lengths.Bind(EVT_BUTTON,
               self.OnButton_wave_lengthsButton)
 
         self.button_spot_diagrams = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_SPOT_DIAGRAMS,
               label='Spot Diagram', name='button_spot_diagrams', parent=self,
-              pos=wx.Point(320, 24), size=wx.Size(75, 23), style=0)
+              pos=wx.Point(241, 17), size=wx.Size(75, 23), style=0)
         self.button_spot_diagrams.Bind(EVT_BUTTON,
               self.OnButton_spot_diagramsButton)
 
         self.staticBox1 = wx.StaticBox(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICBOX1,
               label='Computations', name='staticBox1', parent=self,
-              pos=wx.Point(312, 8), size=wx.Size(328, 80), style=0)
+              pos=wx.Point(236, 0), size=wx.Size(160, 68), style=0)
 
         self.button_image = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_IMAGE,
-              label='Image', name='button_image', parent=self, pos=wx.Point(320,
-              56), size=wx.Size(75, 23), style=0)
+              label='Image', name='button_image', parent=self, pos=wx.Point(241,
+              40), size=wx.Size(75, 23), style=0)
         self.button_image.Bind(EVT_BUTTON, self.OnButton_imageButton)
 
         self.staticText_mg = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MG,
               label='Transverse Magnification', name='staticText_mg',
-              parent=self, pos=wx.Point(664, 24), size=wx.Size(160, 13),
+              parent=self, pos=wx.Point(436, 22), size=wx.Size(160, 13),
               style=0)
 
         self.staticText_mag = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MAG,
-              label='', name='staticText_mag', parent=self, pos=wx.Point(728,
-              40), size=wx.Size(0, 13), style=0)
+              label='', name='staticText_mag', parent=self, pos=wx.Point(596,
+              22), size=wx.Size(0, 13), style=0)
 
-        self.staticText1 = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT1,
-              label='EFL:', name='staticText1', parent=self, pos=wx.Point(672,
-              80), size=wx.Size(22, 13), style=0)
+        self.staticTextEffectiveFocalLength = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXTEFFECTIVEFOCALLENGTH,
+              label='EFL:', name='staticTextEffectiveFocalLength', parent=self,
+              pos=wx.Point(436, 44), size=wx.Size(22, 13), style=0)
 
         self.staticText_efl = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_EFL,
-              label='', name='staticText_efl', parent=self, pos=wx.Point(696,
-              80), size=wx.Size(0, 13), style=0)
+              label='', name='staticText_efl', parent=self, pos=wx.Point(596,
+              44), size=wx.Size(0, 13), style=0)
+
+        self._init_sizers()
 
     def __init__(self, parent):
         self._init_ctrls(parent)
@@ -436,7 +529,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 ##                    self.GetParent().trace.calc_third_order_abberations(y,u,yp,up,self.n,self.c)
            
         
-                self.GetParent().abr.calc_abr(self.t,self.n,self.c,self.t_cum,self.h,self.object_height)
+                #self.GetParent().abr.calc_abr(self.t,self.n,self.c,self.t_cum,self.h,self.object_height)
                 
         
 
