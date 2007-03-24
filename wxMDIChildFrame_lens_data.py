@@ -347,7 +347,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             c = event.GetCol() 
         
         val = self.grid1.GetCellValue(r,c)
-        print r,c,val
+        #print r,c,val
         
         if(val != ''):
             val = float(val)                                    

@@ -42,7 +42,7 @@ import math
 from ray_trace import *
 from Numeric import *
 import random
-from scipy import *
+#from scipy import *
 
 
 def create(parent):
