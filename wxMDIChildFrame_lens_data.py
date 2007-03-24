@@ -2,25 +2,41 @@
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
-##    This file is part of OpenRayTrace.
-##
-##    OpenRayTrace is free software; you can redistribute it and/or modify
-##    it under the terms of the GNU General Public License as published by
-##    the Free Software Foundation; either version 2 of the License, or
-##    (at your option) any later version.
-##
-##    OpenRayTrace is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##    GNU General Public License for more details.
-##
-##    You should have received a copy of the GNU General Public License
-##    along with OpenRayTrace; if not, write to the Free Software
-##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##    This file is part of OpenRayTrace.
+
+##
+
+##    OpenRayTrace is free software; you can redistribute it and/or modify
+
+##    it under the terms of the GNU General Public License as published by
+
+##    the Free Software Foundation; either version 2 of the License, or
+
+##    (at your option) any later version.
+
+##
+
+##    OpenRayTrace is distributed in the hope that it will be useful,
+
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
+##    GNU General Public License for more details.
+
+##
+
+##    You should have received a copy of the GNU General Public License
+
+##    along with OpenRayTrace; if not, write to the Free Software
+
+##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 
-from wxPython.wx import *
+
+import wx
+import wx.grid
 from wxPython.grid import *
 import wxDialog_wavelengths
 
@@ -66,187 +82,216 @@ def create(parent):
  wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_OBJ_HEIGHT, 
  wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_PARAXIAL_FOCUS, 
  wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT, 
-] = map(lambda _init_ctrls: wxNewId(), range(17))
+] = map(lambda _init_ctrls: wx.NewId(), range(17))
 
 
 
 [wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSITEMS_BK7, 
  wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSITEMS_DIRECT, 
-] = map(lambda _init_coll_menu_glass_Items: wxNewId(), range(2))
+] = map(lambda _init_coll_menu_glass_Items: wx.NewId(), range(2))
 
 [wxID_WXMDICHILDFRAME_LENS_DATAMENU1COPY, 
  wxID_WXMDICHILDFRAME_LENS_DATAMENU1DELETE, 
  wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_AFTER, 
  wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_BEFORE, 
  wxID_WXMDICHILDFRAME_LENS_DATAMENU1PASTE, 
-] = map(lambda _init_coll_row_menu_Items: wxNewId(), range(5))
+] = map(lambda _init_coll_row_menu_Items: wx.NewId(), range(5))
 
-[wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSITEMS0] = map(lambda _init_coll_menu_thickness_Items: wxNewId(), range(1))
+[wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSITEMS0] = map(lambda _init_coll_menu_thickness_Items: wx.NewId(), range(1))
 
-class wxMDIChildFrame_lens_data(wxMDIChildFrame):
+[wxID_WXMDICHILDFRAME_LENS_DATA, 
+ wxID_WXMDICHILDFRAME_LENS_DATABUTTON_COMPUTE_ALL, 
+ wxID_WXMDICHILDFRAME_LENS_DATABUTTON_IMAGE, 
+ wxID_WXMDICHILDFRAME_LENS_DATABUTTON_SPOT_DIAGRAMS, 
+ wxID_WXMDICHILDFRAME_LENS_DATABUTTON_WAVE_LENGTHS, 
+ wxID_WXMDICHILDFRAME_LENS_DATACHECKBOX_AUTOFOCUS, 
+ wxID_WXMDICHILDFRAME_LENS_DATAGRID1, 
+ wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_POWER, 
+ wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_RADIUS, 
+ wxID_WXMDICHILDFRAME_LENS_DATASTATICBOX1, 
+ wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT1, 
+ wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_EFL, 
+ wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MAG, 
+ wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MG, 
+ wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_OBJ_HEIGHT, 
+ wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_PARAXIAL_FOCUS, 
+ wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT, 
+] = [wx.NewId() for _init_ctrls in range(17)]
+
+[wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7, 
+ wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT, 
+] = [wx.NewId() for _init_coll_menu_glass_Items in range(2)]
+
+[wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUCOPY, 
+ wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE, 
+ wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER, 
+ wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE, 
+ wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUPASTE, 
+] = [wx.NewId() for _init_coll_row_menu_Items in range(5)]
+
+[wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS] = [wx.NewId() for _init_coll_menu_thickness_Items in range(1)]
+
+class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def _init_coll_row_menu_Items(self, parent):
         # generated method, don't edit
 
-        parent.Append(helpString='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_BEFORE,
-              item='Insert Before', kind=wxITEM_NORMAL)
-        parent.Append(helpString='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_AFTER,
-              item='Insert After', kind=wxITEM_NORMAL)
-        parent.Append(helpString='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU1DELETE, item='Delete',
-              kind=wxITEM_NORMAL)
-        parent.Append(helpString='', id=wxID_WXMDICHILDFRAME_LENS_DATAMENU1COPY,
-              item='Copy', kind=wxITEM_NORMAL)
-        parent.Append(helpString='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU1PASTE, item='Paste',
-              kind=wxITEM_NORMAL)
-        EVT_MENU(self, wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_BEFORE,
-              self.OnRow_menuitems0Menu)
-        EVT_MENU(self, wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_AFTER,
-              self.OnRow_menuitems0Menu)
-        EVT_MENU(self, wxID_WXMDICHILDFRAME_LENS_DATAMENU1DELETE,
-              self.OnRow_menuitems0Menu)
-
-    def _init_coll_menu_thickness_Items(self, parent):
-        # generated method, don't edit
-
-        parent.Append(helpString='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSITEMS0,
-              item='Paraxial Focus', kind=wxITEM_NORMAL)
-        EVT_MENU(self, wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSITEMS0,
-              self.OnMenu_thicknessitems0Menu)
+        parent.Append(help='',
+              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE,
+              kind=wx.ITEM_NORMAL, text='Insert Before')
+        parent.Append(help='',
+              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER,
+              kind=wx.ITEM_NORMAL, text='Insert After')
+        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE,
+              kind=wx.ITEM_NORMAL, text='Delete')
+        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUCOPY,
+              kind=wx.ITEM_NORMAL, text='Copy')
+        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUPASTE,
+              kind=wx.ITEM_NORMAL, text='Paste')
+        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
+              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE)
+        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
+              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER)
+        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
+              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE)
+        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
+              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUCOPY)
+        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
+              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUPASTE)
 
     def _init_coll_menu_glass_Items(self, parent):
         # generated method, don't edit
 
-        parent.Append(helpString='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSITEMS_DIRECT,
-              item='Direct', kind=wxITEM_RADIO)
-        parent.Append(helpString='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSITEMS_BK7, item='BK7',
-              kind=wxITEM_RADIO)
-        EVT_MENU(self, wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSITEMS_DIRECT,
-              self.OnMenu_glassitems0Menu)
-        EVT_MENU(self, wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSITEMS_BK7,
-              self.OnMenu_glassitems0Menu)
+        parent.Append(help='',
+              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT,
+              kind=wx.ITEM_NORMAL, text='Direct')
+        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7,
+              kind=wx.ITEM_NORMAL, text='BK7')
+        self.Bind(wx.EVT_MENU, self.OnMenu_glassitems0Menu,
+              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT)
+        self.Bind(wx.EVT_MENU, self.OnMenu_glassitems0Menu,
+              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7)
+
+    def _init_coll_menu_thickness_Items(self, parent):
+        # generated method, don't edit
+
+        parent.Append(help='',
+              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS,
+              kind=wx.ITEM_NORMAL, text='Paraxial Focus')
+        self.Bind(wx.EVT_MENU, self.OnMenu_thicknessitems0Menu,
+              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS)
 
     def _init_utils(self):
         # generated method, don't edit
-        self.menu_thickness = wxMenu(title='')
+        self.menu_thickness = wx.Menu(title='')
+
+        self.menu_glass = wx.Menu(title='')
+
+        self.row_menu = wx.Menu(title='')
+
         self._init_coll_menu_thickness_Items(self.menu_thickness)
-
-        self.menu_glass = wxMenu(title='')
         self._init_coll_menu_glass_Items(self.menu_glass)
-
-        self.row_menu = wxMenu(title='')
         self._init_coll_row_menu_Items(self.row_menu)
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_LENS_DATA,
-              name='wxMDIChildFrame_lens_data', parent=prnt, pos=wxPoint(493,
-              289), size=wxSize(847, 807), style=wxDEFAULT_FRAME_STYLE,
+        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_LENS_DATA,
+              name='wxMDIChildFrame_lens_data', parent=prnt, pos=wx.Point(844,
+              257), size=wx.Size(847, 807), style=wx.DEFAULT_FRAME_STYLE,
               title='Lens Data')
         self._init_utils()
-        self.SetClientSize(wxSize(839, 773))
-        EVT_CLOSE(self, self.OnWxmdichildframe_lens_dataClose)
+        self.SetClientSize(wx.Size(839, 773))
+        self.Bind(EVT_CLOSE, self.OnWxmdichildframe_lens_dataClose)
 
-        self.grid1 = wxGrid(id=wxID_WXMDICHILDFRAME_LENS_DATAGRID1,
-              name='grid1', parent=self, pos=wxPoint(0, 120), size=wxSize(736,
-              640), style=0)
-        EVT_GRID_CELL_CHANGE(self.grid1, self.OnGrid1GridCellChange)
-        EVT_GRID_CELL_RIGHT_CLICK(self.grid1, self.OnGrid1GridCellRightClick)
-        EVT_GRID_LABEL_RIGHT_CLICK(self.grid1, self.OnGrid1GridLabelRightClick)
+        self.grid1 = wx.grid.Grid(id=wxID_WXMDICHILDFRAME_LENS_DATAGRID1,
+              name='grid1', parent=self, pos=wx.Point(0, 96), size=wx.Size(839,
+              773), style=0)
+        self.grid1.Bind(EVT_GRID_CELL_CHANGE, self.OnGrid1GridCellChange)
+        self.grid1.Bind(EVT_GRID_CELL_RIGHT_CLICK,
+              self.OnGrid1GridCellRightClick)
+        self.grid1.Bind(EVT_GRID_LABEL_RIGHT_CLICK,
+              self.OnGrid1GridLabelRightClick)
 
-        self.radioButton_const_power = wxRadioButton(id=wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_POWER,
+        self.radioButton_const_power = wx.RadioButton(id=wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_POWER,
               label='Const Power/F-length', name='radioButton_const_power',
-              parent=self, pos=wxPoint(8, 8), size=wxSize(136, 13), style=0)
+              parent=self, pos=wx.Point(8, 8), size=wx.Size(136, 13), style=0)
         self.radioButton_const_power.SetValue(True)
-        EVT_RADIOBUTTON(self.radioButton_const_power,
-              wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_POWER,
+        self.radioButton_const_power.Bind(EVT_RADIOBUTTON,
               self.OnRadiobutton_const_powerRadiobutton)
 
-        self.radioButton_const_radius = wxRadioButton(id=wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_RADIUS,
+        self.radioButton_const_radius = wx.RadioButton(id=wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_RADIUS,
               label='Const Radius', name='radioButton_const_radius',
-              parent=self, pos=wxPoint(8, 32), size=wxSize(79, 13), style=0)
+              parent=self, pos=wx.Point(8, 32), size=wx.Size(79, 13), style=0)
         self.radioButton_const_radius.SetValue(False)
-        EVT_RADIOBUTTON(self.radioButton_const_radius,
-              wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_RADIUS,
+        self.radioButton_const_radius.Bind(EVT_RADIOBUTTON,
               self.OnRadiobutton_const_radiusRadiobutton)
 
-        self.staticText_paraxial_focus = wxStaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_PARAXIAL_FOCUS,
+        self.staticText_paraxial_focus = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_PARAXIAL_FOCUS,
               label='', name='staticText_paraxial_focus', parent=self,
-              pos=wxPoint(928, 312), size=wxSize(0, 13), style=0)
+              pos=wx.Point(928, 312), size=wx.Size(0, 13), style=0)
 
-        self.checkBox_autofocus = wxCheckBox(id=wxID_WXMDICHILDFRAME_LENS_DATACHECKBOX_AUTOFOCUS,
+        self.checkBox_autofocus = wx.CheckBox(id=wxID_WXMDICHILDFRAME_LENS_DATACHECKBOX_AUTOFOCUS,
               label='Autofocus (paraxial)', name='checkBox_autofocus',
-              parent=self, pos=wxPoint(8, 56), size=wxSize(120, 13), style=0)
+              parent=self, pos=wx.Point(8, 56), size=wx.Size(120, 13), style=0)
         self.checkBox_autofocus.SetValue(False)
 
-        self.textCtrl_object_height = wxTextCtrl(id=wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT,
-              name='textCtrl_object_height', parent=self, pos=wxPoint(208, 24),
-              size=wxSize(100, 21),
-              style=wxTAB_TRAVERSAL | wxTE_PROCESS_TAB | wxTE_PROCESS_ENTER,
+        self.textCtrl_object_height = wx.TextCtrl(id=wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT,
+              name='textCtrl_object_height', parent=self, pos=wx.Point(208, 24),
+              size=wx.Size(100, 21),
+              style=wx.TAB_TRAVERSAL | wx.TE_PROCESS_TAB | wx.TE_PROCESS_ENTER,
               value='1.0')
         self.textCtrl_object_height.Enable(True)
-        self.textCtrl_object_height.SetFont(wxFont(8, wxSWISS, wxNORMAL,
-              wxNORMAL, False, 'MS Shell Dlg'))
-        EVT_TEXT(self.textCtrl_object_height,
-              wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT,
+        self.textCtrl_object_height.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL,
+              wx.NORMAL, False, 'MS Shell Dlg'))
+        self.textCtrl_object_height.Bind(EVT_TEXT,
               self.OnTextctrl_object_heightText)
 
-        self.button_compute_all = wxButton(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_COMPUTE_ALL,
+        self.button_compute_all = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_COMPUTE_ALL,
               label='Compute All', name='button_compute_all', parent=self,
-              pos=wxPoint(544, 56), size=wxSize(75, 23), style=0)
-        EVT_BUTTON(self.button_compute_all,
-              wxID_WXMDICHILDFRAME_LENS_DATABUTTON_COMPUTE_ALL,
+              pos=wx.Point(544, 56), size=wx.Size(75, 23), style=0)
+        self.button_compute_all.Bind(EVT_BUTTON,
               self.OnButton_compute_allButton)
 
-        self.staticText_obj_height = wxStaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_OBJ_HEIGHT,
+        self.staticText_obj_height = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_OBJ_HEIGHT,
               label='Object Height', name='staticText_obj_height', parent=self,
-              pos=wxPoint(224, 8), size=wxSize(65, 13), style=0)
+              pos=wx.Point(224, 8), size=wx.Size(65, 13), style=0)
 
-        self.button_wave_lengths = wxButton(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_WAVE_LENGTHS,
+        self.button_wave_lengths = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_WAVE_LENGTHS,
               label='Wave Lengths', name='button_wave_lengths', parent=self,
-              pos=wxPoint(216, 64), size=wxSize(88, 23), style=0)
-        EVT_BUTTON(self.button_wave_lengths,
-              wxID_WXMDICHILDFRAME_LENS_DATABUTTON_WAVE_LENGTHS,
+              pos=wx.Point(216, 64), size=wx.Size(88, 23), style=0)
+        self.button_wave_lengths.Bind(EVT_BUTTON,
               self.OnButton_wave_lengthsButton)
 
-        self.button_spot_diagrams = wxButton(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_SPOT_DIAGRAMS,
+        self.button_spot_diagrams = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_SPOT_DIAGRAMS,
               label='Spot Diagram', name='button_spot_diagrams', parent=self,
-              pos=wxPoint(320, 24), size=wxSize(75, 23), style=0)
-        EVT_BUTTON(self.button_spot_diagrams,
-              wxID_WXMDICHILDFRAME_LENS_DATABUTTON_SPOT_DIAGRAMS,
+              pos=wx.Point(320, 24), size=wx.Size(75, 23), style=0)
+        self.button_spot_diagrams.Bind(EVT_BUTTON,
               self.OnButton_spot_diagramsButton)
 
-        self.staticBox1 = wxStaticBox(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICBOX1,
+        self.staticBox1 = wx.StaticBox(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICBOX1,
               label='Computations', name='staticBox1', parent=self,
-              pos=wxPoint(312, 8), size=wxSize(328, 80), style=0)
+              pos=wx.Point(312, 8), size=wx.Size(328, 80), style=0)
 
-        self.button_image = wxButton(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_IMAGE,
-              label='Image', name='button_image', parent=self, pos=wxPoint(320,
-              56), size=wxSize(75, 23), style=0)
-        EVT_BUTTON(self.button_image,
-              wxID_WXMDICHILDFRAME_LENS_DATABUTTON_IMAGE,
-              self.OnButton_imageButton)
+        self.button_image = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_IMAGE,
+              label='Image', name='button_image', parent=self, pos=wx.Point(320,
+              56), size=wx.Size(75, 23), style=0)
+        self.button_image.Bind(EVT_BUTTON, self.OnButton_imageButton)
 
-        self.staticText_mg = wxStaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MG,
+        self.staticText_mg = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MG,
               label='Transverse Magnification', name='staticText_mg',
-              parent=self, pos=wxPoint(664, 24), size=wxSize(160, 13), style=0)
+              parent=self, pos=wx.Point(664, 24), size=wx.Size(160, 13),
+              style=0)
 
-        self.staticText_mag = wxStaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MAG,
-              label='', name='staticText_mag', parent=self, pos=wxPoint(728,
-              40), size=wxSize(0, 13), style=0)
+        self.staticText_mag = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MAG,
+              label='', name='staticText_mag', parent=self, pos=wx.Point(728,
+              40), size=wx.Size(0, 13), style=0)
 
-        self.staticText1 = wxStaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT1,
-              label='EFL:', name='staticText1', parent=self, pos=wxPoint(672,
-              80), size=wxSize(22, 13), style=0)
+        self.staticText1 = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT1,
+              label='EFL:', name='staticText1', parent=self, pos=wx.Point(672,
+              80), size=wx.Size(22, 13), style=0)
 
-        self.staticText_efl = wxStaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_EFL,
-              label='', name='staticText_efl', parent=self, pos=wxPoint(696,
-              80), size=wxSize(0, 13), style=0)
+        self.staticText_efl = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_EFL,
+              label='', name='staticText_efl', parent=self, pos=wx.Point(696,
+              80), size=wx.Size(0, 13), style=0)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
@@ -261,7 +306,8 @@ class wxMDIChildFrame_lens_data(wxMDIChildFrame):
         self.grid1.SetDefaultCellAlignment(wxALIGN_CENTRE,wxALIGN_CENTRE)
         
         self.grid1.AutoSize()
-                
+                
+
         for row in range(self.rows):
             for col in range(len(self.col_label)):
                 self.grid1.SetCellEditor(row, col, apply(wxGridCellFloatEditor,[]))                    
@@ -294,14 +340,15 @@ class wxMDIChildFrame_lens_data(wxMDIChildFrame):
         self.hold_radius = True
     
 
-    def OnGrid1GridCellChange(self, event=NULL,r=NULL,c=NULL):        
-        self.grid1.AutoSize()
+    def OnGrid1GridCellChange(self, event=NULL,r=NULL,c=NULL):  
+##        self.grid1.AutoSize()
         if(event != NULL):
             r = event.GetRow()
             c = event.GetCol() 
         
         val = self.grid1.GetCellValue(r,c)
-        #print r,c,val
+        print r,c,val
+        
         if(val != ''):
             val = float(val)                                    
             draw = self.fill_in_values(r,c,val)            
@@ -714,10 +761,11 @@ class wxMDIChildFrame_lens_data(wxMDIChildFrame):
     def OnMenu_glassitems0Menu(self, event):
         (r,c) = (self.grid1.GetGridCursorRow(),self.grid1.GetGridCursorCol())
         id = event.GetId()
-        if(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSITEMS_DIRECT):            
+        if(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT):            
             self.grid1.SetCellValue(r,c,'')
-        elif(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSITEMS_BK7):            
+        elif(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7):            
             self.grid1.SetCellValue(r,c,'BK7')
+ 
  
         #event.Skip()
 
@@ -756,9 +804,3 @@ class wxMDIChildFrame_lens_data(wxMDIChildFrame):
     def OnWxmdichildframe_lens_dataClose(self, event):
         self.Hide()
 
-
-
-
-        
-    
-    

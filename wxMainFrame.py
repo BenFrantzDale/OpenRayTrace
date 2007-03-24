@@ -2,24 +2,23 @@
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
-##    This file is part of OpenRayTrace.
-##
-##    OpenRayTrace is free software; you can redistribute it and/or modify
-##    it under the terms of the GNU General Public License as published by
-##    the Free Software Foundation; either version 2 of the License, or
-##    (at your option) any later version.
-##
-##    OpenRayTrace is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##    GNU General Public License for more details.
-##
-##    You should have received a copy of the GNU General Public License
-##    along with OpenRayTrace; if not, write to the Free Software
-##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##    This file is part of OpenRayTrace.
+##
+##    OpenRayTrace is free software; you can redistribute it and/or modify
+##    it under the terms of the GNU General Public License as published by
+##    the Free Software Foundation; either version 2 of the License, or
+##    (at your option) any later version.
+##
+##    OpenRayTrace is distributed in the hope that it will be useful,
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##    GNU General Public License for more details.
+##
+##    You should have received a copy of the GNU General Public License
+##    along with OpenRayTrace; if not, write to the Free Software
+##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
-from wxPython.wx import *
+import wx
 import wxMDIChildFrame_lens_system_ogl
 import wxMDIChildFrame_lens_data
 import wxMDIChildFrame_ray_data
@@ -37,79 +36,88 @@ TITLE = 'OpenRayTrace:   '
 def create(parent):
     return wxMainFrame(parent)
 
-[wxID_WXMAINFRAME] = map(lambda _init_ctrls: wxNewId(), range(1))
+[wxID_WXMAINFRAME] = map(lambda _init_ctrls: wx.NewId(), range(1))
 
 [wxID_WXMAINFRAMEMENUEXIT, wxID_WXMAINFRAMEMENUNEW, wxID_WXMAINFRAMEMENUOPEN, 
  wxID_WXMAINFRAMEMENUSAVE, wxID_WXMAINFRAMEMENUSAVE_AS, 
-] = map(lambda _init_coll_menu_Items: wxNewId(), range(5))
+] = map(lambda _init_coll_menu_Items: wx.NewId(), range(5))
 
 [wxID_WXMAINFRAMEMENU_DRAWINGITEMS_SPOT_DIAGRAM, 
  wxID_WXMAINFRAMEMENU_DRAWINGITEM_RESET_RAY_TRACE, 
-] = map(lambda _init_coll_menu_drawing_Items: wxNewId(), range(2))
+] = map(lambda _init_coll_menu_drawing_Items: wx.NewId(), range(2))
 
-class wxMainFrame(wxMDIParentFrame):
+[wxID_WXMAINFRAME] = [wx.NewId() for _init_ctrls in range(1)]
+
+[wxID_WXMAINFRAMEMENU_DRAWINGRESETRAYTRACE, 
+ wxID_WXMAINFRAMEMENU_DRAWINGSPOTDIAGRAM, 
+] = [wx.NewId() for _init_coll_menu_drawing_Items in range(2)]
+
+[wxID_WXMAINFRAMEMENUEXIT, wxID_WXMAINFRAMEMENUNEW, wxID_WXMAINFRAMEMENUOPEN, 
+ wxID_WXMAINFRAMEMENUSAVE, wxID_WXMAINFRAMEMENUSAVEAS, 
+] = [wx.NewId() for _init_coll_menu_Items in range(5)]
+
+class wxMainFrame(wx.MDIParentFrame):
     def _init_coll_menuBar_Menus(self, parent):
         # generated method, don't edit
 
         parent.Append(menu=self.menu, title='File')
         parent.Append(menu=self.menu_drawing, title='Drawing')
 
-    def _init_coll_menu_drawing_Items(self, parent):
-        # generated method, don't edit
-
-        parent.Append(helpString='',
-              id=wxID_WXMAINFRAMEMENU_DRAWINGITEM_RESET_RAY_TRACE,
-              item='Reset Ray Trace View', kind=wxITEM_NORMAL)
-        parent.Append(helpString='',
-              id=wxID_WXMAINFRAMEMENU_DRAWINGITEMS_SPOT_DIAGRAM,
-              item='Spot Diagram', kind=wxITEM_NORMAL)
-        EVT_MENU(self, wxID_WXMAINFRAMEMENU_DRAWINGITEM_RESET_RAY_TRACE,
-              self.OnMenu_drawingitems0Menu)
-        EVT_MENU(self, wxID_WXMAINFRAMEMENU_DRAWINGITEMS_SPOT_DIAGRAM,
-              self.OnMenu_drawingitems0Menu)
-
     def _init_coll_menu_Items(self, parent):
         # generated method, don't edit
 
-        parent.Append(helpString='', id=wxID_WXMAINFRAMEMENUOPEN, item='Open',
-              kind=wxITEM_NORMAL)
-        parent.Append(helpString='', id=wxID_WXMAINFRAMEMENUNEW, item='New',
-              kind=wxITEM_NORMAL)
-        parent.Append(helpString='', id=wxID_WXMAINFRAMEMENUSAVE, item='Save',
-              kind=wxITEM_NORMAL)
-        parent.Append(helpString='', id=wxID_WXMAINFRAMEMENUSAVE_AS,
-              item='Save As', kind=wxITEM_NORMAL)
-        parent.Append(helpString='', id=wxID_WXMAINFRAMEMENUEXIT, item='Exit',
-              kind=wxITEM_NORMAL)
-        EVT_MENU(self, wxID_WXMAINFRAMEMENUOPEN, self.OnMenuitems0Menu)
-        EVT_MENU(self, wxID_WXMAINFRAMEMENUNEW, self.OnMenuitems0Menu)
-        EVT_MENU(self, wxID_WXMAINFRAMEMENUSAVE, self.OnMenuitems0Menu)
-        EVT_MENU(self, wxID_WXMAINFRAMEMENUSAVE_AS, self.OnMenuitems0Menu)
-        EVT_MENU(self, wxID_WXMAINFRAMEMENUEXIT, self.OnMenuitems0Menu)
+        parent.Append(help='', id=wxID_WXMAINFRAMEMENUOPEN, kind=wx.ITEM_NORMAL,
+              text='Open')
+        parent.Append(help='', id=wxID_WXMAINFRAMEMENUNEW, kind=wx.ITEM_NORMAL,
+              text='New')
+        parent.Append(help='', id=wxID_WXMAINFRAMEMENUSAVE, kind=wx.ITEM_NORMAL,
+              text='Save')
+        parent.Append(help='', id=wxID_WXMAINFRAMEMENUSAVEAS,
+              kind=wx.ITEM_NORMAL, text='Save As')
+        parent.Append(help='', id=wxID_WXMAINFRAMEMENUEXIT, kind=wx.ITEM_NORMAL,
+              text='Exit')
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUNEW)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUSAVE)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUSAVEAS)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUEXIT)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUOPEN)
+
+    def _init_coll_menu_drawing_Items(self, parent):
+        # generated method, don't edit
+
+        parent.Append(help='', id=wxID_WXMAINFRAMEMENU_DRAWINGRESETRAYTRACE,
+              kind=wx.ITEM_NORMAL, text='Reset Ray Trace View')
+        parent.Append(help='', id=wxID_WXMAINFRAMEMENU_DRAWINGSPOTDIAGRAM,
+              kind=wx.ITEM_NORMAL, text='Spot Diagram')
+        self.Bind(wx.EVT_MENU, self.OnMenu_drawingMenu,
+              id=wxID_WXMAINFRAMEMENU_DRAWINGRESETRAYTRACE)
+        self.Bind(wx.EVT_MENU, self.OnMenu_drawingMenu,
+              id=wxID_WXMAINFRAMEMENU_DRAWINGSPOTDIAGRAM)
 
     def _init_utils(self):
         # generated method, don't edit
-        self.menuBar = wxMenuBar()
+        self.menuBar = wx.MenuBar()
 
-        self.menu = wxMenu(title='')
-        self._init_coll_menu_Items(self.menu)
+        self.menu = wx.Menu(title='')
 
-        self.menu_drawing = wxMenu(title='')
-        self._init_coll_menu_drawing_Items(self.menu_drawing)
+        self.menu_drawing = wx.Menu(title='')
 
         self._init_coll_menuBar_Menus(self.menuBar)
+        self._init_coll_menu_Items(self.menu)
+        self._init_coll_menu_drawing_Items(self.menu_drawing)
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxMDIParentFrame.__init__(self, id=wxID_WXMAINFRAME, name='wxMainFrame',
-              parent=prnt, pos=wxPoint(399, 218), size=wxSize(1200, 854),
-              style=wxSYSTEM_MENU | wxDEFAULT_FRAME_STYLE | wxVSCROLL | wxHSCROLL,
+        wx.MDIParentFrame.__init__(self, id=wxID_WXMAINFRAME,
+              name='wxMainFrame', parent=prnt, pos=wx.Point(239, 15),
+              size=wx.Size(1200, 854),
+              style=wx.SYSTEM_MENU | wx.DEFAULT_FRAME_STYLE | wx.VSCROLL | wx.HSCROLL,
               title='OpenRayTrace')
         self._init_utils()
-        self.SetClientSize(wxSize(1192, 820))
-        self.SetMenuBar(self.menuBar)
-        self.Center(wxBOTH)
+        self.SetClientSize(wx.Size(1192, 820))
+        self.Center(wx.BOTH)
         self.SetAutoLayout(True)
+        self.SetMenuBar(self.menuBar)
 
     def __init__(self, parent):
         self._init_ctrls(parent)                                    
@@ -117,7 +125,7 @@ class wxMainFrame(wxMDIParentFrame):
         
         
                 
-        self.ogl      = wxMDIChildFrame_lens_system_ogl.create(self)
+        self.ogl      = wxMDIChildFrame_lens_system_ogl.create(self)      
         self.lens     = wxMDIChildFrame_lens_data.create(self)
         self.trace    = wxMDIChildFrame_ray_data.create(self)
         self.paraxial = wxMDIChildFrame_paraxial_data.create(self)
@@ -139,23 +147,25 @@ class wxMainFrame(wxMDIParentFrame):
         self.SetTitle(TITLE + self.file_name)
         self.saveable = False
         
-        msg =  'OpenRayTrace, Copyright (C) 2004 Andrew Wilson\nOpenRayTrace comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it under certain conditions (see About menu)'
-        dlg = wxMessageDialog(self,msg,
-          'GPL Copyright', wxOK | wxICON_INFORMATION)
-        dlg.ShowModal()
-        dlg.Destroy()
+        showDialog = False
+        if(showDialog):
+            msg =  'OpenRayTrace, Copyright (C) 2007 Andrew Wilson\nOpenRayTrace comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it under certain conditions (see About menu)'
+            dlg = wxMessageDialog(self,msg,
+            'GPL Copyright', wxOK | wxICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
         
-    def OnMenu_drawingitems0Menu(self, event):
+    def OnMenu_drawingMenu(self, event):
         id = event.GetId()
-        if(id == wxID_WXMAINFRAMEMENU_DRAWINGITEM_RESET_RAY_TRACE):                        
+        if(id == wxID_WXMAINFRAMEMENU_DRAWINGRESETRAYTRACE):                        
             self.ogl.reset_view()
-        elif(id == wxID_WXMAINFRAMEMENU_DRAWINGITEMS_SPOT_DIAGRAM):
+        elif(id == wxID_WXMAINFRAMEMENU_DRAWINGSPOTDIAGRAM):
             self.spot.Show()
             
             
         event.Skip()
 
-    def OnMenuitems0Menu(self, event):
+    def OnMenu(self, event):
         id = event.GetId()
         if(id == wxID_WXMAINFRAMEMENUNEW):    
             sv = wxDialogSaveQuestion.create(self,self.file_name)                    
@@ -231,4 +241,3 @@ class wxMainFrame(wxMDIParentFrame):
         self.file_cnt += 1
         self.file_name = 'untitled'+str(self.file_cnt)+'.lns'
         self.SetTitle(TITLE + self.file_name)
-                

@@ -2,26 +2,41 @@
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
-##    This file is part of OpenRayTrace.
-##
-##    OpenRayTrace is free software; you can redistribute it and/or modify
-##    it under the terms of the GNU General Public License as published by
-##    the Free Software Foundation; either version 2 of the License, or
-##    (at your option) any later version.
-##
-##    OpenRayTrace is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##    GNU General Public License for more details.
-##
-##    You should have received a copy of the GNU General Public License
-##    along with OpenRayTrace; if not, write to the Free Software
-##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##    This file is part of OpenRayTrace.
+
+##
+
+##    OpenRayTrace is free software; you can redistribute it and/or modify
+
+##    it under the terms of the GNU General Public License as published by
+
+##    the Free Software Foundation; either version 2 of the License, or
+
+##    (at your option) any later version.
+
+##
+
+##    OpenRayTrace is distributed in the hope that it will be useful,
+
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
+##    GNU General Public License for more details.
+
+##
+
+##    You should have received a copy of the GNU General Public License
+
+##    along with OpenRayTrace; if not, write to the Free Software
+
+##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 
 
-from wxPython.wx import *
+
+import wx
 from myCanvas import *
 from Numeric import *
 from ray_trace import *
@@ -32,9 +47,9 @@ from OpenGL.GLUT import *
 def create(parent):
     return wxMDIChildFrame_aberrations(parent)
 
-[wxID_WXMDICHILDFRAME_ABERRATIONS] = map(lambda _init_ctrls: wxNewId(), range(1))
+[wxID_WXMDICHILDFRAME_ABERRATIONS] = map(lambda _init_ctrls: wx.NewId(), range(1))
 
-class wxMDIChildFrame_aberrations(wxMDIChildFrame):
+class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
     def _init_utils(self):
         # generated method, don't edit
         pass
@@ -42,18 +57,19 @@ class wxMDIChildFrame_aberrations(wxMDIChildFrame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_ABERRATIONS,
-              name='wxMDIChildFrame_aberrations', parent=prnt, pos=wxPoint(399,
-              218), size=wxSize(1200, 854), style=wxDEFAULT_FRAME_STYLE,
+              name='wxMDIChildFrame_aberrations', parent=prnt, pos=wx.Point(399,
+              218), size=wx.Size(1200, 854), style=wx.DEFAULT_FRAME_STYLE,
               title='Aberrations')
         self._init_utils()
-        self.SetClientSize(wxSize(1192, 820))
-        self.Center(wxBOTH)
+        self.SetClientSize(wx.Size(1192, 820))
+        self.Center(wx.BOTH)
         EVT_CLOSE(self, self.OnWxmdichildframe_aberrationsClose)
 
     def __init__(self, parent):
         self._init_ctrls(parent)                                
         self.can = myCanvas(self)
-        self.can.SetCurrent()
+        self.Show()
+        self.can.glSetCurrent()
         self.can.set_bg_color([0.0,0.0,0.0])
 
 
@@ -67,7 +83,7 @@ class wxMDIChildFrame_aberrations(wxMDIChildFrame):
         self.can.Rotateable(False)
         
     def clear_list(self):
-        self.can.SetCurrent()
+        self.can.glSetCurrent()
         glDeleteLists(self.glRayListStart,self.rays)                
         self.glRayListStart = glGenLists(self.rays)
         self.rayList = range(self.glRayListStart,self.glRayListStart+self.rays)        
@@ -138,7 +154,7 @@ class wxMDIChildFrame_aberrations(wxMDIChildFrame):
     
     
     def plotxy(self,x,y,offset,title,ray,color):              
-        self.can.SetCurrent()
+        self.can.glSetCurrent()
         
         mxy = max(y)
         mny = min(y)
@@ -198,7 +214,8 @@ class wxMDIChildFrame_aberrations(wxMDIChildFrame):
         glRasterPos3f(x_norm[len(x_norm)-1] - .01,y_norm[len(y_norm)-1]-.05,0.0)
         num = title
         [glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,ord(ii)) for ii in num]        
-                                                                    
+                                                                    
+
         glTranslatef(-offset[0],-offset[1],0)        
         glFlush()
         glEndList()

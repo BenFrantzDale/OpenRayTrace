@@ -1,21 +1,36 @@
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
-##    This file is part of OpenRayTrace.
-##
-##    OpenRayTrace is free software; you can redistribute it and/or modify
-##    it under the terms of the GNU General Public License as published by
-##    the Free Software Foundation; either version 2 of the License, or
-##    (at your option) any later version.
-##
-##    OpenRayTrace is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##    GNU General Public License for more details.
-##
-##    You should have received a copy of the GNU General Public License
-##    along with OpenRayTrace; if not, write to the Free Software
-##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##    This file is part of OpenRayTrace.
+
+##
+
+##    OpenRayTrace is free software; you can redistribute it and/or modify
+
+##    it under the terms of the GNU General Public License as published by
+
+##    the Free Software Foundation; either version 2 of the License, or
+
+##    (at your option) any later version.
+
+##
+
+##    OpenRayTrace is distributed in the hope that it will be useful,
+
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
+##    GNU General Public License for more details.
+
+##
+
+##    You should have received a copy of the GNU General Public License
+
+##    along with OpenRayTrace; if not, write to the Free Software
+
+##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 
 from wxPython.wx import *
 from wxPython.glcanvas import *
@@ -54,11 +69,13 @@ class myGLCanvas(wxGLCanvas):
         
 
     def OnEraseBackground(self, event):
-        self.SetCurrent()  
+        self.glSetCurrent()  
+
         pass # Do nothing, to avoid flashing on MSW.
     
     def OnSize(self, event = NULL):
-        self.SetCurrent()  
+        
+        self.glSetCurrent()  
         size = self.GetClientSize()
         
         (self.WIDTH,self.HEIGHT) = size
@@ -74,32 +91,32 @@ class myGLCanvas(wxGLCanvas):
         glMatrixMode(GL_MODELVIEW)
 
         if self.GetContext():
-            self.SetCurrent()
+            self.glSetCurrent()
             glViewport(0, 0, self.WIDTH, self.HEIGHT)        
         glFlush()
         self.Refresh(False)
         
             
     def OnPaint(self, event=NULL):
-        self.SetCurrent()  
+        self.glSetCurrent()  
         dc = wxPaintDC(self)
-        self.SetCurrent()
+        self.glSetCurrent()
 
         if not self.init:            
             self.InitGL()
             self.init = True
         self.DrawGL()
-        self.SetCurrent()  
+        self.glSetCurrent()  
     
     def Rotateable(self,r):
         self.rotatable = r
     
 ##    def OnIdle(self,evt):
-##        self.SetCurrent()  
+##        self.glSetCurrent()  
 ##        self.Refresh(False) 
 
     def OnMouseMotion(self, evt):
-        self.SetCurrent()  
+        self.glSetCurrent()  
         if evt.Dragging():
             self.lastx, self.lasty = self.x, self.y
             self.x, self.y = evt.GetPosition()
@@ -208,25 +225,25 @@ class myGLCanvas(wxGLCanvas):
                 self.Refresh(False)
                 
     def OnMouseDown(self, evt):
-        self.SetCurrent()  
+        self.glSetCurrent()  
         self.x,self.y = evt.GetPosition()
         self.CaptureMouse()
 
     def OnMouseUp(self, evt):
-        self.SetCurrent()  
+        self.glSetCurrent()  
         self.lastx = self.x
         self.lasty = self.y
         self.ReleaseMouse()
 
     
     def set_k(self,k):
-        self.SetCurrent()  
+        self.glSetCurrent()  
         self.K = k
         self.reset_view()
         
         
     def reset_view(self):        
-        self.SetCurrent()  
+        self.glSetCurrent()  
         size = self.GetClientSize()
         (self.WIDTH,self.HEIGHT) = size
         
@@ -242,7 +259,7 @@ class myGLCanvas(wxGLCanvas):
         glLoadIdentity()
 
         if self.GetContext():
-            self.SetCurrent()
+            self.glSetCurrent()
             glViewport(0, 0, self.WIDTH, self.HEIGHT)        
         glFlush()
         self.Refresh(False)

@@ -2,25 +2,40 @@
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
-##    This file is part of OpenRayTrace.
-##
-##    OpenRayTrace is free software; you can redistribute it and/or modify
-##    it under the terms of the GNU General Public License as published by
-##    the Free Software Foundation; either version 2 of the License, or
-##    (at your option) any later version.
-##
-##    OpenRayTrace is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##    GNU General Public License for more details.
-##
-##    You should have received a copy of the GNU General Public License
-##    along with OpenRayTrace; if not, write to the Free Software
-##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##    This file is part of OpenRayTrace.
+
+##
+
+##    OpenRayTrace is free software; you can redistribute it and/or modify
+
+##    it under the terms of the GNU General Public License as published by
+
+##    the Free Software Foundation; either version 2 of the License, or
+
+##    (at your option) any later version.
+
+##
+
+##    OpenRayTrace is distributed in the hope that it will be useful,
+
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
+##    GNU General Public License for more details.
+
+##
+
+##    You should have received a copy of the GNU General Public License
+
+##    along with OpenRayTrace; if not, write to the Free Software
+
+##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 
-from wxPython.wx import *
+
+import wx
 from myCanvas import *
 #import math
 from ray_trace import *
@@ -32,25 +47,26 @@ def create(parent):
 
 [wxID_WXMDICHILDFRAME_SPOT_DIAGRAM] = map(lambda _init_ctrls: wxNewId(), range(1))
 
-class wxMDIChildFrame_spot_diagram(wxMDIChildFrame):
+class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
     def _init_utils(self):
         # generated method, don't edit
         pass
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_SPOT_DIAGRAM,
-              name='wxMDIChildFrame_spot_diagram', parent=prnt, pos=wxPoint(368,
-              368), size=wxSize(991, 713), style=wxDEFAULT_FRAME_STYLE,
+        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_SPOT_DIAGRAM,
+              name='wxMDIChildFrame_spot_diagram', parent=prnt, pos=wx.Point(368,
+              368), size=wx.Size(991, 713), style=wx.DEFAULT_FRAME_STYLE,
               title='Spot Diagram')
         self._init_utils()
-        self.SetClientSize(wxSize(983, 679))
-        EVT_CLOSE(self, self.OnWxmdichildframe_spot_diagramClose)
+        self.SetClientSize(wx.Size(983, 679))
+        self.Bind(EVT_CLOSE,self.OnWxmdichildframe_spot_diagramClose)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
         self.can = myCanvas(self)
-        self.can.SetCurrent()
+        self.Show()
+        self.can.glSetCurrent()
         self.can.set_bg_color([0.0,0.0,0.0])
 
 
@@ -92,7 +108,7 @@ class wxMDIChildFrame_spot_diagram(wxMDIChildFrame):
         return (array(xs),array(ys),array(zs),array(Xs),array(Ys),array(Zs))
         
     def clear_list(self):
-        self.can.SetCurrent()
+        self.can.glSetCurrent()
         glDeleteLists(self.glRayListStart,self.rays)                
         self.glRayListStart = glGenLists(self.rays)
         self.rayList = range(self.glRayListStart,self.glRayListStart+self.rays)        
@@ -100,7 +116,7 @@ class wxMDIChildFrame_spot_diagram(wxMDIChildFrame):
         self.can.DrawGL()
         
     def draw_spots(self, t, n, c, t_cum, h,object_height):
-        self.can.SetCurrent()                      
+        self.can.glSetCurrent()                      
         self.clear_list()    
         
         angles = 20
@@ -191,7 +207,7 @@ class wxMDIChildFrame_spot_diagram(wxMDIChildFrame):
         
     
     def spots(self,x,y,color):
-        self.can.SetCurrent()                  
+        self.can.glSetCurrent()                  
         glColorf(color[0],color[1],color[2])                
         
         glBegin(GL_POINTS)        

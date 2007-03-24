@@ -2,25 +2,39 @@
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
-##    This file is part of OpenRayTrace.
-##
-##    OpenRayTrace is free software; you can redistribute it and/or modify
-##    it under the terms of the GNU General Public License as published by
-##    the Free Software Foundation; either version 2 of the License, or
-##    (at your option) any later version.
-##
-##    OpenRayTrace is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##    GNU General Public License for more details.
-##
-##    You should have received a copy of the GNU General Public License
-##    along with OpenRayTrace; if not, write to the Free Software
-##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##    This file is part of OpenRayTrace.
+
+##
+
+##    OpenRayTrace is free software; you can redistribute it and/or modify
+
+##    it under the terms of the GNU General Public License as published by
+
+##    the Free Software Foundation; either version 2 of the License, or
+
+##    (at your option) any later version.
+
+##
+
+##    OpenRayTrace is distributed in the hope that it will be useful,
+
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
+##    GNU General Public License for more details.
+
+##
+
+##    You should have received a copy of the GNU General Public License
+
+##    along with OpenRayTrace; if not, write to the Free Software
+
+##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 
-from wxPython.wx import *
+import wx
 from myCanvas import *
 import os, string
 from cmath import *
@@ -32,21 +46,19 @@ def create(parent):
 
 [wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = map(lambda _init_ctrls: wxNewId(), range(1))
 
-class wxMDIChildFrame_lens_system_ogl(wxMDIChildFrame):
-    def _init_utils(self):
-        # generated method, don't edit
-        pass
+[wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = [wx.NewId() for _init_ctrls in range(1)]
 
+class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL,
+        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL,
               name='wxMDIChildFrame_lens_system_ogl', parent=prnt,
-              pos=wxPoint(448, 244), size=wxSize(604, 404),
-              style=wxDEFAULT_FRAME_STYLE, title='Lens System')
-        self._init_utils()
-        self.SetClientSize(wxSize(596, 370))
-        self.SetBackgroundColour(wxColour(0, 0, 0))
-        EVT_CLOSE(self, self.OnWxmdichildframe_lens_system_oglClose)
+              pos=wx.Point(448, 244), size=wx.Size(604, 404),
+              style=wx.DEFAULT_FRAME_STYLE, title='Lens System')
+        self.SetClientSize(wx.Size(596, 370))
+        self.SetBackgroundColour(wx.Colour(0, 0, 0))
+        self.Bind(wx.EVT_CLOSE, self.OnWxmdichildframe_lens_system_oglClose,
+              id=wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
@@ -55,9 +67,10 @@ class wxMDIChildFrame_lens_system_ogl(wxMDIChildFrame):
         self.lens_list = []
         self.ray_list  = []              
         self.color = [0,0,0]
-                    
+        
+        self.Show()          
         self.can = myCanvas(self)
-        self.can.SetCurrent()
+        self.can.glSetCurrent()
         self.can.centered = False
         
         self.rows = 40
@@ -72,7 +85,7 @@ class wxMDIChildFrame_lens_system_ogl(wxMDIChildFrame):
         self.can.set_ray_list(self.l)
         
     def clear_list(self):
-        self.can.SetCurrent()
+        self.can.glSetCurrent()
         glDeleteLists(self.glRayListStart,self.rays)                
         self.glRayListStart = glGenLists(self.rays)
         self.rayList = range(self.glRayListStart,self.glRayListStart+self.rays)        
@@ -98,7 +111,7 @@ class wxMDIChildFrame_lens_system_ogl(wxMDIChildFrame):
         
                 
     def draw_ray(self,x,y,z,ray,T_CUM,color=[1,1,1]):                                    
-        self.can.SetCurrent()
+        self.can.glSetCurrent()
         glNewList(ray + self.glRayListStart, GL_COMPILE)      
         glColorf(color[0],color[1],color[2])                
         glBegin(GL_LINE_STRIP)
@@ -112,7 +125,7 @@ class wxMDIChildFrame_lens_system_ogl(wxMDIChildFrame):
 
     def draw_surface(self,c,t,h,n):        
         
-        self.can.SetCurrent()
+        self.can.glSetCurrent()
         
         if(c!=0):
             r = 1/c
@@ -120,16 +133,22 @@ class wxMDIChildFrame_lens_system_ogl(wxMDIChildFrame):
             r = 1E5
                         
         n+=1
-        
+        
+
         #draw part of lens surface
-        if( h*h < r*r ):
+        if( h*h < r*r ):
+
             b = pow(r*r - h*h, 0.5)        
         else:
             b = 0
-            
-        if(r > 0):
-            a = r - b    
-        else:
+            
+
+        if(r > 0):
+
+            a = r - b    
+
+        else:
+
             a = r + b            
         inc = a / n        
         
@@ -143,31 +162,44 @@ class wxMDIChildFrame_lens_system_ogl(wxMDIChildFrame):
                 y[i] = pow(r2 - x2[i],.5)
             else:
                 y[i] = 0
-                                    
-##        glBegin(GL_LINE_STRIP)    
-##        for i in range(n):                    
-##            glVertex3f(x[i],y[i],0)            
+                                    
+
+##        glBegin(GL_LINE_STRIP)    
+
+##        for i in range(n):                    
+
+##            glVertex3f(x[i],y[i],0)            
+
 ##        glEnd()
 ##      
-##        glBegin(GL_LINE_STRIP)    
-##        for i in range(n):                    
-##            glVertex3f(x[i],-y[i],0)            
+##        glBegin(GL_LINE_STRIP)    
+
+##        for i in range(n):                    
+
+##            glVertex3f(x[i],-y[i],0)            
+
 ##        glEnd()
               
         for theta in range(0,359,180):      
             p = theta * 3.14159/180.0
-            glBegin(GL_LINE_STRIP)    
-            for i in range(n):
-                glVertex3f(x[i],y[i] * cos(p),y[i]*sin(p))            
+            glBegin(GL_LINE_STRIP)    
+
+            for i in range(n):
+
+                glVertex3f(x[i],y[i] * cos(p),y[i]*sin(p))            
+
             glEnd()
         
         glColorf(1,1,1,.25)    
         glBegin(GL_LINE_STRIP)    
         for theta in range(0,365,5):      
             p = theta * 3.14159/180.0
-            
-            i = n-1
-            glVertex3f(x[i],y[i] * cos(p),y[i]*sin(p))            
+            
+
+            i = n-1
+
+            glVertex3f(x[i],y[i] * cos(p),y[i]*sin(p))            
+
         glEnd()
         glColorf(1.0,1.0,0.0)
 
@@ -177,7 +209,7 @@ class wxMDIChildFrame_lens_system_ogl(wxMDIChildFrame):
     
     
     def draw_lens(self,t,surf,t_cum,c,n,h):   
-        self.can.SetCurrent()
+        self.can.glSetCurrent()
         self.clear_list()
         z = [0 for i in range(self.rows)]
 

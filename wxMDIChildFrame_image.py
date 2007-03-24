@@ -3,25 +3,40 @@
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
-##    This file is part of OpenRayTrace.
-##
-##    OpenRayTrace is free software; you can redistribute it and/or modify
-##    it under the terms of the GNU General Public License as published by
-##    the Free Software Foundation; either version 2 of the License, or
-##    (at your option) any later version.
-##
-##    OpenRayTrace is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##    GNU General Public License for more details.
-##
-##    You should have received a copy of the GNU General Public License
-##    along with OpenRayTrace; if not, write to the Free Software
-##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##    This file is part of OpenRayTrace.
+
+##
+
+##    OpenRayTrace is free software; you can redistribute it and/or modify
+
+##    it under the terms of the GNU General Public License as published by
+
+##    the Free Software Foundation; either version 2 of the License, or
+
+##    (at your option) any later version.
+
+##
+
+##    OpenRayTrace is distributed in the hope that it will be useful,
+
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
+##    GNU General Public License for more details.
+
+##
+
+##    You should have received a copy of the GNU General Public License
+
+##    along with OpenRayTrace; if not, write to the Free Software
+
+##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 
-from wxPython.wx import *
+
+import wx
 from myCanvas import *
 import math
 from ray_trace import *
@@ -33,9 +48,9 @@ from scipy import *
 def create(parent):
     return wxMDIChildFrame_image(parent)
 
-[wxID_WXMDICHILDFRAME_IMAGE] = map(lambda _init_ctrls: wxNewId(), range(1))
+[wxID_WXMDICHILDFRAME_IMAGE] = map(lambda _init_ctrls: wx.NewId(), range(1))
 
-class wxMDIChildFrame_image(wxMDIChildFrame):
+class wxMDIChildFrame_image(wx.MDIChildFrame):
     def _init_utils(self):
         # generated method, don't edit
         pass
@@ -43,18 +58,19 @@ class wxMDIChildFrame_image(wxMDIChildFrame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_IMAGE,
-              name='wxMDIChildFrame_image', parent=prnt, pos=wxPoint(348, 145),
-              size=wxSize(1200, 854), style=wxDEFAULT_FRAME_STYLE,
+              name='wxMDIChildFrame_image', parent=prnt, pos=wx.Point(348, 145),
+              size=wx.Size(1200, 854), style=wx.DEFAULT_FRAME_STYLE,
               title='Image Trace')
         self._init_utils()
-        self.SetClientSize(wxSize(1192, 820))
-        EVT_CLOSE(self, self.OnWxmdichildframe_imageClose)
+        self.SetClientSize(wx.Size(1192, 820))
+        self.Bind(EVT_CLOSE, self.OnWxmdichildframe_imageClose)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
         
         self.can = myCanvas(self)
-        self.can.SetCurrent()
+        self.Show()
+        self.can.glSetCurrent()
         self.can.set_bg_color([0.0,0.0,0.0])
 
 
@@ -67,7 +83,7 @@ class wxMDIChildFrame_image(wxMDIChildFrame):
         
         
     def clear_list(self):
-        self.can.SetCurrent()
+        self.can.glSetCurrent()
         glDeleteLists(self.glRayListStart,self.rays)                
         self.glRayListStart = glGenLists(self.rays)
         self.rayList = range(self.glRayListStart,self.glRayListStart+self.rays)        
@@ -75,7 +91,7 @@ class wxMDIChildFrame_image(wxMDIChildFrame):
         self.can.DrawGL()
         
     def draw_image(self,img,height,t,n,c,t_cum,h):
-        self.can.SetCurrent()          
+        self.can.glSetCurrent()          
         self.clear_list()
         
         (rows,cols) = img.shape                
@@ -145,7 +161,7 @@ class wxMDIChildFrame_image(wxMDIChildFrame):
         
                     
     def spots(self,x,y,z,color):
-        self.can.SetCurrent()  
+        self.can.glSetCurrent()  
         
         #glNewList(ray, GL_COMPILE_AND_EXECUTE)      
         glColorf(color[0],color[1],color[2])                
