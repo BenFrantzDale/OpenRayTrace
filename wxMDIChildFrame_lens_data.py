@@ -502,7 +502,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 
                                                                                                                 
                 
-                if not self.t_cum or self.t_cum[-1] == 0: 
+                if not len(self.t_cum) or self.t_cum[-1] == 0: 
                     k = 1
                 else:
                     k = self.t_cum[-1] # Cumulative thickness.
@@ -656,8 +656,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 
         
         self.t = []
-        self.t_cum = []        
-        self.t_cum.append(0)
+        self.t_cum = None
         self.c = []
         self.n = []
         self.h = []
@@ -674,7 +673,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 bent_c           != '' or
                 aperature_radius != ''):
                 
-                if not np.isfinite(float(thickness)): continue # Skip object or image at infinity.
+                #if not np.isfinite(float(thickness)): continue # Skip object or image at infinity.
         
                 self.c.append(float(bent_c) if bent_c else float(cell(CURVATURE)))
                 self.h.append(float(aperature_radius))
@@ -687,12 +686,16 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             if thickness != '':
                 t1 += float(thickness)
                 self.t.append(float(thickness))
-                self.t_cum.append(t1) # Could just use np.cumsum after this loop.
-
-                                
+        # We want t_cum to be the positions of each surface. Need to deel with infinate thicknesses at ends of the system.
+        if np.isfinite(self.t[0]):
+            self.t_cum = np.hstack([[0], np.cumsum(self.t)])
+        else:
+            self.t_cum = np.hstack([[-np.inf, 0], np.cumsum(self.t[1:])])
+            
         l = range(1,self.rows)
         
         self.GetParent().ogl.draw_lens(self.t,surf,self.t_cum,self.c,self.n,self.h)
+
         
         
 

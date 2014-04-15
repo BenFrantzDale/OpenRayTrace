@@ -180,29 +180,29 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     def draw_lens(self,t,surf,t_cum,c,n,h):   
         self.can.glSetCurrent()
         self.clear_list()
-        z = [0 for i in range(self.rows)]
+        z = [0] * self.rows
         for i in range(len(t)):                                                        
             glNewList(self.glListStart + surf[i], GL_COMPILE_AND_EXECUTE)        
-            glColor(1.0,1.0,1.0)                                   
-            if i == 0:
+            glColor(1.0,1.0,1.0)
+            if i == 0: # Optical axis(?)
                 glBegin(GL_LINES)
                 glVertex(0,0,0)
                 glVertex(t_cum[-1],0,0)
                 glEnd()        
         
             glColor(*self._lensSurfaceColor)
-            z[i] = self.draw_surface(c[i],t_cum[i],h[i],10)
+            z[i] = self.draw_surface(c[i], t_cum[i], h[i], 10)
             
-            if i > 0 and n[i-1] != 1:
+            if i > 0 and n[i-1] != 1: # Draw lens edges to previous surface?
                 glBegin(GL_LINES)
 
                 glVertex3f(float(z[i-1][0]),float(z[i-1][1]),0)
-                glVertex3f(float(z[i][0])  ,float(z[i][1]),0)
+                glVertex3f(float(z[i][0])  ,float(z[i][1]),  0)
 
                 glVertex3f(float(z[i-1][0]),-float(z[i-1][1]),0)
-                glVertex3f(float(z[i][0]),-float(z[i][1]),0)
+                glVertex3f(float(z[i][0]),  -float(z[i][1]),  0)
 
-                glEnd()                        
+                glEnd()
                     
             glEndList()
         
