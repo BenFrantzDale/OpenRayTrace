@@ -188,6 +188,17 @@ class System(object):
     def __iter__(self): return iter(self._surfaces)
     def __len__(self): return len(self._surfaces)
     def append(self, *a, **k): return self._surfaces.append(*a, **k)
+
+    def paraxialEPPosAndSemidiam(self, wavelength=None):
+        assert self.apertureStop in self.surfaces, "No stop selected!"
+        apInd = self.surfaces.index(self.apertureStop)
+        startInd = 0 if np.isfinite(self.surfaces[0].thickness) else 1
+        RTM = System(self.surfaces[startInd:apInd]).rayTransferMatrix(wavelength)
+        EPSemidiam, EPHalfAngle = self.apertureStop.semidiam / RTM[0]
+        return EPSemidiam / np.real(np.tan(EPHalfAngle)), EPSemidiam
+        
+        import epdb
+        
     
     def reversed(self):
         """Return the reversed system."""
@@ -353,13 +364,14 @@ class System(object):
     def marginalRayPositions(self, direction, wavelength=None, eps=1e-5):
         """Compute positions for the marginal rays that have the given direction."""
         front = self[:self.surfaces.index(self.apertureStop)+1].reversed()
-        pts, rays = front.cast(Rays([[0],[front.apertureStop.semidiam-eps]], -np.reshape(direction, (-1,1))), clip=False)
+        pts, rays = front.cast(Rays([[0],[front.apertureStop.semidiam-eps]], -np.reshape(direction, (-1,1))), 
+                               settings=RaytraceSettings(clip=False))
         direction /= norm(direction, axis=0)
         from scipy.optimize import fmin, bisect
-        def residualAndInfo(aperatureDirection, stopPos, clip=False):
+        def residualAndInfo(aperatureDirection, stopPos, settings=RaytraceSettings(clip=False)):
             apdir = np.reshape(aperatureDirection, (-1,1))
             apdir /= norm(apdir)
-            pts, rays = front.cast(Rays(stopPos, apdir), clip=clip)
+            pts, rays = front.cast(Rays(stopPos, apdir), settings=settings)
             print 'appdir ,dir'
             #print apdir.flatten()
             #print rays.directions.flatten()

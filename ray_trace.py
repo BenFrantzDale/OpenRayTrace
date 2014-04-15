@@ -40,25 +40,25 @@ def paraxial_ray(yi,ui,t,n,c):
     return l, yu[0], yu[1]
     
 def paraxial_ray2(yi,ui,t,n,c):
-        u = []
-        y = []
+    u = []
+    y = []
                 
-        u.append(ui)
-        y.append(yi)        
+    u.append(ui)
+    y.append(yi)        
                 
-        for i in range(len(t)-1):
-            N = n[i]
-            Np = n[i+1]            
-            u.append(N*u[i]/Np - c[i+1]*y[i]*(Np - N)/Np)            
-            y.append(y[i] + u[i+1] * t[i+1])   
+    for i in range(len(t)-1):
+        N = n[i]
+        Np = n[i+1]            
+        u.append(N*u[i]/Np - c[i+1]*y[i]*(Np - N)/Np)            
+        y.append(y[i] + u[i+1] * t[i+1])   
 
         
-        if (u[len(u)-1] != 0):
-            l = -y[len(y)-1]/u[len(u)-1]
-        else:
-            l = 0
+    if (u[len(u)-1] != 0):
+        l = -y[len(y)-1]/u[len(u)-1]
+    else:
+        l = 0
             
-        return (l,y,u)
+    return (l,y,u)
 
 
 def skew_ray((xi,yi,zi),(Xi,Yi,Zi),T,N,C,T_CUM,H,surf = 0):

@@ -486,12 +486,12 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             self.update_display()                            
 
 
-        x   = [0] * self.rays
-        y   = [0] * self.rays
-        z   = [0] * self.rays
-        X   = [0] * self.rays
-        Y   = [0] * self.rays
-        Z   = [0] * self.rays
+        x   = [None] * self.rays
+        y   = [None] * self.rays
+        z   = [None] * self.rays
+        X   = [None] * self.rays
+        Y   = [None] * self.rays
+        Z   = [None] * self.rays
         cnt = 0
 
         surf_i = 0
@@ -500,13 +500,20 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
         if len(self.t) > 1:
             # Loop over field points:
+            eppos, epsemidiam = self.__system.paraxialEPPosAndSemidiam()
+            epslope = epsemidiam / eppos
             for fp_i, objPt, color in [(10, (0,0,0), (0.8,0.2,0.2)),
                                        (10, (0,self.object_height,0), (0.2,0.8,0.2))]:
-                for i in range(-fp_i//2+1, fp_i//2):
+                #for i in range(-fp_i//2+1, fp_i//2):
+                for i, theta in enumerate(np.linspace(-epslope, epslope, fp_i)):
                     #go to aperature radius
                     assert self.t[surf_i] != 0
-                    direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
-                    direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
+                    # It looks like it is trying to aim the outermost ray at the clear aperature of the next surface:
+                    #direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
+                    #direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
+                    direction = np.array([np.cos(theta), np.sin(theta), 0.0])
+                    print "direction {} {}: {}".format(i, theta, direction)
+                    
                     x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt, direction,
                                                              self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
 
