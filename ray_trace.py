@@ -16,6 +16,8 @@
 ##    You should have received a copy of the GNU General Public License
 ##    along with OpenRayTrace; if not, write to the Free Software
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+from __future__ import division
+import numpy as np
 
 def paraxial_ray(yi,ui,t,n,c):
     """
@@ -27,17 +29,15 @@ def paraxial_ray(yi,ui,t,n,c):
     * y, the y values at each surface
     * u, the angle values at each surface.
     """
-    u = [ui]
-    y = [yi]
-
+    yu = np.nan * np.ones((2, len(t)))
+    yu[:,0] = yi, ui
     for i in range(len(t)-1):
-        y.append(y[i] + u[i] * t[i]) # Project ray through thickness.
-        N1 = n[i]
-        N2 = n[i+1]            
-        u.append((c[i+1]*(N1 - N2)/N2) * y[i+1] + (N1/N2) *u[i])
+        n1, n2 = n[i:i+2]
+        ABCD = np.array([[1, t[i]],[(n1-n2)/n2, n1/n2]])
+        yu[:,i+1] = ABCD.dot(yu[:,i])
 
-    l = -y[-1] / u[-1] if u[-1] else 0
-    return l, y, u
+    l = -yu[0,-1] / yu[1,-1] if yu[1,-1] else 0
+    return l, yu[0], yu[1]
     
 def paraxial_ray2(yi,ui,t,n,c):
         u = []

@@ -838,9 +838,9 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         label = self.col_labels[c]
         if label == 'curvature': surface.R = 1.0 / val
         elif label == 'radius': surface.R = val
-        elif label == 'thickness': surf.thickness = val
-        elif label == 'aperature radius': surf.semidiam = val
-        elif label == 'glass': surf.glass = DataModel.SimpleGlass(val)
+        elif label == 'thickness': surface.thickness = val
+        elif label == 'aperature radius': surface.semidiam = val
+        elif label == 'glass': surface.glass = DataModel.SimpleGlass(val)
         else:
             print "Unimplemented."
             
