@@ -62,7 +62,10 @@ def paraxial_ray2(yi,ui,t,n,c):
 
 
 def skew_ray((xi,yi,zi),(Xi,Yi,Zi),T,N,C,T_CUM,H,surf = 0):
-
+        """
+        Compute the skew ray starting at (xyz) (going toward XYZ?)
+        given thickness, index, curvature, and center-position vectors.
+        """
         T = list(T)
         N = list(N)
         C = list(C)

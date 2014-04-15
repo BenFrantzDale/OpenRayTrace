@@ -46,7 +46,7 @@ from cmath import *
 import math
 import numpy as np
 from ray_trace import *
-import numpy as np
+from numpy.linalg import norm
 
 WIDTH=640.0
 HEIGHT=480.0
@@ -419,8 +419,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     
 
     def OnGrid1GridCellChange(self, event=None,r=None,c=None):  
-##        self.grid1.AutoSize()
-        if(event != None):
+        ##        self.grid1.AutoSize()
+        if event is not None:
             r = event.GetRow()
             c = event.GetCol() 
         
@@ -447,24 +447,29 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 self.update_display()                            
          
                                                  
-            x   = [0 for i in range(self.rays)]
-            y   = [0 for i in range(self.rays)]
-            z   = [0 for i in range(self.rays)]
-            X   = [0 for i in range(self.rays)]
-            Y   = [0 for i in range(self.rays)]
-            Z   = [0 for i in range(self.rays)]
+            x   = [0] * self.rays
+            y   = [0] * self.rays
+            z   = [0] * self.rays
+            X   = [0] * self.rays
+            Y   = [0] * self.rays
+            Z   = [0] * self.rays
             cnt = 0
             
-            if(len(self.t) > 1):                                                        
+            surf_i = 0
+            for surf_i in range(len(self.t)): # Make surf_i index the first surface with finite non-zero thickness. 
+                if np.isfinite(self.t[surf_i]) and self.t[surf_i] != 0: break
+            
+            if len(self.t) > 1:
                 ray_0 = 10
                 for i in range(-ray_0/2+1, ray_0/2):                        
                     #go to aperature radius
                 
-                    if(self.t[0] !=0):
-                        Yi = (i/(ray_0/2.0)) * self.h[1]/pow(self.h[1] * self.h[1] + self.t[0]*self.t[0],0.5)
+                    if self.t[surf_i] != 0:
+                        Yi = (i/(ray_0/2.0)) * self.h[surf_i+1]/ norm([self.h[surf_i+1], self.t[surf_i]])
                         Zi = 0.0                                  
-                        Xi =  math.pow(1.0 - Yi*Yi - Zi*Zi, 0.5)
-                        (x[i],y[i],z[i],X[i],Y[i],Z[i]) = skew_ray((0,0,0),(Xi,Yi,Zi),self.t,self.n,self.c,self.t_cum,self.h)                                
+                        Xi =  np.sqrt(1.0 - Yi**2 - Zi**2)
+                        x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray((0,0,0),(Xi,Yi,Zi),
+                                                                 self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
     
                         self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum,color = (0.8,0.2,0.2))
                         cnt+=1
@@ -473,8 +478,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 ray_1 = 10
                 for i in range(-ray_1/2+1, ray_1/2):
                     #go to aperature radius
-                    if(self.t[0] !=0):    
-                        Yi = (i/(ray_1/2.0)) * self.h[1]/pow(self.h[1] * self.h[1] + self.t[0]*self.t[0],0.5)
+                    if self.t[surf_i] != 0:
+                        Yi = (i/(ray_1/2.0)) * self.h[surf_i+1]/pow(self.h[surf_i+1] * self.h[surf_i+1] + self.t[surf_i]*self.t[surf_i],0.5)
                         Zi = 0.0                
                         Xi =  math.pow(1.0 - Yi*Yi - Zi*Zi, 0.5)
                         (x[i],y[i],z[i],X[i],Y[i],Z[i]) = skew_ray((0,self.object_height,0),(Xi,Yi,Zi),self.t,self.n,self.c,self.t_cum,self.h) 
@@ -496,10 +501,10 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 #we need data from axial ray 
                 #calc efL
 
-                (l,y,u)    = paraxial_ray2(self.h[1], 0.0,self.t,self.n,self.c)
+                (l,y,u)    = paraxial_ray2(self.h[surf_i+1], 0.0,self.t,self.n,self.c)
                 (lp,yp,up) = paraxial_ray2(0.0, 0.1,self.t,self.n,self.c)
-                num = (y[0]*up[0] - u[0]*yp[0])
-                den = (u[0]*up[len(up)-1] - up[0]*u[len(u)-1])                
+                num = (y[surf_i]*up[surf_i] - u[surf_i]*yp[surf_i])
+                den = (u[surf_i]*up[-1] - up[0]*u[-1])                
                 if (den != 0):
                     efl = num/den
                     self.staticText_efl.SetLabel(str(efl))
