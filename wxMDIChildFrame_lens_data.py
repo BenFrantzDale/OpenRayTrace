@@ -428,6 +428,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         if system is not self.__system:
             self.__system = system
             self._sync_grid_to_system()
+            self.OnGrid1GridCellChange()
 
     def OnWxframeopenmodalSize(self, event):
         event.Skip()
@@ -448,114 +449,116 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             r = event.GetRow()
             c = event.GetCol() 
         
-        val = self.grid1.GetCellValue(r,c)
+        val = None
+        if r is not None and c is not None:
+            val = self.grid1.GetCellValue(r,c)
         #print r,c,val
         
-        if val != '':
+        if val == '':
+            return
+        if val is not None:
             rowData = self.surfToRowData(self.__system.surfaces[r])
             if str(rowData[self.col_labels[c]]) == val:
                 return # Value not actually changed.
-            val = float(val)                                    
-            draw = self.fill_in_values(r,c,val)    
-            self.update_display(event)
+            val = float(val)                 
+            draw = self.fill_in_values(r,c,val)
+        self.update_display(event)
 
-            #compute paraxial focus
-            y = 0.0
-            u = 1.0
-            if np.isfinite(self.t[0]):
-                l, y, u = paraxial_ray(y,u,self.t,self.n,self.c)
-            else:
-                l, y, u = paraxial_ray(y,u,self.t[1:],self.n[1:],self.c[1:])
-            #print u
-            mag = u[0] / u[-1]
-            print 'paraixal ray:'
-            print l
-            print y
-            print u
-            print 'mag',mag
-                
-            self.staticText_mag.SetLabel(str(mag))
-            if self.checkBox_autofocus.GetValue():
-                self.grid1.SetCellValue(len(self.t)-1,THICKNESS,str(l))
-                draw = self.fill_in_values(len(self.t)-1,THICKNESS,l)            
-                self.update_display()                            
-         
-                                                 
-            x   = [0] * self.rays
-            y   = [0] * self.rays
-            z   = [0] * self.rays
-            X   = [0] * self.rays
-            Y   = [0] * self.rays
-            Z   = [0] * self.rays
-            cnt = 0
-            
-            surf_i = 0
-            for surf_i in range(len(self.t)): # Make surf_i index the first surface with finite non-zero thickness. 
-                if np.isfinite(self.t[surf_i]) and self.t[surf_i] != 0: break
-            
-            if len(self.t) > 1:
-                # Loop over field points:
-                for fp_i, objPt, color in [(10, (0,0,0), (0.8,0.2,0.2)),
-                                           (10, (0,self.object_height,0), (0.2,0.8,0.2))]:
-                    for i in range(-fp_i//2+1, fp_i//2):
-                        #go to aperature radius
-                        assert self.t[surf_i] != 0
-                        direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
-                        direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
-                        x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt, direction,
+        #compute paraxial focus
+        y = 0.0
+        u = 1.0
+        if np.isfinite(self.t[0]):
+            l, y, u = paraxial_ray(y,u,self.t,self.n,self.c)
+        else:
+            l, y, u = paraxial_ray(y,u,self.t[1:],self.n[1:],self.c[1:])
+        #print u
+        mag = u[0] / u[-1]
+        print 'paraixal ray:'
+        print l
+        print y
+        print u
+        print 'mag',mag
+
+        self.staticText_mag.SetLabel(str(mag))
+        if self.checkBox_autofocus.GetValue():
+            self.grid1.SetCellValue(len(self.t)-1,THICKNESS,str(l))
+            draw = self.fill_in_values(len(self.t)-1,THICKNESS,l)            
+            self.update_display()                            
+
+
+        x   = [0] * self.rays
+        y   = [0] * self.rays
+        z   = [0] * self.rays
+        X   = [0] * self.rays
+        Y   = [0] * self.rays
+        Z   = [0] * self.rays
+        cnt = 0
+
+        surf_i = 0
+        for surf_i in range(len(self.t)): # Make surf_i index the first surface with finite non-zero thickness. 
+            if np.isfinite(self.t[surf_i]) and self.t[surf_i] != 0: break
+
+        if len(self.t) > 1:
+            # Loop over field points:
+            for fp_i, objPt, color in [(10, (0,0,0), (0.8,0.2,0.2)),
+                                       (10, (0,self.object_height,0), (0.2,0.8,0.2))]:
+                for i in range(-fp_i//2+1, fp_i//2):
+                    #go to aperature radius
+                    assert self.t[surf_i] != 0
+                    direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
+                    direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
+                    x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt, direction,
+                                                             self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
+
+                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum[surf_i:], color=color)
+                    cnt+=1
+
+
+            if False:
+                ray_1 = 10
+                for i in range(-ray_1//2+1, ray_1//2):
+                    #go to aperature radius
+                    if self.t[surf_i] != 0:
+                        Yi = (i/(ray_1/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]])
+                        Zi = 0.0                
+                        Xi =  np.sqrt(1.0 - Yi**2 - Zi**2)
+                        x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray((0,self.object_height,0),(Xi,Yi,Zi),
                                                                  self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
-
-                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum[surf_i:], color=color)
+                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, self.t_cum, color = (0.2,0.8,0.2))
                         cnt+=1
-                
-                        
-                if False:
-                    ray_1 = 10
-                    for i in range(-ray_1//2+1, ray_1//2):
-                        #go to aperature radius
-                        if self.t[surf_i] != 0:
-                            Yi = (i/(ray_1/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]])
-                            Zi = 0.0                
-                            Xi =  np.sqrt(1.0 - Yi**2 - Zi**2)
-                            x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray((0,self.object_height,0),(Xi,Yi,Zi),
-                                                                     self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
-                            self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, self.t_cum, color = (0.2,0.8,0.2))
-                            cnt+=1
-
-                                                                                                                
-                
-                if not len(self.t_cum) or self.t_cum[-1] == 0: 
-                    k = 1
-                else:
-                    k = self.t_cum[-1] # Cumulative thickness.
-                self.GetParent().ogl.K = k
-        
-##                #calc third order aberrations
-##            
-                #we need data from axial ray 
-                #calc efL
-
-                (l,y,u)    = paraxial_ray2(self.h[surf_i+1], 0.0,self.t,self.n,self.c)
-                (lp,yp,up) = paraxial_ray2(0.0, 0.1,self.t,self.n,self.c)
-                num = (y[surf_i]*up[surf_i] - u[surf_i]*yp[surf_i])
-                den = (u[surf_i]*up[-1] - up[0]*u[-1])                
-                if (den != 0):
-                    efl = num/den
-                    self.staticText_efl.SetLabel(str(efl))
 
 
 
-##                #(l,y,u) = self.paraxial_ray2(18.5, 0)
-##                #print y,u
-##            
-##                if(len(y) > 1):
-##                    #data from a principal ray
-##                    (lp,yp,up) = paraxial_ray2(0.0, 0.1,self.t,self.n,self.c)
-##                    #(lp,yp,up) = self.paraxial_ray2(-6.3, 0.25)
-##                    #print yp,up
-##                    self.GetParent().trace.calc_third_order_abberations(y,u,yp,up,self.n,self.c)
-           
-        
+            if not len(self.t_cum) or self.t_cum[-1] == 0: 
+                k = 1
+            else:
+                k = self.t_cum[-1] # Cumulative thickness.
+            self.GetParent().ogl.K = k
+
+            ##                #calc third order aberrations
+            ##            
+            #we need data from axial ray 
+            #calc efL
+
+            (l,y,u)    = paraxial_ray2(self.h[surf_i+1], 0.0,self.t,self.n,self.c)
+            (lp,yp,up) = paraxial_ray2(0.0, 0.1,self.t,self.n,self.c)
+            num = (y[surf_i]*up[surf_i] - u[surf_i]*yp[surf_i])
+            den = (u[surf_i]*up[-1] - up[0]*u[-1])                
+            if (den != 0):
+                efl = num/den
+                self.staticText_efl.SetLabel(str(efl))
+
+
+
+                ##                #(l,y,u) = self.paraxial_ray2(18.5, 0)
+                ##                #print y,u
+                ##            
+                ##                if(len(y) > 1):
+                ##                    #data from a principal ray
+                ##                    (lp,yp,up) = paraxial_ray2(0.0, 0.1,self.t,self.n,self.c)
+                ##                    #(lp,yp,up) = self.paraxial_ray2(-6.3, 0.25)
+                ##                    #print yp,up
+                ##                    self.GetParent().trace.calc_third_order_abberations(y,u,yp,up,self.n,self.c)
                 #self.GetParent().abr.calc_abr(self.t,self.n,self.c,self.t_cum,self.h,self.object_height)
                 
         

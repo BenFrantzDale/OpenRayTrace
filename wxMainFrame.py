@@ -138,8 +138,10 @@ class wxMainFrame(wx.MDIParentFrame):
             self.img.Hide()        
             self.trace.Hide()        
         else:
-            for frame in [self.ogl, self.lens, self.trace, self.paraxial, self.spot, self.img]:
+            for frame in [self.ogl, self.lens]: #, self.trace, self.paraxial, self.spot, self.img]:
                 frame.Show()
+            for frame in [self.trace, self.paraxial, self.spot, self.img]:
+                frame.Hide()
 
         self.Tile()
         self.Cascade()
