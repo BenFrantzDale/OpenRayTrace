@@ -481,7 +481,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                         Xi =  math.pow(1.0 - Yi*Yi - Zi*Zi, 0.5)
                         (x[i],y[i],z[i],X[i],Y[i],Z[i]) = skew_ray((0,0,0),(Xi,Yi,Zi),self.t,self.n,self.c,self.t_cum,self.h)                                
     
-                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum,color = [1.0,0.0,0.0])
+                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum,color = (0.8,0.2,0.2))
                         cnt+=1
                 
                         
@@ -495,7 +495,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                         (x[i],y[i],z[i],X[i],Y[i],Z[i]) = skew_ray((0,self.object_height,0),(Xi,Yi,Zi),self.t,self.n,self.c,self.t_cum,self.h) 
 
 
-                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, self.t_cum,color = [0.0,1.0,0.0])
+                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, self.t_cum, color = (0.2,0.8,0.2))
                         cnt+=1
                 
                                                                                                                 

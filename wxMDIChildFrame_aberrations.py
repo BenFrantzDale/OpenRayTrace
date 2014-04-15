@@ -139,12 +139,12 @@ class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
                     else:
                         LA.append(0)
                                                 
-                self.plotxy(LA,np.array(r),(2, 0),'LA',ray,color = [1,0,0])
+                self.plotxy(LA,np.array(r),(2, 0),'LA',ray, color = (0.8,0.2,0.2))
                 ray += 1
                 
             ##print r,Hp
             if(len(Hp) > 0):
-                self.plotxy(y_hit,np.array(Hp),(0,0),title[cnt-1],ray,color = [0,1,0])
+                self.plotxy(y_hit,np.array(Hp),(0,0),title[cnt-1],ray,color = (0.2,0.8,0.2))
             Hp = []
             tanUp = []
             r = []
@@ -153,7 +153,7 @@ class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
                         
     
     
-    def plotxy(self,x,y,offset,title,ray,color):              
+    def plotxy(self,x,y, offset, title, ray, color):              
         self.can.glSetCurrent()
         
         mxy = max(y)
@@ -167,7 +167,7 @@ class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
                 
         glNewList(ray, GL_COMPILE)              
         glTranslatef(offset[0],offset[1],0)
-        glColorf(color[0],color[1],color[2])                
+        glColorf(*color)
         x_norm = np.array(x)/rngx
         y_norm = np.array(y)/rngy
 
