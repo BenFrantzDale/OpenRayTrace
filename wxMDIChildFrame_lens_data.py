@@ -540,7 +540,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                     #traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
                     z[i], y[i], x[i] = traces[:,:,i].T
                     cnt+=1
-                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,np.zeros_like(self.t_cum[surf_i:]), color=color)
+                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, color=color)
 
             if not len(self.t_cum) or self.t_cum[-1] == 0: 
                 k = 1

@@ -120,14 +120,18 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     @K.setter
     def K(self, k): self.can.K = k
                 
-    def draw_ray(self,x,y,z,ray,T_CUM,color=[1,1,1]):                                    
+    def draw_ray(self,x,y,z,ray,T_CUM=None,color=[1,1,1]):                                    
         self.can.glSetCurrent()
         glNewList(ray + self.glRayListStart, GL_COMPILE)      
         glColor(*color)
         glBegin(GL_LINE_STRIP)
         
-        for i in range(len(x)):            
-            glVertex(x[i] + T_CUM[i],y[i],z[i]) 
+        if T_CUM is not None:
+            for i in range(len(x)) :
+                glVertex(x[i] + T_CUM[i],y[i],z[i]) 
+        else:
+            for xyz in zip(x,y,z):
+                glVertex(*xyz)
             
         glEnd()        
         glEndList()                                
