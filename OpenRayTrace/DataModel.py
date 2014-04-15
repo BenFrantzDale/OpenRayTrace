@@ -187,6 +187,22 @@ class System(object):
         self._ndim = ndim
     def __iter__(self): return iter(self._surfaces)
     def __len__(self): return len(self._surfaces)
+    def insert_surface(self, si, surf):
+        self._surfaces.insert(si, surf)
+    def delete_surface(self, si):
+        """Should be implemented is bracket del operator."""
+        if self.apertureStop:
+            stopInd = self._surfaces.index(self.apertureStop)
+
+        del self._surfaces[si]
+
+        if self.apertureStop and stopInd >= len(self._surfaces):
+            stopInd -= 1
+            if len(self._surfaces) != 0:
+                self.apertureStop = self._surfaces[stopInd]
+            else:
+                self.apertureStop = None
+
     def append(self, *a, **k): return self._surfaces.append(*a, **k)
 
     def paraxialEPPosAndSemidiam(self, wavelength=None):
@@ -196,10 +212,7 @@ class System(object):
         RTM = System(self.surfaces[startInd:apInd]).rayTransferMatrix(wavelength)
         EPSemidiam, EPHalfAngle = self.apertureStop.semidiam / RTM[0]
         return EPSemidiam / np.real(np.tan(EPHalfAngle)), EPSemidiam
-        
-        import epdb
-        
-    
+
     def reversed(self):
         """Return the reversed system."""
         thkGls = [(S.thickness, S.glass) for S in self.surfaces]

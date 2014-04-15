@@ -98,7 +98,7 @@ def create(parent):
  wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_AFTER, 
  wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_BEFORE, 
  wxID_WXMDICHILDFRAME_LENS_DATAMENU1PASTE, 
-] = map(lambda _init_coll_row_menu_Items: wx.NewId(), range(5))
+] = [wx.NewId() for _ in range(5)]
 
 [wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSITEMS0] = map(lambda _init_coll_menu_thickness_Items: wx.NewId(), range(1))
 
@@ -138,7 +138,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         """Given a DataModel.Surface, return the row of values as a dictionary."""
         getter = {'f-length': lambda s: None,
                   'power': lambda s: None,
-                  'curvature': lambda s: 1/s.R if hasattr(s, 'R') else 0.0,
+                  'curvature': lambda s: 1.0/float(s.R) if hasattr(s, 'R') else 0.0,
                   'radius': lambda s: s.R if hasattr(s, 'R') else np.inf,
                   'thickness': lambda s: s.thickness,
                   'aperature radius': lambda s: s.semidiam,
@@ -415,10 +415,13 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
         self.Layout()
         self.Centre()
-        self.object_height = float(self.textCtrl_object_height.GetValue())
         self.rays = 100
         
         
+    @property
+    def object_height(self):
+        return float(self.textCtrl_object_height.GetValue())
+
     @property
     def rows(self): return len(self.__system)
     @property
@@ -502,20 +505,37 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             # Loop over field points:
             eppos, epsemidiam = self.__system.paraxialEPPosAndSemidiam()
             epslope = epsemidiam / eppos
+            epCtr   = np.array([0,  0, eppos])
+            topEdge = np.array([0,  epsemidiam, eppos])
+            botEdge = np.array([0, -epsemidiam, eppos])
+            normalized = lambda v: v / norm(v)
+
             for fp_i, objPt, color in [(10, (0,0,0), (0.8,0.2,0.2)),
                                        (10, (0,self.object_height,0), (0.2,0.8,0.2))]:
+                pupilPts = np.array([topEdge * alpha + botEdge * (1-alpha)
+                                     for alpha in np.linspace(0, 1, fp_i)])
                 #for i in range(-fp_i//2+1, fp_i//2):
-                for i, theta in enumerate(np.linspace(-epslope, epslope, fp_i)):
+                if surf_i == 0:
+                    raydirs = [normalized(target - objPt) for target in pupilPts]
+                    offsets = np.zeros((len(raydirs),3))
+                else:
+                    # Object at -infinity => columnated rays
+                    raydirs = [normalized(epCtr - objPt)] * fp_i
+                    offsets = pupilPts - epCtr
+                
+                for i, (offset, direction) in enumerate(zip(offsets,
+                                                          raydirs)):
                     #go to aperature radius
                     assert self.t[surf_i] != 0
                     # It looks like it is trying to aim the outermost ray at the clear aperature of the next surface:
                     #direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
                     #direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
-                    direction = np.array([np.cos(theta), np.sin(theta), 0.0])
-                    print "direction {} {}: {}".format(i, theta, direction)
+                    print "direction {}: {} -> {}".format(i, objPt + offset, direction)
                     
-                    x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt, direction,
+                    x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt + offset, direction[::-1],
                                                              self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
+                    print 'c:', self.c[surf_i:]
+                    print 'n:', self.n[surf_i:]
 
                     self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum[surf_i:], color=color)
                     cnt+=1
@@ -571,8 +591,6 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         
     
     def fill_in_values(self,r,c,val):                               
-        print 'fill_in_values',(r,c,val)
-        self._sync_system_to_grid(r, c, val)
         #AUTOFILL SOME STUFF
         if (self.grid1.GetCellValue(r,GLASS) == ''):
             self.grid1.SetCellValue(r,GLASS,str(1))
@@ -677,6 +695,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         #self.grid1.SetCellValue(r,BENT_C,self.grid1.GetCellValue(r,CURVATURE))            
         #self.grid1.SetCellValue(r,BENT_R,self.grid1.GetCellValue(r,RADIUS))            
 
+        self._sync_system_to_grid(r, c, val)
 
         return True
 
@@ -834,6 +853,11 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         #return # Stuff below isn't implemented.
         for ri, surface in enumerate(self.__system):
             rowData = self.surfToRowData(surface)
+            if surface is self.__system.apertureStop:
+                self.grid1.SetRowLabelValue(ri, '[{}]'.format(ri+1))
+            else:
+                self.grid1.SetRowLabelValue(ri, '{}'.format(ri+1))
+
             for ci, col_label in enumerate(self.col_labels):
                 cell = rowData[col_label]
                 strval = str(cell) if cell is not None else ''
@@ -842,11 +866,21 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             self.OnGrid1GridCellChange(None,r,CURVATURE)
 
 
-    def _sync_system_to_grid(self, r, c, val):
+    def _sync_system_to_grid(self, r, c=None, val=None):
         """Sync the given entry to the system model."""
+        if c is None:
+            if val is not None: raise TypeError('val must be unspecified if c is.')
+            for c, label in enumerate(col_labels):
+                if label in ('radius', 'thickness', 'aperature radius', 'glass'):
+                    self._sync_system_to_grid(r, c)
+            return
+
+        if val is None:
+            val = self.grid1.GetValue(r, c)
+
         surface = self.__system.surfaces[r]
         label = self.col_labels[c]
-        if label == 'curvature': surface.R = 1.0 / val
+        if label == 'curvature': surface.R = 1.0 / float(val)
         elif label == 'radius': surface.R = val
         elif label == 'thickness': surface.thickness = val
         elif label == 'aperature radius': surface.semidiam = val
@@ -895,13 +929,15 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         
         if id == self.DATAROW_MENUINSERTAFTER:
             self.grid1.InsertRows(r+1)
-            self.rows+=1
+            self.__system.insert_surface(r+1, DataModel.StandardSurface(thickness=0, R=np.inf))
+            self._sync_grid_to_system()
         elif id == self.DATAROW_MENUINSERTBEFORE:
             self.grid1.InsertRows(r)            
-            self.rows+=1
+            self.__system.insert_surface(r, DataModel.StandardSurface(thickness=0, R=np.inf))
+            self._sync_grid_to_system()
         elif id == self.DATAROW_MENUDELETE:
             self.grid1.DeleteRows(r)
-            self.rows-=1
+            self.__system.delete_surface(r)
             
             
 ##        if(id ==   wxID_WXMDICHILDFRAME_LENS_DATAMENU1COPY):
@@ -932,8 +968,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         #event.Skip()
 
     def OnTextctrl_object_heightText(self, event):
-        self.object_height = float(self.textCtrl_object_height.GetValue())
-        self.OnGrid1GridCellChange(event=None,r=0,c=THICKNESS)               
+        #self.object_height = float(self.textCtrl_object_height.GetValue())
+        self.OnGrid1GridCellChange() #event=None,r=0,c=THICKNESS)               
         event.Skip()
 
     def OnButton_compute_allButton(self, event):
