@@ -150,8 +150,8 @@ class wxMainFrame(wx.MDIParentFrame):
         showDialog = True
         if(showDialog):
             msg =  'OpenRayTrace, Copyright (C) 2007 Andrew Wilson\nOpenRayTrace comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it under certain conditions (see About menu)'
-            dlg = wxMessageDialog(self,msg,
-            'GPL Copyright', wxOK | wxICON_INFORMATION)
+            dlg = wx.MessageDialog(self,msg,
+            'GPL Copyright', wx.OK | wx.ICON_INFORMATION)
             dlg.ShowModal()
             dlg.Destroy()
         

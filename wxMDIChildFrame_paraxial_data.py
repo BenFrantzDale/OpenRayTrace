@@ -55,14 +55,14 @@ class wxMDIChildFrame_paraxial_data(wx.MDIChildFrame):
         # generated method, don't edit
         wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_PARAXIAL_DATA,
               name='wxMDIChildFrame_paraxial_data', parent=prnt,
-              pos=wxPoint(311, 198), size=wxSize(1200, 854),
-              style=wxDEFAULT_FRAME_STYLE, title='Paraxial Data')
+              pos=wx.Point(311, 198), size=wx.Size(1200, 854),
+              style=DEFAULT_FRAME_STYLE, title='Paraxial Data')
         self._init_utils()
-        self.SetClientSize(wxSize(1192, 820))
+        self.SetClientSize(wx.Size(1192, 820))
         EVT_CLOSE(self, self.OnWxmdichildframe_paraxial_dataClose)
 
-        self.grid1 = wxGrid(id=wxID_WXMDICHILDFRAME_PARAXIAL_DATAGRID1,
-              name='grid1', parent=self, pos=wxPoint(0, 0), size=wxSize(1192,
+        self.grid1 = Grid(id=wxID_WXMDICHILDFRAME_PARAXIAL_DATAGRID1,
+              name='grid1', parent=self, pos=wx.Point(0, 0), size=wx.Size(1192,
               820), style=0)
         EVT_GRID_CELL_CHANGE(self.grid1, self.OnGrid1GridCellChange)
 
@@ -74,7 +74,7 @@ class wxMDIChildFrame_paraxial_data(wx.MDIChildFrame):
         self.grid1.CreateGrid(self.rows,len(col_label))
         [self.grid1.SetColLabelValue(i,col_label[i]) for i in range(len(col_label))]                
         
-        self.grid1.SetDefaultCellAlignment(wxALIGN_CENTRE,wxALIGN_CENTRE)
+        self.grid1.SetDefaultCellAlignment(wx.ALIGN_CENTRE,wx.ALIGN_CENTRE)
         self.grid1.AutoSizeRow(True)
         self.grid1.AutoSizeColumns(True)
     

@@ -33,7 +33,7 @@
 
 
 from wx import *
-from wx.glcanvas import *
+from wx import glcanvas
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
@@ -43,23 +43,23 @@ import cmath
 import math
 
           
-class myGLCanvas(GLCanvas):
+class myGLCanvas(glcanvas.GLCanvas):
     def __init__(self, parent):
-        GLCanvas.__init__(self,parent,-1)
-                
+        glcanvas.GLCanvas.__init__(self,parent,-1)
         self.init = False
+        self.context = glcanvas.GLContext(self)
         
-        EVT_ERASE_BACKGROUND(self, self.OnEraseBackground)
-        EVT_SIZE(self,self.OnSize)
-        EVT_PAINT(self,self.OnPaint)        
-        #EVT_IDLE(self,self.OnIdle)
-        EVT_LEFT_DOWN(self,self.OnMouseDown)
-        EVT_LEFT_UP(self,self.OnMouseUp)
-        EVT_MIDDLE_DOWN(self,self.OnMouseDown)
-        EVT_MIDDLE_UP(self,self.OnMouseUp)
-        EVT_RIGHT_DOWN(self,self.OnMouseDown)
-        EVT_RIGHT_UP(self,self.OnMouseUp)
-        EVT_MOTION(self, self.OnMouseMotion)
+        self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
+        self.Bind(wx.EVT_SIZE,self.OnSize)
+        self.Bind(wx.EVT_PAINT,self.OnPaint)        
+        #self.Bind(wx.EVT_IDLE,self.OnIdle)
+        self.Bind(wx.EVT_LEFT_DOWN,self.OnMouseDown)
+        self.Bind(wx.EVT_LEFT_UP,self.OnMouseUp)
+        self.Bind(wx.EVT_MIDDLE_DOWN,self.OnMouseDown)
+        self.Bind(wx.EVT_MIDDLE_UP, self.OnMouseUp)
+        self.Bind(wx.EVT_RIGHT_DOWN, self.OnMouseDown)
+        self.Bind(wx.EVT_RIGHT_UP, self.OnMouseUp)
+        self.Bind(wx.EVT_MOTION, self.OnMouseMotion)
         
         self.K = 1.0
         self.rotatable = True
@@ -99,7 +99,7 @@ class myGLCanvas(GLCanvas):
             
     def OnPaint(self, event=None):
         self.glSetCurrent()  
-        dc = wxPaintDC(self)
+        dc = wx.PaintDC(self)
         self.glSetCurrent()
 
         if not self.init:            

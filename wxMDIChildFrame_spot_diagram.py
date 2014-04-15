@@ -68,6 +68,8 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
 
 
         self.rays = 5
+
+    def __initializeLists(self):
         self.glRayListStart = glGenLists(self.rays)
         self.rayList = range(self.glRayListStart,self.glRayListStart+self.rays)        
         self.can.set_ray_list(self.rayList)

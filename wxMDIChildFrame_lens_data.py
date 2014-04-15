@@ -396,14 +396,14 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.grid1.CreateGrid(self.rows,len(self.col_label))
 
         [self.grid1.SetColLabelValue(i,self.col_label[i]) for i in range(len(self.col_label))]
-        self.grid1.SetDefaultCellAlignment(wxALIGN_CENTRE,wxALIGN_CENTRE)
+        self.grid1.SetDefaultCellAlignment(wx.ALIGN_CENTRE,wx.ALIGN_CENTRE)
         
         self.grid1.AutoSize()
                 
 
         for row in range(self.rows):
             for col in range(len(self.col_label)):
-                self.grid1.SetCellEditor(row, col, apply(wxGridCellFloatEditor,[]))                    
+                self.grid1.SetCellEditor(row, col, apply(GridCellFloatEditor,[]))                    
 
         self.n = []
         self.c = []

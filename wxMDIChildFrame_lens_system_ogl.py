@@ -49,7 +49,7 @@ def create(parent):
 [wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = [wx.NewId() for _init_ctrls in range(1)]
 
 class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
-    def _init_ctrls(self, prnt):
+    def __init_ctrls(self, prnt):
         # generated method, don't edit
         wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL,
               name='wxMDIChildFrame_lens_system_ogl', parent=prnt,
@@ -61,19 +61,19 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
               id=wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL)
 
     def __init__(self, parent):
-        self._init_ctrls(parent)
-                
+        self.__init_ctrls(parent)
+        self._frameInit = False        
         #self.gl_list    = []
         self.lens_list = []
         self.ray_list  = []              
         self.color = [0,0,0]
         
-        self.Show()          
+        self.Show()    
         self.can = myCanvas(self)
-        self.can.glSetCurrent()
         self.can.centered = False
-        
         self.rows = 40
+
+    def __initializeLists(self):
         self.glListStart = glGenLists(self.rows + 1)
         self.l = range(self.glListStart, self.glListStart + self.rows)
         self.can.set_lens_list(self.l)
