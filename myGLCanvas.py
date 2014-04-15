@@ -39,9 +39,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-import cmath
-#from Numeric import *
-import math
+import numpy as np
 
           
 class myGLCanvas(glcanvas.GLCanvas):
@@ -62,7 +60,7 @@ class myGLCanvas(glcanvas.GLCanvas):
         self.Bind(wx.EVT_RIGHT_UP, self.OnMouseUp)
         self.Bind(wx.EVT_MOTION, self.OnMouseMotion)
         
-        self.K = 1.0
+        self.__K = 1.0
         self.rotatable = True
         self.centered = True
         self.x = 0
@@ -79,27 +77,29 @@ class myGLCanvas(glcanvas.GLCanvas):
     
     def OnSize(self, event = None):
         
-        self.glSetCurrent()  
-        size = self.GetClientSize()
-        
-        (self.WIDTH,self.HEIGHT) = size
+        self.glSetCurrent()
 
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()    
-        
-        if(self.centered):            
-            glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
+
+        if self.centered:            
+            left, right = 0.5 * np.array((-1.1, 1.1)) * self.K
         else:
-            print 'shape', self.HEIGHT, self.WIDTH
-            glOrtho(-.1*self.K,1.1*self.K, -1.1*self.K * 
-                    self.HEIGHT/self.WIDTH/2, 1.1*self.K*self.HEIGHT/self.WIDTH/2,
-                    -self.K,self.K)
+            left, right = np.array((-0.1, 1.1)) * self.K
+        width = right - left
+        glOrthoArgs = (left,
+                       right,
+                       -0.5 * width,
+                       0.5  * width,
+                       -self.K,
+                       self.K)
+        glOrtho(*glOrthoArgs)
         
         glMatrixMode(GL_MODELVIEW)
 
         if self.GetContext():
             self.glSetCurrent()
-            glViewport(0, 0, self.WIDTH, self.HEIGHT)        
+            glViewport(0, 0, *self.GetClientSize())
         glFlush()
         self.Refresh(False)
         
@@ -169,9 +169,9 @@ class myGLCanvas(glcanvas.GLCanvas):
             if evt.LeftIsDown():
 
                 
-##                self.distance -=  20  * (self.y - self.lasty)/float(self.WIDTH)
+##                self.distance -=  20  * (self.y - self.lasty)/float(self.GetClientSize()[0])
 ####                
-                self.d =  1 + (self.y - self.lasty)/100.0;#/float(self.WIDTH)
+                self.d =  1 + (self.y - self.lasty)/100.0;#/float(self.GetClientSize()[0])
                 #print self.distance
 
                 glMatrixMode(GL_MODELVIEW)
@@ -182,7 +182,7 @@ class myGLCanvas(glcanvas.GLCanvas):
                          self.d,
                          self.d);
                 #glTranslatef(self.K/2,0,0)
-                glMultMatrixd(mat)                
+                glMultMatrixd(mat)
                 self.Refresh(False)
                 
                 #glLoadIdentity();
@@ -206,11 +206,12 @@ class myGLCanvas(glcanvas.GLCanvas):
 ##                glMatrixMode(GL_PROJECTION)
 ##                           
 ##                glLoadIdentity()
-##                glOrtho(0,0,self.WIDTH,self.HEIGHT,0,1)
+##                width, height = self.GetClientSize()
+##                glOrtho(0,0,width,height,0,1)
 ##                
 ##                glMatrixMode(MODELVIEW)
 ##                glLoadIdentity()
-##                #gluPerspective(45, float(self.WIDTH)/float(self.HEIGHT), 0, 10.0)
+##                #gluPerspective(45, width/height, 0, 10.0)
 ##
 ##                gluLookAt(0.0, 0.0 ,self.distance,
 ##                          0.,0.,0.,
@@ -224,9 +225,10 @@ class myGLCanvas(glcanvas.GLCanvas):
             if evt.RightIsDown():                    
                 glMatrixMode(GL_MODELVIEW);
                 mat = glGetDoublev(GL_MODELVIEW_MATRIX);
-                glLoadIdentity();
-                glTranslatef(1.2*self.K * (self.x - self.lastx)/self.WIDTH,                             
-                             1.1/2.0*self.K * (self.lasty-self.y)/self.WIDTH,
+                glLoadIdentity()
+                width = self.GetClientSize()[0]
+                glTranslatef(1.2*self.K * (self.x - self.lastx)/width,
+                             1.1/2.0*self.K * (self.lasty-self.y)/width,
                              0.0);
                 glMultMatrixd(mat);
                 self.Refresh(False)
@@ -243,34 +245,19 @@ class myGLCanvas(glcanvas.GLCanvas):
         self.ReleaseMouse()
 
     
-    def set_k(self,k):
+    @property
+    def K(self):
+        return self.__K
+    @K.setter
+    def K(self, k):
         self.glSetCurrent()  
         assert k > 0
-        self.K = k
+        self.__K = k
         self.reset_view()
         
         
     def reset_view(self):        
         self.glSetCurrent()  
-        size = self.GetClientSize()
-        (self.WIDTH,self.HEIGHT) = size
-        
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()                
-        if self.centered:
-            glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0,
-                    -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,
-                    -self.K,self.K)
-        else:
-            glOrtho(-.1*self.K, 1.1*self.K,
-                    -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,
-                    -self.K,self.K)
-
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-
-        if self.GetContext():
-            self.glSetCurrent()
-            glViewport(0, 0, self.WIDTH, self.HEIGHT)        
-        glFlush()
-        self.Refresh(False)
+        self.OnSize()

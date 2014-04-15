@@ -42,9 +42,8 @@ import math
 
 class myCanvas(myGLCanvas):
     def __init__(self,parent):
-        myGLCanvas.__init__(self,parent)
-
-        self.WIDTH, self.HEIGHT = 400, 300
+        myGLCanvas.__init__(self, parent)
+        self.SetClientSize(parent.GetClientSize())
         
         #self.gl_list    = []
         self.lens_list = []
@@ -52,7 +51,7 @@ class myCanvas(myGLCanvas):
         self.color = np.ones(3) * 0.8
     def InitGL(self):
         self.glSetCurrent()          
-        glViewport(0, 0, self.WIDTH, self.HEIGHT)  #setup the view port
+        glViewport(0, 0, *self.GetClientSize())  #setup the view port
 
         glClearDepth (0.0) #don't really know
         glDisable (GL_DEPTH_TEST)  #disable the gl_depth_test

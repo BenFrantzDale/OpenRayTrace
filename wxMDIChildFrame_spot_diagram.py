@@ -198,9 +198,9 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
 ##        width_y = []
 ##        width_z = []
     
-        self.can.set_k(6*(max_height-min(np.array(min_y))))
+        self.can.K = 6 * (max_height - min(np.array(min_y)))
         self.can.DrawGL()
-        #self.Refresh(False)           
+        #self.Refresh(False)
         
     
     def spots(self,x,y,color):

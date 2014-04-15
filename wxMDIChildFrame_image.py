@@ -162,7 +162,7 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
         glEndList()
 
         #print max_y,min_y,max_z,min_z
-        self.can.set_k(math.ceil(2*(max_y-min_y)))
+        self.can.K = math.ceil(2*(max_y - min_y))
         self.can.DrawGL()
         
                     

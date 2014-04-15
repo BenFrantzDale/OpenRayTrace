@@ -38,9 +38,9 @@ def create(parent):
 
 [wxID_WXMAINFRAME] = map(lambda _init_ctrls: wx.NewId(), range(1))
 
-[wxID_WXMAINFRAMEMENUEXIT, wxID_WXMAINFRAMEMENUNEW, wxID_WXMAINFRAMEMENUOPEN, 
+[wxID_WXMAINFRAMEMENUEXIT, wxID_WXMAINFRAMEMENUNEW, 
  wxID_WXMAINFRAMEMENUSAVE, wxID_WXMAINFRAMEMENUSAVE_AS, 
-] = map(lambda _init_coll_menu_Items: wx.NewId(), range(5))
+] = map(lambda _init_coll_menu_Items: wx.NewId(), range(4))
 
 [wxID_WXMAINFRAMEMENU_DRAWINGITEMS_SPOT_DIAGRAM, 
  wxID_WXMAINFRAMEMENU_DRAWINGITEM_RESET_RAY_TRACE, 
@@ -66,8 +66,8 @@ class wxMainFrame(wx.MDIParentFrame):
     def _init_coll_menu_Items(self, parent):
         # generated method, don't edit
 
-        parent.Append(help='', id=wxID_WXMAINFRAMEMENUOPEN, kind=wx.ITEM_NORMAL,
-              text='Open')
+        parent.Append(help='', id=wx.ID_OPEN, kind=wx.ITEM_NORMAL,
+              text='&Open')
         parent.Append(help='', id=wxID_WXMAINFRAMEMENUNEW, kind=wx.ITEM_NORMAL,
               text='New')
         parent.Append(help='', id=wxID_WXMAINFRAMEMENUSAVE, kind=wx.ITEM_NORMAL,
@@ -80,7 +80,7 @@ class wxMainFrame(wx.MDIParentFrame):
         self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUSAVE)
         self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUSAVEAS)
         self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUEXIT)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUOPEN)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=wx.ID_OPEN)
 
     def _init_coll_menu_drawing_Items(self, parent):
         # generated method, don't edit
@@ -182,7 +182,7 @@ class wxMainFrame(wx.MDIParentFrame):
                 sv.Destroy()
             
             
-        elif(id == wxID_WXMAINFRAMEMENUOPEN):
+        elif(id == wx.ID_OPEN):
             dlg = wx.FileDialog(self, "Open Lens", ".", "", "Lens file (*.lns)|*.lns|ZEMAX file (*.zmx)|*.zmx", wx.OPEN | wx.CHANGE_DIR)
             try:
                 if dlg.ShowModal() == wx.ID_OK:

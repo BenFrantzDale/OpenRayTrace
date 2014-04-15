@@ -113,10 +113,11 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     def reset_view(self):
         self.can.reset_view()
         
-        
-    def set_k(self,k):
-        self.can.set_k(k)
-        
+    @property 
+    def K(self): return self.can.K
+
+    @K.setter
+    def K(self, k): self.can.K = k
                 
     def draw_ray(self,x,y,z,ray,T_CUM,color=[1,1,1]):                                    
         self.can.glSetCurrent()
@@ -133,11 +134,8 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
 
     def draw_surface(self,c,t,h,n):        
         self.can.glSetCurrent()
-        
         r = 1 / c if c else 1e5
-                        
-        n+=1
-        
+        n += 1
 
         #draw part of lens surface
         b = np.sqrt(r**2 - h**2) if h**2 < r**2 else 0.0
@@ -177,11 +175,14 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     
     
     
-    def draw_lens(self,t,surf,t_cum,c,n,h):   
+    def draw_lenses(self,t,surf,t_cum,c,n,h,
+                    colors=None):
+        if colors is None:
+            colors = [self._lensSurfaceColor] * len(t)
         self.can.glSetCurrent()
         self.clear_list()
         z = [0] * self.rows
-        for i in range(len(t)):                                                        
+        for i in range(len(surf)):
             glNewList(self.glListStart + surf[i], GL_COMPILE_AND_EXECUTE)        
             glColor(1.0,1.0,1.0)
             if i == 0: # Optical axis(?)
@@ -190,7 +191,7 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
                 glVertex(t_cum[-1],0,0)
                 glEnd()        
         
-            glColor(*self._lensSurfaceColor)
+            glColor(*colors[i])
             z[i] = self.draw_surface(c[i], t_cum[i], h[i], 10)
             
             if i > 0 and n[i-1] != 1: # Draw lens edges to previous surface?
