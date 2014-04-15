@@ -42,6 +42,7 @@ import math
 from ray_trace import *
 import numpy as np
 import random
+from numpy.linalg import norm
 #from scipy import *
 
 
@@ -122,35 +123,35 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
         glNewList(cnt, GL_COMPILE)
         for i in range(rows):           
             for j in range(cols):                
-                if(img[i,j] != 0):                    
+                if img[i,j] != 0:
                     for k in range(rays_per_cell):                                                                                            
                         z_launch = random.uniform(img_zpos[j] - cell_width/2.0,img_zpos[j] + cell_width/2.0)
                         y_launch = random.uniform(img_ypos[i] - cell_height/2.0,img_ypos[i] + cell_height/2.0)
                                                                         
                         y_hit = random.uniform(-h[1],h[1])                        
-                        zl = pow(h[1]*h[1] - y_hit*y_hit,0.5)                        
+                        zl = sqrt(h[1]**2 - y_hit**2)
                         z_hit = random.uniform(-zl,zl)
                                             
                         yy = y_hit - y_launch 
                         zz = z_hit - z_launch 
-                        xx2 = t[0]*t[0]
-                        Yi = yy / (pow(zz*zz + yy*yy + xx2,0.5)) 
-                        Zi = zz / (pow(zz*zz + yy*yy + xx2,0.5)) 
-                        Xi = pow(1.0 - Yi*Yi - Zi*Zi,0.5)           
+                        xx2 = t[0]**2
+                        Yi = yy / norm([t[0], yy, zz])
+                        Zi = zz / norm([t[0], yy, zz])
+                        Xi = sqrt(1.0 - Yi**2 - Zi**2)
                              
-                        (x,y,z,X,Y,Z) = skew_ray((0,y_launch,z_launch),(Xi,Yi,Zi),t,n,c,t_cum,h)                                                
+                        x,y,z,X,Y,Z = skew_ray((0,y_launch,z_launch),(Xi,Yi,Zi),t,n,c,t_cum,h)                                                
                         
-                        max_y = max(y[len(y)-1],max_y)
-                        max_z = max(z[len(z)-1],max_z)
-                        min_y = min(y[len(y)-1],min_y)
-                        min_z = min(z[len(z)-1],min_z)
+                        max_y = max(y[-1],max_y)
+                        max_z = max(z[-1],max_z)
+                        min_y = min(y[-1],min_y)
+                        min_z = min(z[-1],min_z)
                         
                         ylch.append(y_launch)
                         zlch.append(z_launch)
                         clch.append([img[i,j],img[i,j],img[i,j]])
                         
-                        if(len(x) > 2):                            
-                            self.spots(x[len(x)-1],y[len(y)-1],z[len(z)-1],color=[img[i,j],img[i,j],img[i,j]])
+                        if len(x) > 2:
+                            self.spots(x[-1],y[-1],z[-1],color=[img[i,j],img[i,j],img[i,j]])
                             
                            
         for i in range(len(ylch)):
