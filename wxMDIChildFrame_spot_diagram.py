@@ -39,7 +39,7 @@ import wx
 from myCanvas import *
 #import math
 from ray_trace import *
-#from Numeric import *
+import numpy as np
 
 
 def create(parent):
@@ -65,11 +65,9 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
         self.Show()
         self.can.glSetCurrent()
         self.can.set_bg_color([0.0,0.0,0.0])
-
-
         self.rays = 5
 
-    def __initializeLists(self):
+        self.can.glSetCurrent()
         self.glRayListStart = glGenLists(self.rays)
         self.rayList = range(self.glRayListStart,self.glRayListStart+self.rays)        
         self.can.set_ray_list(self.rayList)
@@ -91,20 +89,20 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
         
         cnt = 0
         for j in Yi:
-            for k in Zi:                       
-                i = pow(1.0 - j*j - k*k,0.5)                
-                (x,y,z,X,Y,Z) = skew_ray((xi,yi,zi),(i,j,k),t,n,c,t_cum,h)
+            for k in Zi:
+                i = pow(1.0 - j*j - k*k,0.5)  # This can return imaginary.
+                x,y,z,X,Y,Z = skew_ray((xi,yi,zi),(i,j,k),t,n,c,t_cum,h)
 ##                self.GetParent().ogl.draw_ray(x,y,z,cnt,t_cum,color = [0.0,1.0,0.0])
                 cnt+=1
                 if(len(x) > len(t)):
-                    xs.append(x[len(x)-1])
-                    ys.append(y[len(y)-1])
-                    zs.append(z[len(z)-1])    
-                    Xs.append(X[len(X)-1])                
-                    Ys.append(Y[len(Y)-1])                
-                    Zs.append(Z[len(Z)-1])                
+                    xs.append(x[-1])
+                    ys.append(y[-1])
+                    zs.append(z[-1])    
+                    Xs.append(X[-1])                
+                    Ys.append(Y[-1])                
+                    Zs.append(Z[-1])                
                     
-        return (array(xs),array(ys),array(zs),array(Xs),array(Ys),array(Zs))
+        return np.array([xs,ys,zs,Xs,Ys,Zs])
         
     def clear_list(self):
         self.can.glSetCurrent()
@@ -122,11 +120,11 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
         cnt = self.glRayListStart    
         
         #precalc ray locations
-        pos = array([0.0,.7071,1.0])
+        pos = np.array([0.0,.7071,1.0])
         pos = -object_height * pos
         z_launch = 0
         
-        y_hit = array([i for i in range(-angles,angles+1)],Float32) * h[1]/angles
+        y_hit = np.array([i for i in range(-angles,angles+1)], dtype=float) * h[1]/angles
         z_hit = y_hit
         offset_y = 0
         max_y = []
@@ -180,9 +178,9 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
             
             #print max_y,min_y,max_z,min_z
         
-        max_height = max(array(width_y))
-        max_width  = max(array(width_z))
-        offset_y   = max_width * 2 * (-1 + array(range(len(max_y)))) - ((array(max_y) + array(min_y))/2)
+        max_height = max(np.array(width_y))
+        max_width  = max(np.array(width_z))
+        offset_y   = max_width * 2 * (-1 + np.array(range(len(max_y)))) - ((np.array(max_y) + np.array(min_y))/2)
         offset_z   = 0.0#max_width * 2 #* (-1 + array(range(len(pos)))) - ((array(max_z) + array(min_z))/2)
 
         
@@ -200,17 +198,18 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
 ##        width_y = []
 ##        width_z = []
     
-        self.can.set_k(6*(max_height-min(array(min_y))))
+        self.can.set_k(6*(max_height-min(np.array(min_y))))
         self.can.DrawGL()
         #self.Refresh(False)           
         
     
     def spots(self,x,y,color):
         self.can.glSetCurrent()                  
-        glColorf(color[0],color[1],color[2])                
+        glColor(*color)
         
         glBegin(GL_POINTS)        
-        [glVertexf(x[i],y[i]) for i in range(len(x))]
+        for xy in zip(x, y):
+            glVertex(*xy)
         glEnd()        
         glFlush()
         

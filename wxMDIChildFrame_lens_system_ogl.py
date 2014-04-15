@@ -119,11 +119,11 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     def draw_ray(self,x,y,z,ray,T_CUM,color=[1,1,1]):                                    
         self.can.glSetCurrent()
         glNewList(ray + self.glRayListStart, GL_COMPILE)      
-        glColorf(color[0],color[1],color[2])                
+        glColor(*color)
         glBegin(GL_LINE_STRIP)
         
         for i in range(len(x)):            
-            glVertexf(x[i] + T_CUM[i],y[i],z[i]) 
+            glVertex(x[i] + T_CUM[i],y[i],z[i]) 
             
         glEnd()        
         glEndList()                                
@@ -196,7 +196,7 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
 
             glEnd()
         
-        glColorf(1,1,1,.25)    
+        glColor(1,1,1,.25)    
         glBegin(GL_LINE_STRIP)    
         for theta in range(0,365,5):      
             p = theta * 3.14159/180.0
@@ -207,7 +207,7 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
             glVertex3f(x[i],y[i] * cos(p),y[i]*sin(p))            
 
         glEnd()
-        glColorf(1.0,1.0,0.0)
+        glColor(1.0,1.0,0.0)
 
               
         return (x[i],y[i])
@@ -221,14 +221,14 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
 
         for i in range(len(t)):                                                        
             glNewList(self.glListStart + surf[i], GL_COMPILE_AND_EXECUTE)        
-            glColorf(1.0,1.0,1.0)                                   
+            glColor(1.0,1.0,1.0)                                   
             if(i == 0):
                 glBegin(GL_LINES)
-                glVertexf(0,0,0)
-                glVertexf(t_cum[len(t_cum)-1],0,0)
+                glVertex(0,0,0)
+                glVertex(t_cum[len(t_cum)-1],0,0)
                 glEnd()        
         
-            glColorf(1.0,1.0,0.0)                                   
+            glColor(1.0,1.0,0.0)                                   
             z[i] = self.draw_surface(c[i],t_cum[i],h[i],10)
             
             if(i > 0):                        

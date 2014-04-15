@@ -69,7 +69,6 @@ class myGLCanvas(glcanvas.GLCanvas):
         
 
     def glSetCurrent(self):
-        print "glSetCurrent", self
         self.SetCurrent(self.context)
 
     def OnEraseBackground(self, event):
@@ -242,6 +241,7 @@ class myGLCanvas(glcanvas.GLCanvas):
     
     def set_k(self,k):
         self.glSetCurrent()  
+        assert k > 0
         self.K = k
         self.reset_view()
         
@@ -253,12 +253,15 @@ class myGLCanvas(glcanvas.GLCanvas):
         
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()                
-        if(self.centered):            
-            glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
+        if self.centered:
+            glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0,
+                    -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,
+                    -self.K,self.K)
         else:
-            glOrtho(-.1*self.K,1.1*self.K, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
+            glOrtho(-.1*self.K, 1.1*self.K,
+                    -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,
+                    -self.K,self.K)
 
-        #glOrtho(-.1*self.K,1.1*self.K,-1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 

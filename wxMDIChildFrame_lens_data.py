@@ -44,7 +44,7 @@ from myCanvas import *
 import os, string
 from cmath import *
 import math
-#from Numeric import *
+import numpy as np
 from ray_trace import *
 
 
@@ -500,7 +500,10 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 
                                                                                                                 
                 
-                k = self.t_cum[len(self.t_cum)-1]                     
+                if not self.t_cum or self.t_cum[-1] == 0: 
+                    k = 1
+                else:
+                    k = self.t_cum[-1] # Cumulative thickness.
                 self.GetParent().ogl.set_k(k)
         
 ##                #calc third order aberrations
@@ -752,7 +755,9 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             else:
                 return -1
 
-            rad = ((2*n+2*math.pow((n*n - phi*n*t),.5))*(n-1))/(2*n*phi)
+            if n**2 - phi * n * t < 0:
+                return -1
+            rad = (2*n+2*math.sqrt(n*n - phi*n*t)*(n-1)) / (2*n*phi)
             
             #calc r so that r1 = r2 = r   
             #rad = val * 2 * ( n - 1 )
@@ -886,12 +891,12 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         if(not self.GetParent().img.IsShown()):
             self.GetParent().img.Show()
 
-        img = array([[1,1,1,1,1],
-                     [1,0,1,.8,1],    
-                     [1,1,1,1,1],
-                     [1,.5,1,0,1],
-                     [1,1,1,1,1],
-                     [1,1,1,1,1] ])                                     
+        img = np.array([[1,1,1,1,1],
+                        [1,0,1,.8,1],    
+                        [1,1,1,1,1],
+                        [1,.5,1,0,1],
+                        [1,1,1,1,1],
+                        [1,1,1,1,1]])                                     
         self.GetParent().img.draw_image(img,self.object_height,self.t,self.n,self.c,self.t_cum,self.h)
 
     def OnWxmdichildframe_lens_dataClose(self, event):

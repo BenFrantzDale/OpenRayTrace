@@ -40,7 +40,7 @@ import wx
 from myCanvas import *
 import math
 from ray_trace import *
-#from Numeric import *
+import numpy as np
 import random
 #from scipy import *
 
@@ -102,8 +102,8 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
         (rows,cols) = img.shape                
         width = height * cols / rows                
         
-        img_ypos = height /(rows-1) * array([(i - (rows-1.0)/2.0) for i in range(rows)])        
-        img_zpos = width / (cols-1) * array([(i - (cols-1.0)/2.0) for i in range(cols)])
+        img_ypos = height /(rows-1) * np.array([(i - (rows-1.0)/2.0) for i in range(rows)])        
+        img_zpos = width / (cols-1) * np.array([(i - (cols-1.0)/2.0) for i in range(cols)])
             
         cell_width = width/(cols-1.0)
         cell_height = height/(rows-1.0)        
@@ -118,8 +118,8 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
         ylch = []
         zlch = []
         clch = []
-        
-        glNewList(cnt,GL_COMPILE)
+
+        glNewList(cnt, GL_COMPILE)
         for i in range(rows):           
             for j in range(cols):                
                 if(img[i,j] != 0):                    
@@ -154,7 +154,7 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
                             
                            
         for i in range(len(ylch)):
-            self.spots(0,ylch[i],zlch[i] + ceil(min_z)*1.5 ,clch[i])
+            self.spots(0, ylch[i], zlch[i] + np.ceil(min_z)*1.5, clch[i])
 
         cnt +=1
                 
@@ -169,11 +169,11 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
         self.can.glSetCurrent()  
         
         #glNewList(ray, GL_COMPILE_AND_EXECUTE)      
-        glColorf(color[0],color[1],color[2])                
+        glColor(color[0],color[1],color[2])                
         
         glBegin(GL_POINTS)                  
         #glVertexf(x[len(x)-1],y[len(x)-1],z[len(x)-1])                     
-        glVertexf(z,y)                     
+        glVertex(z,y)                     
         glEnd()        
         glFlush()        
         #glEndList()
@@ -181,6 +181,3 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
     def OnWxmdichildframe_imageClose(self, event):
         self.Hide()
 
-def transpose(v):
-    (a,b) = v.shape
-    return array([v[:,i] for i in range(b)])
