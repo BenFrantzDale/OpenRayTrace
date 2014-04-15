@@ -79,8 +79,7 @@ class myGLCanvas(glcanvas.GLCanvas):
         
         self.glSetCurrent()  
         size = self.GetClientSize()
-        
-        (self.WIDTH,self.HEIGHT) = size
+        self.WIDTH, self.HEIGHT = size
 
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()    
@@ -258,27 +257,9 @@ class myGLCanvas(glcanvas.GLCanvas):
         
         
     def reset_view(self):        
+        import time
+        print 'reset view', time.time()
         self.glSetCurrent()  
-        size = self.GetClientSize()
-        self.WIDTH, self.HEIGHT = size
-        
-        glMatrixMode(GL_PROJECTION)
-        print 'reset view'
-        glLoadIdentity()                
-        if self.centered:
-            glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0,
-                    -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,
-                    -self.K,self.K)
-        else:
-            glOrtho(-.1*self.K, 1.1*self.K,
-                    -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,
-                    -self.K,self.K)
-
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-
-        if self.GetContext():
-            self.glSetCurrent()
-            glViewport(0, 0, self.WIDTH, self.HEIGHT)        
-        glFlush()
-        self.Refresh(False)
+        self.OnSize()

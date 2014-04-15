@@ -42,9 +42,9 @@ import math
 
 class myCanvas(myGLCanvas):
     def __init__(self,parent):
-        myGLCanvas.__init__(self,parent)
-
-        self.WIDTH, self.HEIGHT = 400, 300
+        myGLCanvas.__init__(self, parent)
+        self.SetClientSize(parent.GetClientSize())
+        self.WIDTH, self.HEIGHT = self.GetClientSize()
         
         #self.gl_list    = []
         self.lens_list = []
