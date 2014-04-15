@@ -122,17 +122,18 @@ def create(parent):
  wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT, 
 ] = [wx.NewId() for _init_coll_menu_glass_Items in range(2)]
 
-[wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUCOPY, 
- wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE, 
- wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER, 
- wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE, 
- wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUPASTE, 
-] = [wx.NewId() for _init_coll_row_menu_Items in range(5)]
-
 [wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS] = [wx.NewId() for _init_coll_menu_thickness_Items in range(1)]
+
 
 class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     col_label = ('f-length  ','power    ','curvature    ','radius   ','thickness    ','aperature radius ','glass    ','bending','bent c','bent r')
+    [DATAROW_MENUCOPY, 
+     DATAROW_MENUDELETE, 
+     DATAROW_MENUINSERTAFTER, 
+     DATAROW_MENUINSERTBEFORE, 
+     DATAROW_MENUPASTE, 
+    ] = [wx.NewId() for _init_coll_row_menu_Items in range(5)]
+    
     def _init_coll_boxSizerBottom_Items(self, parent):
         # generated method, don't edit
 
@@ -202,27 +203,27 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         # generated method, don't edit
 
         parent.Append(help='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE,
+              id=self.DATAROW_MENUINSERTBEFORE,
               kind=wx.ITEM_NORMAL, text='Insert Before')
         parent.Append(help='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER,
+              id=self.DATAROW_MENUINSERTAFTER,
               kind=wx.ITEM_NORMAL, text='Insert After')
-        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE,
+        parent.Append(help='', id=self.DATAROW_MENUDELETE,
               kind=wx.ITEM_NORMAL, text='Delete')
-        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUCOPY,
+        parent.Append(help='', id=self.DATAROW_MENUCOPY,
               kind=wx.ITEM_NORMAL, text='Copy')
-        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUPASTE,
+        parent.Append(help='', id=self.DATAROW_MENUPASTE,
               kind=wx.ITEM_NORMAL, text='Paste')
         self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE)
+              id=self.DATAROW_MENUINSERTBEFORE)
         self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER)
+              id=self.DATAROW_MENUINSERTAFTER)
         self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE)
+              id=self.DATAROW_MENUDELETE)
         self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUCOPY)
+              id=self.DATAROW_MENUCOPY)
         self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUPASTE)
+              id=self.DATAROW_MENUPASTE)
 
     def _init_coll_menu_glass_Items(self, parent):
         # generated method, don't edit
@@ -843,13 +844,13 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         r, c = self.grid1.GetGridCursorRow(), self.grid1.GetGridCursorCol()
         id = event.GetId()
         
-        if id ==  wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER:
+        if id == self.DATAROW_MENUINSERTAFTER:
             self.grid1.InsertRows(r+1)
             self.rows+=1
-        elif id ==  wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE:
+        elif id == self.DATAROW_MENUINSERTBEFORE:
             self.grid1.InsertRows(r)            
             self.rows+=1
-        elif id ==   wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE:            
+        elif id == self.DATAROW_MENUDELETE:
             self.grid1.DeleteRows(r)
             self.rows-=1
             
