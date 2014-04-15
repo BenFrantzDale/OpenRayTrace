@@ -281,6 +281,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
               name='grid1', parent=self, pos=wx.Point(0, 87), size=wx.Size(839,
               773), style=0)
         self.grid1.Bind(EVT_GRID_CELL_CHANGE, self.OnGrid1GridCellChange)
+        self.grid1.Bind(EVT_GRID_SELECT_CELL, self.update_display) # To allow highlighting the active row.
         self.grid1.Bind(EVT_GRID_CELL_RIGHT_CLICK,
               self.OnGrid1GridCellRightClick)
         self.grid1.Bind(EVT_GRID_LABEL_RIGHT_CLICK,
@@ -639,9 +640,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
         return True
 
-    def update_display(self):
+    def update_display(self, event=None):
         thickness = 0                
-                
         
         self.t = []
         self.t_cum = None
@@ -651,6 +651,13 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         surf = []
             
         t1 = 0
+        colors = [self.GetParent().ogl._lensSurfaceColor] * self.rows
+        row = self.grid1.GetGridCursorRow()
+        if event is not None:
+            row = event.GetRow()
+            #print "Row:", row, event.GetRow()
+            if row is not None and row < self.rows:
+                colors[row] = (1.0,0.0,0.0)
         for i in range(self.rows):                        
             def cell(key):
                 return self.grid1.GetCellValue(i, key)
@@ -675,14 +682,13 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 t1 += float(thickness)
                 self.t.append(float(thickness))
         # We want t_cum to be the positions of each surface. Need to deel with infinate thicknesses at ends of the system.
-        if np.isfinite(self.t[0]):
+        if len(self.t) == 0 or np.isfinite(self.t[0]):
             self.t_cum = np.hstack([[0], np.cumsum(self.t)])
         else:
             self.t_cum = np.hstack([[-np.inf, 0], np.cumsum(self.t[1:])])
             
         l = range(1,self.rows)
-        
-        self.GetParent().ogl.draw_lens(self.t,surf,self.t_cum,self.c,self.n,self.h)
+        self.GetParent().ogl.draw_lenses(self.t,surf,self.t_cum,self.c,self.n,self.h,colors=colors)
 
         
         
