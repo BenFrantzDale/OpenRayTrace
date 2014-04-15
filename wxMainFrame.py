@@ -183,9 +183,9 @@ class wxMainFrame(wx.MDIParentFrame):
             
             
         elif(id == wxID_WXMAINFRAMEMENUOPEN):
-            dlg = wxFileDialog(self, "Open Lens", ".", "", "*.lns", wxOPEN | wxCHANGE_DIR)
+            dlg = wx.FileDialog(self, "Open Lens", ".", "", "*.lns", wx.OPEN | wx.CHANGE_DIR)
             try:
-                if dlg.ShowModal() == wxID_OK:
+                if dlg.ShowModal() == wx.ID_OK:
                     self.file_name = dlg.GetPath()
                     self.SetTitle(TITLE + self.file_name)
 
@@ -216,10 +216,10 @@ class wxMainFrame(wx.MDIParentFrame):
                 a = pickle.dump(t,fd)        
                 fd.close()
         else:
-            dlg = wxFileDialog(self, "Save Lens", ".", "", "*.lns", wxSAVE | wxOVERWRITE_PROMPT | wxCHANGE_DIR)
+            dlg = wx.FileDialog(self, "Save Lens", ".", "", "*.lns", wx.SAVE | wx.OVERWRITE_PROMPT | wx.CHANGE_DIR)
             dlg.SetPath(self.file_name)
             try:
-                if dlg.ShowModal() == wxID_OK:
+                if dlg.ShowModal() == wx.ID_OK:
                     self.file_name = dlg.GetPath()
                     self.SetTitle(TITLE + self.file_name)
                     t = self.lens.get_data()
