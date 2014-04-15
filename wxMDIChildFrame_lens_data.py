@@ -131,8 +131,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
      DATAROW_MENUDELETE, 
      DATAROW_MENUINSERTAFTER, 
      DATAROW_MENUINSERTBEFORE, 
-     DATAROW_MENUPASTE, 
-    ] = [wx.NewId() for _init_coll_row_menu_Items in range(5)]
+     DATAROW_MENUPASTE] = [wx.NewId() for _ in range(5)]
     
     def _init_coll_boxSizerBottom_Items(self, parent):
         # generated method, don't edit
@@ -200,30 +199,13 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
               span=(1, 1))
 
     def _init_coll_row_menu_Items(self, parent):
-        # generated method, don't edit
-
-        parent.Append(help='',
-              id=self.DATAROW_MENUINSERTBEFORE,
-              kind=wx.ITEM_NORMAL, text='Insert Before')
-        parent.Append(help='',
-              id=self.DATAROW_MENUINSERTAFTER,
-              kind=wx.ITEM_NORMAL, text='Insert After')
-        parent.Append(help='', id=self.DATAROW_MENUDELETE,
-              kind=wx.ITEM_NORMAL, text='Delete')
-        parent.Append(help='', id=self.DATAROW_MENUCOPY,
-              kind=wx.ITEM_NORMAL, text='Copy')
-        parent.Append(help='', id=self.DATAROW_MENUPASTE,
-              kind=wx.ITEM_NORMAL, text='Paste')
-        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=self.DATAROW_MENUINSERTBEFORE)
-        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=self.DATAROW_MENUINSERTAFTER)
-        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=self.DATAROW_MENUDELETE)
-        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=self.DATAROW_MENUCOPY)
-        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=self.DATAROW_MENUPASTE)
+        for ID, text in [(self.DATAROW_MENUINSERTBEFORE, 'Insert Before'),
+                         (self.DATAROW_MENUINSERTAFTER,  'Insert After'),
+                         (self.DATAROW_MENUDELETE,       'Delete'),
+                         (self.DATAROW_MENUCOPY,         'Copy'),
+                         (self.DATAROW_MENUPASTE,        'Paste')]:
+            parent.Append(id=ID, text=text, kind=wx.ITEM_NORMAL, help='')
+            self.Bind(id=ID, event=wx.EVT_MENU, handler=self.OnRow_menuitems0Menu)
 
     def _init_coll_menu_glass_Items(self, parent):
         # generated method, don't edit
