@@ -391,7 +391,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def __init__(self, parent):
         self._init_ctrls(parent)
         self.waves = wxDialog_wavelengths.create(self)
-        self.__system = DataModel.System([])
+        self.__system = DataModel.System([], ndim=3)
         
         
         self.grid1.CreateGrid(max(1,self.rows), self.cols)
@@ -531,12 +531,16 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                     # It looks like it is trying to aim the outermost ray at the clear aperature of the next surface:
                     #direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
                     #direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
-                    print "direction {}: {} -> {}".format(i, objPt + offset, direction)
+                    #print "direction {}: {} -> {}".format(i, objPt + offset, direction)
                     
                     x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt + offset, direction[::-1],
                                                              self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
-
-                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum[surf_i:], color=color)
+                    rays = DataModel.Rays((objPt+offset)[:,None], direction[:,None]);
+                    traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
+                    print 'old\n',np.array([x[i], y[i], z[i]]).T
+                    z[i], y[i], x[i] = traces[:,:,0].T
+                    print traces[:,:,0]
+                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,np.zeros_like(self.t_cum[surf_i:]), color=color)
                     cnt+=1
 
 

@@ -165,7 +165,7 @@ class StandardSurface(Surface):
         """
         n0 = rays.n
         n1 = self.n(rays.wavelengths)
-        positions, mask = self.intersectRays(z, rays, clip=clip)
+        positions, mask = self.intersectRays(z, rays)
         l = rays.directions / norm(rays.directions, axis=0)[None]
         if np.isfinite(self.R):
             c = np.zeros_like(positions[:,:1]); c[-1] = z + self.R
@@ -224,10 +224,10 @@ class System(object):
             surfaces.append(S.reversed(*thkGls[i]))
             if S is self.apertureStop:
                 apertureStop = surfaces[-1]
-        return System(surfaces[::-1], apertureStop=apertureStop)
+        return System(surfaces[::-1], apertureStop=apertureStop, ndim=self.ndim)
 
     @staticmethod
-    def loadZMX(zmxfile):
+    def loadZMX(zmxfile, ndim=3):
         surfaces = []
         with open(zmxfile, 'r') as fh:
             lines = fh.readlines()
@@ -268,7 +268,7 @@ class System(object):
                             import epdb; epdb.st()
                         break
                         
-        return System(surfaces, apertureStop=apertureStop)
+        return System(surfaces, apertureStop=apertureStop, ndim=ndim)
     @property
     def surfaces(self): return self._surfaces
     #@property
@@ -428,7 +428,7 @@ class System(object):
             raise NotImplemented()
 
     def __getitem__(self, *a ,**k):
-        return System(self._surfaces.__getitem__(*a, **k), apertureStop=self.apertureStop)
+        return System(self._surfaces.__getitem__(*a, **k), apertureStop=self.apertureStop, ndim=self.ndim)
     def outlines(self):
         tops = []
         bottoms = []
@@ -461,7 +461,7 @@ class System(object):
     def cast(self, rays, settings=RaytraceSettings()):
         """Cast the rays through the system.
         Return the sequence of lines and the resulting output rays."""
-        assert self.ndim == rays.ndim
+        assert self.ndim == rays.ndim, "Rays ndim ({}) should match our ndim ({}).".format(rays.ndim, self.ndim)
         points = [rays.origins]
         for z, S in zip(self.surfaceVertices[-1], self.surfaces):
             clip = settings.clip if S is not self.apertureStop else settings.clipAperture
