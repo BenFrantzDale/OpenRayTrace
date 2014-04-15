@@ -35,7 +35,7 @@
 from myGLCanvas import *
 
 import cmath
-#from Numeric import *
+import numpy as np
 import math
 
 
@@ -49,7 +49,7 @@ class myCanvas(myGLCanvas):
         #self.gl_list    = []
         self.lens_list = []
         self.ray_list  = []              
-        self.color = [0,0,0]
+        self.color = np.ones(3) * 0.8
     def InitGL(self):
         self.glSetCurrent()          
         glViewport(0, 0, self.WIDTH, self.HEIGHT)  #setup the view port
