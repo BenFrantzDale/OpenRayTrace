@@ -40,28 +40,28 @@ class wxFrameRayTrace(wxFrame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wxFrame.__init__(self, id=wxID_WXFRAMERAYTRACE, name='wxFrameRayTrace',
-              parent=prnt, pos=wxPoint(501, 238), size=wxSize(1032, 814),
+              parent=prnt, pos=wx.Point(501, 238), size=wx.Size(1032, 814),
               style=wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxRESIZE_BORDER | wxSYSTEM_MENU | wxSTAY_ON_TOP | wxDEFAULT_FRAME_STYLE,
               title='PyRayTrace')
         self._init_utils()
-        self.SetClientSize(wxSize(1024, 780))
+        self.SetClientSize(wx.Size(1024, 780))
         self.Center(wxBOTH)
         EVT_SIZE(self, self.OnWxframeopenmodalSize)
 
         self.button_Quit = wxButton(id=wxID_WXFRAMERAYTRACEBUTTON_QUIT,
-              label='Quit', name='button_Quit', parent=self, pos=wxPoint(880,
-              0), size=wxSize(144, 48), style=0)
+              label='Quit', name='button_Quit', parent=self, pos=wx.Point(880,
+              0), size=wx.Size(144, 48), style=0)
         EVT_BUTTON(self.button_Quit, wxID_WXFRAMERAYTRACEBUTTON_QUIT,
               self.OnButton_quitButton)
 
         self.grid1 = wxGrid(id=wxID_WXFRAMERAYTRACEGRID1, name='grid1',
-              parent=self, pos=wxPoint(0, 536), size=wxSize(1024, 240),
+              parent=self, pos=wx.Point(0, 536), size=wx.Size(1024, 240),
               style=0)
         EVT_GRID_CELL_CHANGE(self.grid1, self.OnGrid1GridCellChange)
 
         self.radioButton_const_power = wxRadioButton(id=wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_POWER,
               label='Const Power/F-length', name='radioButton_const_power',
-              parent=self, pos=wxPoint(848, 264), size=wxSize(79, 13), style=0)
+              parent=self, pos=wx.Point(848, 264), size=wx.Size(79, 13), style=0)
         self.radioButton_const_power.SetValue(True)
         EVT_RADIOBUTTON(self.radioButton_const_power,
               wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_POWER,
@@ -69,7 +69,7 @@ class wxFrameRayTrace(wxFrame):
 
         self.radioButton_const_radius = wxRadioButton(id=wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_RADIUS,
               label='Const Radius', name='radioButton_const_radius',
-              parent=self, pos=wxPoint(848, 288), size=wxSize(79, 13), style=0)
+              parent=self, pos=wx.Point(848, 288), size=wx.Size(79, 13), style=0)
         self.radioButton_const_radius.SetValue(False)
         EVT_RADIOBUTTON(self.radioButton_const_radius,
               wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_RADIUS,
@@ -77,15 +77,15 @@ class wxFrameRayTrace(wxFrame):
 
         self.staticText_pf = wxStaticText(id=wxID_WXFRAMERAYTRACESTATICTEXT_PF,
               label='Paraxial Focus', name='staticText_pf', parent=self,
-              pos=wxPoint(848, 312), size=wxSize(69, 13), style=0)
+              pos=wx.Point(848, 312), size=wx.Size(69, 13), style=0)
 
         self.staticText_paraxial_focus = wxStaticText(id=wxID_WXFRAMERAYTRACESTATICTEXT_PARAXIAL_FOCUS,
               label='', name='staticText_paraxial_focus', parent=self,
-              pos=wxPoint(928, 312), size=wxSize(0, 13), style=0)
+              pos=wx.Point(928, 312), size=wx.Size(0, 13), style=0)
 
         self.checkBox_autofocus = wxCheckBox(id=wxID_WXFRAMERAYTRACECHECKBOX_AUTOFOCUS,
               label='Autofocus (paraxial)', name='checkBox_autofocus',
-              parent=self, pos=wxPoint(848, 336), size=wxSize(120, 13),
+              parent=self, pos=wx.Point(848, 336), size=wx.Size(120, 13),
               style=0)
         self.checkBox_autofocus.SetValue(False)
 
