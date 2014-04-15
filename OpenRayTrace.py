@@ -40,7 +40,7 @@
 from wx import *
 
 #import wxFrameRayTrace
-import wxMainFrame
+from OpenRayTrace import MainFrame
 
 modules ={'myCanvas': [0, '', 'myCanvas.py'],
  'myGLCanvas': [0, '', 'myGLCanvas.py'],
@@ -61,7 +61,7 @@ modules ={'myCanvas': [0, '', 'myCanvas.py'],
 class BoaApp(wx.App):
     def OnInit(self):
         import sys
-        self.main = wxMainFrame.wxMainFrame(None, sys.argv)
+        self.main = MainFrame.MainFrame(None, sys.argv)
         
         #self.main = wxFrameRayTrace.create(None)
         # needed when running from Boa under Windows 9X

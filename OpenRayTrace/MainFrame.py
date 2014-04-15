@@ -1,4 +1,4 @@
-#Boa:MDIParent:wxMainFrame
+#Boa:MDIParent:MainFrame
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -33,27 +33,27 @@ from myCanvas import *
 
 TITLE = 'OpenRayTrace:   '
 
-[wxID_WXMAINFRAME] = map(lambda _init_ctrls: wx.NewId(), range(1))
+[wxID_MAINFRAME] = map(lambda _init_ctrls: wx.NewId(), range(1))
 
-[wxID_WXMAINFRAMEMENUEXIT, wxID_WXMAINFRAMEMENUNEW, 
- wxID_WXMAINFRAMEMENUSAVE, wxID_WXMAINFRAMEMENUSAVE_AS, 
+[wxID_MAINFRAMEMENUEXIT, wxID_MAINFRAMEMENUNEW, 
+ wxID_MAINFRAMEMENUSAVE, wxID_MAINFRAMEMENUSAVE_AS, 
 ] = map(lambda _init_coll_menu_Items: wx.NewId(), range(4))
 
-[wxID_WXMAINFRAMEMENU_DRAWINGITEMS_SPOT_DIAGRAM, 
- wxID_WXMAINFRAMEMENU_DRAWINGITEM_RESET_RAY_TRACE, 
+[wxID_MAINFRAMEMENU_DRAWINGITEMS_SPOT_DIAGRAM, 
+ wxID_MAINFRAMEMENU_DRAWINGITEM_RESET_RAY_TRACE, 
 ] = map(lambda _init_coll_menu_drawing_Items: wx.NewId(), range(2))
 
-[wxID_WXMAINFRAME] = [wx.NewId() for _init_ctrls in range(1)]
+[wxID_MAINFRAME] = [wx.NewId() for _init_ctrls in range(1)]
 
-[wxID_WXMAINFRAMEMENU_DRAWINGRESETRAYTRACE, 
- wxID_WXMAINFRAMEMENU_DRAWINGSPOTDIAGRAM, 
+[wxID_MAINFRAMEMENU_DRAWINGRESETRAYTRACE, 
+ wxID_MAINFRAMEMENU_DRAWINGSPOTDIAGRAM, 
 ] = [wx.NewId() for _init_coll_menu_drawing_Items in range(2)]
 
-[wxID_WXMAINFRAMEMENUEXIT, wxID_WXMAINFRAMEMENUNEW, wxID_WXMAINFRAMEMENUOPEN, 
- wxID_WXMAINFRAMEMENUSAVE, wxID_WXMAINFRAMEMENUSAVEAS, 
+[wxID_MAINFRAMEMENUEXIT, wxID_MAINFRAMEMENUNEW, wxID_MAINFRAMEMENUOPEN, 
+ wxID_MAINFRAMEMENUSAVE, wxID_MAINFRAMEMENUSAVEAS, 
 ] = [wx.NewId() for _init_coll_menu_Items in range(5)]
 
-class wxMainFrame(wx.MDIParentFrame):
+class MainFrame(wx.MDIParentFrame):
     def _init_coll_menuBar_Menus(self, parent):
         # generated method, don't edit
 
@@ -65,31 +65,31 @@ class wxMainFrame(wx.MDIParentFrame):
 
         parent.Append(help='', id=wx.ID_OPEN, kind=wx.ITEM_NORMAL,
               text='&Open')
-        parent.Append(help='', id=wxID_WXMAINFRAMEMENUNEW, kind=wx.ITEM_NORMAL,
+        parent.Append(help='', id=wxID_MAINFRAMEMENUNEW, kind=wx.ITEM_NORMAL,
               text='New')
-        parent.Append(help='', id=wxID_WXMAINFRAMEMENUSAVE, kind=wx.ITEM_NORMAL,
+        parent.Append(help='', id=wxID_MAINFRAMEMENUSAVE, kind=wx.ITEM_NORMAL,
               text='Save')
-        parent.Append(help='', id=wxID_WXMAINFRAMEMENUSAVEAS,
+        parent.Append(help='', id=wxID_MAINFRAMEMENUSAVEAS,
               kind=wx.ITEM_NORMAL, text='Save As')
-        parent.Append(help='', id=wxID_WXMAINFRAMEMENUEXIT, kind=wx.ITEM_NORMAL,
+        parent.Append(help='', id=wxID_MAINFRAMEMENUEXIT, kind=wx.ITEM_NORMAL,
               text='Exit')
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUNEW)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUSAVE)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUSAVEAS)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_WXMAINFRAMEMENUEXIT)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_MAINFRAMEMENUNEW)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_MAINFRAMEMENUSAVE)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_MAINFRAMEMENUSAVEAS)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_MAINFRAMEMENUEXIT)
         self.Bind(wx.EVT_MENU, self.OnMenu, id=wx.ID_OPEN)
 
     def _init_coll_menu_drawing_Items(self, parent):
         # generated method, don't edit
 
-        parent.Append(help='', id=wxID_WXMAINFRAMEMENU_DRAWINGRESETRAYTRACE,
+        parent.Append(help='', id=wxID_MAINFRAMEMENU_DRAWINGRESETRAYTRACE,
               kind=wx.ITEM_NORMAL, text='Reset Ray Trace View')
-        parent.Append(help='', id=wxID_WXMAINFRAMEMENU_DRAWINGSPOTDIAGRAM,
+        parent.Append(help='', id=wxID_MAINFRAMEMENU_DRAWINGSPOTDIAGRAM,
               kind=wx.ITEM_NORMAL, text='Spot Diagram')
         self.Bind(wx.EVT_MENU, self.OnMenu_drawingMenu,
-              id=wxID_WXMAINFRAMEMENU_DRAWINGRESETRAYTRACE)
+              id=wxID_MAINFRAMEMENU_DRAWINGRESETRAYTRACE)
         self.Bind(wx.EVT_MENU, self.OnMenu_drawingMenu,
-              id=wxID_WXMAINFRAMEMENU_DRAWINGSPOTDIAGRAM)
+              id=wxID_MAINFRAMEMENU_DRAWINGSPOTDIAGRAM)
 
     def _init_utils(self):
         # generated method, don't edit
@@ -105,8 +105,8 @@ class wxMainFrame(wx.MDIParentFrame):
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wx.MDIParentFrame.__init__(self, id=wxID_WXMAINFRAME,
-              name='wxMainFrame', parent=prnt, pos=wx.Point(239, 15),
+        wx.MDIParentFrame.__init__(self, id=wxID_MAINFRAME,
+              name='MainFrame', parent=prnt, pos=wx.Point(239, 15),
               size=wx.Size(1200, 854),
               style=wx.SYSTEM_MENU | wx.DEFAULT_FRAME_STYLE | wx.VSCROLL | wx.HSCROLL,
               title='OpenRayTrace')
@@ -165,16 +165,16 @@ class wxMainFrame(wx.MDIParentFrame):
         
     def OnMenu_drawingMenu(self, event):
         id = event.GetId()
-        if(id == wxID_WXMAINFRAMEMENU_DRAWINGRESETRAYTRACE):                        
+        if(id == wxID_MAINFRAMEMENU_DRAWINGRESETRAYTRACE):                        
             self.ogl.reset_view()
-        elif(id == wxID_WXMAINFRAMEMENU_DRAWINGSPOTDIAGRAM):
+        elif(id == wxID_MAINFRAMEMENU_DRAWINGSPOTDIAGRAM):
             self.spot.Show()
             
         event.Skip()
 
     def OnMenu(self, event):
         id = event.GetId()
-        if(id == wxID_WXMAINFRAMEMENUNEW):    
+        if(id == wxID_MAINFRAMEMENUNEW):    
             sv = wxDialogSaveQuestion.create(self,self.file_name)                    
             res = sv.ShowModal()
             try:                
@@ -209,12 +209,12 @@ class wxMainFrame(wx.MDIParentFrame):
             finally:
                 dlg.Destroy()
                         
-        elif(id == wxID_WXMAINFRAMEMENUSAVE):                        
+        elif(id == wxID_MAINFRAMEMENUSAVE):                        
             self.Save()                        
-        elif(id == wxID_WXMAINFRAMEMENUSAVE_AS):
+        elif(id == wxID_MAINFRAMEMENUSAVE_AS):
             self.saveable = False
             self.Save()
-        elif(id == wxID_WXMAINFRAMEMENUEXIT):
+        elif(id == wxID_MAINFRAMEMENUEXIT):
             sv = wxDialogSaveQuestion.create(self,self.file_name)
             sv.Show()                        
         event.Skip()
