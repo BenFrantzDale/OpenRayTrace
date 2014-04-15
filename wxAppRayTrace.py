@@ -60,8 +60,6 @@ modules ={'myCanvas': [0, '', 'myCanvas.py'],
 
 class BoaApp(wx.App):
     def OnInit(self):
-        wx.InitAllImageHandlers()
-        
         self.main = wxMainFrame.create(None)
         
         #self.main = wxFrameRayTrace.create(None)
