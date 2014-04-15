@@ -129,7 +129,7 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
                         y_launch = random.uniform(img_ypos[i] - cell_height/2.0,img_ypos[i] + cell_height/2.0)
                                                                         
                         y_hit = random.uniform(-h[1],h[1])                        
-                        zl = sqrt(h[1]**2 - y_hit**2)
+                        zl = np.sqrt(h[1]**2 - y_hit**2)
                         z_hit = random.uniform(-zl,zl)
                                             
                         yy = y_hit - y_launch 
@@ -137,7 +137,7 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
                         xx2 = t[0]**2
                         Yi = yy / norm([t[0], yy, zz])
                         Zi = zz / norm([t[0], yy, zz])
-                        Xi = sqrt(1.0 - Yi**2 - Zi**2)
+                        Xi = np.sqrt(1.0 - Yi**2 - Zi**2)
                              
                         x,y,z,X,Y,Z = skew_ray((0,y_launch,z_launch),(Xi,Yi,Zi),t,n,c,t_cum,h)                                                
                         

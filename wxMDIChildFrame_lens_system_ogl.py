@@ -39,6 +39,7 @@ from myCanvas import *
 import os, string
 from cmath import *
 from math  import *
+import numpy as np
 
 
 def create(parent):
@@ -130,10 +131,9 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
                         
 
     def draw_surface(self,c,t,h,n):        
-        
         self.can.glSetCurrent()
         
-        if(c!=0):
+        if c != 0:
             r = 1/c
         else:
             r = 1E5
@@ -142,7 +142,7 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         
 
         #draw part of lens surface
-        if( h*h < r*r ):
+        if h*h < r*r:
 
             b = pow(r*r - h*h, 0.5)        
         else:
@@ -187,19 +187,17 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
 ##        glEnd()
               
         for theta in range(0,359,180):      
-            p = theta * 3.14159/180.0
+            p = theta * np.pi / 180.0
             glBegin(GL_LINE_STRIP)    
 
             for i in range(n):
-
                 glVertex3f(x[i],y[i] * cos(p),y[i]*sin(p))            
-
             glEnd()
         
         glColor(1,1,1,.25)    
         glBegin(GL_LINE_STRIP)    
         for theta in range(0,365,5):      
-            p = theta * 3.14159/180.0
+            p = theta * np.pi/180.0
             
 
             i = n-1
@@ -210,7 +208,7 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         glColor(1.0,1.0,0.0)
 
               
-        return (x[i],y[i])
+        return x[i], y[i]
     
     
     
@@ -218,21 +216,20 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         self.can.glSetCurrent()
         self.clear_list()
         z = [0 for i in range(self.rows)]
-
         for i in range(len(t)):                                                        
             glNewList(self.glListStart + surf[i], GL_COMPILE_AND_EXECUTE)        
             glColor(1.0,1.0,1.0)                                   
-            if(i == 0):
+            if i == 0:
                 glBegin(GL_LINES)
                 glVertex(0,0,0)
-                glVertex(t_cum[len(t_cum)-1],0,0)
+                glVertex(t_cum[-1],0,0)
                 glEnd()        
         
             glColor(1.0,1.0,0.0)                                   
             z[i] = self.draw_surface(c[i],t_cum[i],h[i],10)
             
-            if(i > 0):                        
-                if(n[i-1] != 1):
+            if i > 0:
+                if n[i-1] != 1:
                     glBegin(GL_LINES)
 
                     glVertex3f(float(z[i-1][0]),float(z[i-1][1]),0)

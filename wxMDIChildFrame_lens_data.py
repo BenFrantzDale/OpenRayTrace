@@ -46,7 +46,7 @@ from cmath import *
 import math
 import numpy as np
 from ray_trace import *
-
+import numpy as np
 
 WIDTH=640.0
 HEIGHT=480.0
@@ -442,7 +442,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         val = self.grid1.GetCellValue(r,c)
         #print r,c,val
         
-        if(val != ''):
+        if val != '':
             val = float(val)                                    
             draw = self.fill_in_values(r,c,val)            
             self.update_display()                            
@@ -562,7 +562,9 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         if (self.grid1.GetCellValue(r,BENDING) == ''):
             self.grid1.SetCellValue(r,BENDING,str(0.0))
                     
-        if(c == FLENGTH): #focal length changed
+        if c == FLENGTH: #focal length changed
+            if val == 0:
+                val = '' # Shorthand for flat is zero.
             self.grid1.SetCellValue(r,POWER,str(1.0/val)) #set power            
             if (self.grid1.GetCellValue(r+1,APERATURE_RADIUS) == ''):
                 self.grid1.SetCellValue(r+1,APERATURE_RADIUS,str(1.0))
@@ -574,7 +576,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 self.grid1.SetCellValue(r+1,BENDING,str(0))                                                         
             self.update_radius(r)            
                 
-        if(c == POWER): #power has changed    
+        if c == POWER: #power has changed    
             self.grid1.SetCellValue(r,FLENGTH,str(1.0/val))
             
             if (self.grid1.GetCellValue(r+1,APERATURE_RADIUS) == ''):
