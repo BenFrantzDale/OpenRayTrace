@@ -524,6 +524,9 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                     raydirs = [normalized(epCtr - objPt)] * fp_i
                     offsets = pupilPts - epCtr
                 
+                rays = DataModel.Rays(np.transpose([objPt+offset for offset in offsets]),
+                                      np.transpose([direction for direction in raydirs]))
+                traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
                 for i, (offset, direction) in enumerate(zip(offsets,
                                                           raydirs)):
                     #go to aperature radius
@@ -533,11 +536,11 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                     #direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
                     #print "direction {}: {} -> {}".format(i, objPt + offset, direction)
                     
-                    rays = DataModel.Rays((objPt+offset)[:,None], direction[:,None]);
-                    traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
-                    z[i], y[i], x[i] = traces[:,:,0].T
-                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,np.zeros_like(self.t_cum[surf_i:]), color=color)
+                    #rays = DataModel.Rays((objPt+offset)[:,None], direction[:,None]);
+                    #traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
+                    z[i], y[i], x[i] = traces[:,:,i].T
                     cnt+=1
+                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,np.zeros_like(self.t_cum[surf_i:]), color=color)
 
             if not len(self.t_cum) or self.t_cum[-1] == 0: 
                 k = 1
