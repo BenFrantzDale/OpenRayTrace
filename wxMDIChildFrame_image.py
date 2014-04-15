@@ -72,20 +72,23 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
         self.Show()
         self.can.glSetCurrent()
         self.can.set_bg_color([0.0,0.0,0.0])
-
-
         self.rays = 10
+        self.__listsInitialized = False
+        self.can.glSetCurrent()
+        self.__initializeLists()
 
     def __initializeLists(self):
+        if self.__listsInitialized: return
         self.glRayListStart = glGenLists(self.rays)
         self.rayList = range(self.glRayListStart,self.glRayListStart+self.rays)        
         self.can.set_ray_list(self.rayList)        
         random.seed()
         self.can.Rotateable(False)
-        
+        self.__listsInitialized = True
         
     def clear_list(self):
         self.can.glSetCurrent()
+        self.__initializeLists()
         glDeleteLists(self.glRayListStart,self.rays)                
         self.glRayListStart = glGenLists(self.rays)
         self.rayList = range(self.glRayListStart,self.glRayListStart+self.rays)        

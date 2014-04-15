@@ -68,6 +68,10 @@ class myGLCanvas(glcanvas.GLCanvas):
         self.y = 0
         
 
+    def glSetCurrent(self):
+        print "glSetCurrent", self
+        self.SetCurrent(self.context)
+
     def OnEraseBackground(self, event):
         self.glSetCurrent()  
 

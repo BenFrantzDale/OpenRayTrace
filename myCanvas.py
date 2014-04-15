@@ -50,7 +50,6 @@ class myCanvas(myGLCanvas):
         self.lens_list = []
         self.ray_list  = []              
         self.color = [0,0,0]
-
     def InitGL(self):
         self.glSetCurrent()          
         glViewport(0, 0, self.WIDTH, self.HEIGHT)  #setup the view port
@@ -105,7 +104,7 @@ class myCanvas(myGLCanvas):
         glFlush()
         self.SwapBuffers() 
     
-    def glSetCurrent(self):
+    def ___glSetCurrent(self):
         try:
         
             self.SetCurrent()

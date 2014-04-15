@@ -65,7 +65,7 @@ class BoaApp(wx.App):
         #self.main = wxFrameRayTrace.create(None)
         # needed when running from Boa under Windows 9X
         self.SetTopWindow(self.main)
-        #self.main.Show();self.main.Hide();self.main.Show()
+        self.main.Show() #;self.main.Hide();self.main.Show()
         return True
 
 def main():

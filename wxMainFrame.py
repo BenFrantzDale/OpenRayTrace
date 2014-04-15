@@ -121,10 +121,8 @@ class wxMainFrame(wx.MDIParentFrame):
 
     def __init__(self, parent):
         self._init_ctrls(parent)                                    
-        self.Maximize()
+        #self.Maximize()
         
-        
-                
         self.ogl      = wxMDIChildFrame_lens_system_ogl.create(self)      
         self.lens     = wxMDIChildFrame_lens_data.create(self)
         self.trace    = wxMDIChildFrame_ray_data.create(self)
@@ -134,11 +132,17 @@ class wxMainFrame(wx.MDIParentFrame):
         #self.abr      = wxMDIChildFrame_aberrations.create(self)
         self.img      = wxMDIChildFrame_image.create(self)
         
-        self.paraxial.Hide()        
-        self.spot.Hide()        
-        self.img.Hide()        
-        self.trace.Hide()        
-        
+        if False:
+            self.paraxial.Hide()        
+            self.spot.Hide()        
+            self.img.Hide()        
+            self.trace.Hide()        
+        else:
+            self.paraxial.Show()        
+            self.spot.Show()        
+            self.img.Show()        
+            self.trace.Show()        
+
         self.Tile()
         self.Cascade()
         self.Tile()
@@ -148,12 +152,11 @@ class wxMainFrame(wx.MDIParentFrame):
         self.saveable = False
         
         showDialog = True
-        if(showDialog):
+        if showDialog:
             msg =  'OpenRayTrace, Copyright (C) 2007 Andrew Wilson\nOpenRayTrace comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it under certain conditions (see About menu)'
-            dlg = wx.MessageDialog(self,msg,
-            'GPL Copyright', wx.OK | wx.ICON_INFORMATION)
-            dlg.ShowModal()
-            dlg.Destroy()
+            self.dlg = wx.MessageDialog(self, msg, 'GPL Copyright', wx.OK | wx.ICON_INFORMATION)
+            self.dlg.ShowModal()
+            #dlg.Destroy()
         
     def OnMenu_drawingMenu(self, event):
         id = event.GetId()
@@ -161,7 +164,6 @@ class wxMainFrame(wx.MDIParentFrame):
             self.ogl.reset_view()
         elif(id == wxID_WXMAINFRAMEMENU_DRAWINGSPOTDIAGRAM):
             self.spot.Show()
-            
             
         event.Skip()
 

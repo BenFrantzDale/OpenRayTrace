@@ -72,8 +72,12 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         self.can = myCanvas(self)
         self.can.centered = False
         self.rows = 40
+        self.__listsInitialized = False
+        self.can.glSetCurrent()
+        self.__initializeLists()
 
     def __initializeLists(self):
+        if self.__listsInitialized: return
         self.glListStart = glGenLists(self.rows + 1)
         self.l = range(self.glListStart, self.glListStart + self.rows)
         self.can.set_lens_list(self.l)
@@ -83,9 +87,11 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         self.glRayListStart = glGenLists(self.rays)
         self.l = range(self.glRayListStart,self.glRayListStart + self.rays)
         self.can.set_ray_list(self.l)
+        self.__listsInitialized = True
         
     def clear_list(self):
         self.can.glSetCurrent()
+        self.__initializeLists()
         glDeleteLists(self.glRayListStart,self.rays)                
         self.glRayListStart = glGenLists(self.rays)
         self.rayList = range(self.glRayListStart,self.glRayListStart+self.rays)        
