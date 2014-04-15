@@ -63,6 +63,8 @@ class Surface(object):
     def n(self, wavelength): return self._glass.n(wavelength)
     @property
     def glass(self): return self._glass
+    @glass.setter
+    def glass(self, val): self._glass = val
     @property
     def thickness(self): return self._thickness
     @thickness.setter

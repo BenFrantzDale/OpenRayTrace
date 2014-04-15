@@ -1,3 +1,4 @@
+from __future__ import division
 #Boa:MDIChild:wxMDIChildFrame_lens_data
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
@@ -137,8 +138,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         """Given a DataModel.Surface, return the row of values as a dictionary."""
         getter = {'f-length': lambda s: None,
                   'power': lambda s: None,
-                  'curvature': lambda s: 1/s.R,
-                  'radius': lambda s: s.R,
+                  'curvature': lambda s: 1/s.R if hasattr(s, 'R') else 0.0,
+                  'radius': lambda s: s.R if hasattr(s, 'R') else np.inf,
                   'thickness': lambda s: s.thickness,
                   'aperature radius': lambda s: s.semidiam,
                   'glass': lambda s: s.n(None),
@@ -451,6 +452,12 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         #print r,c,val
         
         if val != '':
+            try:
+                rowData = self.surfToRowData(self.__system.surfaces[r])
+            except Exception as e:
+                import epdb;epdb.st()
+            if str(rowData[self.col_labels[c]]) == val:
+                return # Value not actually changed.
             val = float(val)                                    
             draw = self.fill_in_values(r,c,val)            
             self.update_display(event)
@@ -463,7 +470,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             mag = u[0]/u[len(u)-1]
                 
             self.staticText_mag.SetLabel(str(mag))
-            if(self.checkBox_autofocus.GetValue()):
+            if self.checkBox_autofocus.GetValue():
                 self.grid1.SetCellValue(len(self.t)-1,THICKNESS,str(l))
                 draw = self.fill_in_values(len(self.t)-1,THICKNESS,l)            
                 self.update_display()                            
@@ -485,7 +492,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 # Loop over field points:
                 for fp_i, objPt, color in [(10, (0,0,0), (0.8,0.2,0.2)),
                                            (10, (0,self.object_height,0), (0.2,0.8,0.2))]:
-                    for i in range(-fp_i/2+1, fp_i/2):                        
+                    for i in range(-fp_i//2+1, fp_i//2):
                         #go to aperature radius
                         assert self.t[surf_i] != 0
                         direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
@@ -499,7 +506,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                         
                 if False:
                     ray_1 = 10
-                    for i in range(-ray_1/2+1, ray_1/2):
+                    for i in range(-ray_1//2+1, ray_1//2):
                         #go to aperature radius
                         if self.t[surf_i] != 0:
                             Yi = (i/(ray_1/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]])
@@ -547,14 +554,10 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 #self.GetParent().abr.calc_abr(self.t,self.n,self.c,self.t_cum,self.h,self.object_height)
                 
         
-
-        
-    
-    
-    
-    
     
     def fill_in_values(self,r,c,val):                               
+        print 'fill_in_values',(r,c,val)
+        self._sync_system_to_grid(r, c, val)
         #AUTOFILL SOME STUFF
         if (self.grid1.GetCellValue(r,GLASS) == ''):
             self.grid1.SetCellValue(r,GLASS,str(1))
@@ -612,6 +615,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                         
         if(c == RADIUS): #radius changed
             #update the curvature
+            
             if(val != 0):
                 self.grid1.SetCellValue(r,CURVATURE,str(1.0/val))
             else:
@@ -662,6 +666,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         return True
 
     def update_display(self, event=None):
+        print 'update_display',event
         thickness = 0                
         
         self.t = []
@@ -669,7 +674,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.c = []
         self.n = []
         self.h = []
-        surf = []
+        surf_i = []
             
         t1 = 0
         colors = [self.GetParent().ogl._lensSurfaceColor] * self.rows
@@ -679,29 +684,20 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             #print "Row:", row, event.GetRow()
             if row is not None and row < self.rows:
                 colors[row] = (1.0,0.0,0.0)
-        for i in range(self.rows):                        
-            def cell(key):
-                return self.grid1.GetCellValue(i, key)
-            thickness = cell(THICKNESS)
-            bent_c    = cell(BENT_C)
-            aperature_radius = cell(APERATURE_RADIUS)
-            if (thickness        != '' or
-                bent_c           != '' or
-                aperature_radius != ''):
+        for i, surf in enumerate(self.__system):                        
+            if (surf.thickness is not None or #                bent_c           != '' or
+                surf.semidiam is not None):
                 
                 #if not np.isfinite(float(thickness)): continue # Skip object or image at infinity.
         
-                self.c.append(float(bent_c) if bent_c else float(cell(CURVATURE)))
-                self.h.append(float(aperature_radius))
-                surf.append(i)    
-                    
-                glass_n = cell(GLASS)
-                self.n.append(float(glass_n) if glass_n else 1.0)
+                self.c.append(float(1/surf.R))
+                self.h.append(float(surf.semidiam))
+                surf_i.append(i)
+                self.n.append(surf.n(None))
             
             
-            if thickness != '':
-                t1 += float(thickness)
-                self.t.append(float(thickness))
+                t1 += float(surf.thickness)
+                self.t.append(float(surf.thickness))
         # We want t_cum to be the positions of each surface. Need to deel with infinate thicknesses at ends of the system.
         if len(self.t) == 0 or np.isfinite(self.t[0]):
             self.t_cum = np.hstack([[0], np.cumsum(self.t)])
@@ -709,10 +705,12 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             self.t_cum = np.hstack([[-np.inf, 0], np.cumsum(self.t[1:])])
             
         l = range(1,self.rows)
-        self.GetParent().ogl.draw_lenses(self.t,surf,self.t_cum,self.c,self.n,self.h,colors=colors)
+        self.GetParent().ogl.draw_lenses(self.t,surf_i,self.t_cum,self.c,self.n,self.h,colors=colors)
 
 
     def update_power(self,r):            
+        print 'update_power',(r,)
+        #import epdb;epdb.st()
         if(self.grid1.GetCellValue(r+1,CURVATURE) != ''):
             n = self.grid1.GetCellValue(r,GLASS)
             if(n != ''):
@@ -720,7 +718,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             else:
                 return -1
             
-            if(n != 1):            
+            if(n != 1):  
                 #update the power
                 c1 = float(self.grid1.GetCellValue(r,CURVATURE))
                 c2 = float(self.grid1.GetCellValue(r+1,CURVATURE))                                            
@@ -758,6 +756,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 self.grid1.SetCellValue(r-1,FLENGTH,str(1.0/phi))
 
     def update_radius(self,r):        
+            print 'update_radius',(r,)
             phi = self.grid1.GetCellValue(r,POWER)
             if(phi != ''):
                 phi = float(phi)
@@ -805,7 +804,6 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         
 
     def set_data(self, data):
-        import epdb;epdb.st()
         self._sync_grid_to_system()
         for ri, row in enumerate(data):
             for ci, cell in enumerate(row):
@@ -815,8 +813,6 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             self.OnGrid1GridCellChange(None,r,CURVATURE)
 
     def _sync_grid_to_system(self):
-        import epdb;epdb.st()
-        #self.grid1.CreateGrid(
         newNumRows = max(1, self.rows)
         if self.grid1.GetNumberRows() < newNumRows:
             self.grid1.InsertRows(self.grid1.GetNumberRows(), newNumRows - self.grid1.GetNumberRows())
@@ -830,6 +826,18 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         for r in range(self.rows):
             self.OnGrid1GridCellChange(None,r,CURVATURE)
 
+
+    def _sync_system_to_grid(self, r, c, val):
+        """Sync the given entry to the system model."""
+        surface = self.__system.surfaces[r]
+        label = self.col_labels[c]
+        if label == 'curvature': surface.R = 1.0 / val
+        elif label == 'radius': surface.R = val
+        elif label == 'thickness': surf.thickness = val
+        elif label == 'aperature radius': surf.semidiam = val
+        elif label == 'glass': surf.glass = DataModel.SimpleGlass(val)
+        else:
+            print "Unimplemented."
             
     def clear_data(self):       
         for r in range(self.rows):
@@ -945,7 +953,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
 
 def loadZMXAsTable(zmxfilename):
-    colLables = dict((label.strip(), i) for i, label in enumerate(wxMDIChildFrame_lens_data.col_labels))
+    colLabels = dict((label.strip(), i) for i, label in enumerate(wxMDIChildFrame_lens_data.col_labels))
     surfaces = []
     with open(zmxfilename, 'r') as fh:
         lines = fh.readlines()
@@ -957,7 +965,7 @@ def loadZMXAsTable(zmxfilename):
         if line.startswith('SURF'):
             isStop = False
             glass_n = 1.0
-            row = [None] * len(colLables) # New blank row.
+            row = [None] * len(colLabels) # New blank row.
             while i < len(lines) - 1:
                 i += 1
                 line = lines[i]
@@ -966,14 +974,14 @@ def loadZMXAsTable(zmxfilename):
                 elif 'TYPE STANDARD' in line or 'TYPE EVENASPH' in line:
                     pass # Other surfaces not implemented.
                 elif 'CURV' in line:
-                    row[colLables['curvature']] = float(line.split()[1])
+                    row[colLabels['curvature']] = float(line.split()[1])
                 elif 'DIAM' in line:
-                    row[colLables['aperature radius']] = float(line.split()[1]) / 2.0
+                    row[colLabels['aperature radius']] = float(line.split()[1]) / 2.0
                 elif 'DISZ' in line:
-                    row[colLables['thickness']] = float(line.split()[1])
+                    row[colLabels['thickness']] = float(line.split()[1])
                 elif 'GLAS' in line:
                     parts = line.split()
-                    row[colLables['glass']] = float(parts[4])
+                    row[colLabels['glass']] = float(parts[4])
                     # glass_name = parts[1]
                 if not line.startswith(' '):
                     i -= 1
