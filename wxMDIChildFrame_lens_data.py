@@ -712,6 +712,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.n = []
         self.h = []
         surf_i = []
+        stop_index = None
             
         t1 = 0
         colors = [self.GetParent().ogl._lensSurfaceColor] * self.rows
@@ -731,10 +732,11 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 self.h.append(float(surf.semidiam))
                 surf_i.append(i)
                 self.n.append(surf.n(None))
-            
-            
+                
                 t1 += float(surf.thickness)
                 self.t.append(float(surf.thickness))
+                if surf is self.__system.apertureStop:
+                    stop_index = i
         # We want t_cum to be the positions of each surface. Need to deel with infinate thicknesses at ends of the system.
         if len(self.t) == 0 or np.isfinite(self.t[0]):
             self.t_cum = np.hstack([[0], np.cumsum(self.t)])
@@ -742,7 +744,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             self.t_cum = np.hstack([[-np.inf, 0], np.cumsum(self.t[1:])])
             
         l = range(1,self.rows)
-        self.GetParent().ogl.draw_lenses(self.t,surf_i,self.t_cum,self.c,self.n,self.h,colors=colors)
+        self.GetParent().ogl.draw_lenses(self.t,surf_i,self.t_cum,self.c,self.n,self.h,colors=colors,
+                                         stop_index=stop_index)
 
 
     def update_power(self,r):            
