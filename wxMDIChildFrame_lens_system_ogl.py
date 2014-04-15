@@ -133,29 +133,14 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     def draw_surface(self,c,t,h,n):        
         self.can.glSetCurrent()
         
-        if c != 0:
-            r = 1/c
-        else:
-            r = 1E5
+        r = 1 / c if c else 1e5
                         
         n+=1
         
 
         #draw part of lens surface
-        if h*h < r*r:
-
-            b = pow(r*r - h*h, 0.5)        
-        else:
-            b = 0
-            
-
-        if(r > 0):
-
-            a = r - b    
-
-        else:
-
-            a = r + b            
+        b = np.sqrt(r**2 - h**2) if h**2 < r**2 else 0.0
+        a = r - b  if r > 0 else r + b
         inc = a / n        
         
         #calc lens shape
@@ -164,27 +149,7 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         x2 = [(i*inc - r)*(i*inc - r) for i in range(n)]                
         r2 = r*r 
         for i in range(n):
-            if(x2[i] < r2):
-                y[i] = pow(r2 - x2[i],.5)
-            else:
-                y[i] = 0
-                                    
-
-##        glBegin(GL_LINE_STRIP)    
-
-##        for i in range(n):                    
-
-##            glVertex3f(x[i],y[i],0)            
-
-##        glEnd()
-##      
-##        glBegin(GL_LINE_STRIP)    
-
-##        for i in range(n):                    
-
-##            glVertex3f(x[i],-y[i],0)            
-
-##        glEnd()
+            y[i] = np.sqrt(r2 - x2[i]) if x2[i] < r2 else 0.0
               
         for theta in range(0,359,180):      
             p = theta * np.pi / 180.0
