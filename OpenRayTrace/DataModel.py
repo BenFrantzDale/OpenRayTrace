@@ -302,6 +302,11 @@ class System(object):
         return result
     @property
     def apertureStop(self): return self._apertureStop
+    @apertureStop.setter
+    def apertureStop(self, newOne): 
+        if newOne not in self._surfaces:
+            raise TypeError('New aperature stop must be in the System.')
+        self._apertureStop = newOne
     
     def rayTransferMatrix(self, wavelength=None):
         TM = np.eye(2)
