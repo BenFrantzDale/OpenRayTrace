@@ -122,17 +122,17 @@ def create(parent):
  wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT, 
 ] = [wx.NewId() for _init_coll_menu_glass_Items in range(2)]
 
-[wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUCOPY, 
- wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE, 
- wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER, 
- wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE, 
- wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUPASTE, 
-] = [wx.NewId() for _init_coll_row_menu_Items in range(5)]
-
 [wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS] = [wx.NewId() for _init_coll_menu_thickness_Items in range(1)]
+
 
 class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     col_label = ('f-length  ','power    ','curvature    ','radius   ','thickness    ','aperature radius ','glass    ','bending','bent c','bent r')
+    [DATAROW_MENUCOPY, 
+     DATAROW_MENUDELETE, 
+     DATAROW_MENUINSERTAFTER, 
+     DATAROW_MENUINSERTBEFORE, 
+     DATAROW_MENUPASTE] = [wx.NewId() for _ in range(5)]
+    
     def _init_coll_boxSizerBottom_Items(self, parent):
         # generated method, don't edit
 
@@ -199,30 +199,13 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
               span=(1, 1))
 
     def _init_coll_row_menu_Items(self, parent):
-        # generated method, don't edit
-
-        parent.Append(help='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE,
-              kind=wx.ITEM_NORMAL, text='Insert Before')
-        parent.Append(help='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER,
-              kind=wx.ITEM_NORMAL, text='Insert After')
-        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE,
-              kind=wx.ITEM_NORMAL, text='Delete')
-        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUCOPY,
-              kind=wx.ITEM_NORMAL, text='Copy')
-        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUPASTE,
-              kind=wx.ITEM_NORMAL, text='Paste')
-        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE)
-        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER)
-        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE)
-        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUCOPY)
-        self.Bind(wx.EVT_MENU, self.OnRow_menuitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUPASTE)
+        for ID, text in [(self.DATAROW_MENUINSERTBEFORE, 'Insert Before'),
+                         (self.DATAROW_MENUINSERTAFTER,  'Insert After'),
+                         (self.DATAROW_MENUDELETE,       'Delete'),
+                         (self.DATAROW_MENUCOPY,         'Copy'),
+                         (self.DATAROW_MENUPASTE,        'Paste')]:
+            parent.Append(id=ID, text=text, kind=wx.ITEM_NORMAL, help='')
+            self.Bind(id=ID, event=wx.EVT_MENU, handler=self.OnRow_menuitems0Menu)
 
     def _init_coll_menu_glass_Items(self, parent):
         # generated method, don't edit
@@ -502,7 +485,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 
                                                                                                                 
                 
-                if not self.t_cum or self.t_cum[-1] == 0: 
+                if not len(self.t_cum) or self.t_cum[-1] == 0: 
                     k = 1
                 else:
                     k = self.t_cum[-1] # Cumulative thickness.
@@ -656,8 +639,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 
         
         self.t = []
-        self.t_cum = []        
-        self.t_cum.append(0)
+        self.t_cum = None
         self.c = []
         self.n = []
         self.h = []
@@ -674,7 +656,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 bent_c           != '' or
                 aperature_radius != ''):
                 
-                if not np.isfinite(float(thickness)): continue # Skip object or image at infinity.
+                #if not np.isfinite(float(thickness)): continue # Skip object or image at infinity.
         
                 self.c.append(float(bent_c) if bent_c else float(cell(CURVATURE)))
                 self.h.append(float(aperature_radius))
@@ -687,12 +669,16 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             if thickness != '':
                 t1 += float(thickness)
                 self.t.append(float(thickness))
-                self.t_cum.append(t1) # Could just use np.cumsum after this loop.
-
-                                
+        # We want t_cum to be the positions of each surface. Need to deel with infinate thicknesses at ends of the system.
+        if np.isfinite(self.t[0]):
+            self.t_cum = np.hstack([[0], np.cumsum(self.t)])
+        else:
+            self.t_cum = np.hstack([[-np.inf, 0], np.cumsum(self.t[1:])])
+            
         l = range(1,self.rows)
         
         self.GetParent().ogl.draw_lens(self.t,surf,self.t_cum,self.c,self.n,self.h)
+
         
         
 
@@ -837,17 +823,16 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         event.Skip()
 
     def OnRow_menuitems0Menu(self, event):
-        (r,c) = (self.grid1.GetGridCursorRow(),self.grid1.GetGridCursorCol())
+        r, c = self.grid1.GetGridCursorRow(), self.grid1.GetGridCursorCol()
         id = event.GetId()
         
-        
-        if(id ==  wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_AFTER):
+        if id == self.DATAROW_MENUINSERTAFTER:
             self.grid1.InsertRows(r+1)
             self.rows+=1
-        elif(id ==  wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_BEFORE):
+        elif id == self.DATAROW_MENUINSERTBEFORE:
             self.grid1.InsertRows(r)            
             self.rows+=1
-        elif(id ==   wxID_WXMDICHILDFRAME_LENS_DATAMENU1DELETE):            
+        elif id == self.DATAROW_MENUDELETE:
             self.grid1.DeleteRows(r)
             self.rows-=1
             
