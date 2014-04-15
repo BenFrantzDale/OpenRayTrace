@@ -533,31 +533,11 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                     #direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
                     #print "direction {}: {} -> {}".format(i, objPt + offset, direction)
                     
-                    x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt + offset, direction[::-1],
-                                                             self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
                     rays = DataModel.Rays((objPt+offset)[:,None], direction[:,None]);
                     traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
-                    print 'old\n',np.array([x[i], y[i], z[i]]).T
                     z[i], y[i], x[i] = traces[:,:,0].T
-                    print traces[:,:,0]
                     self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,np.zeros_like(self.t_cum[surf_i:]), color=color)
                     cnt+=1
-
-
-            if False:
-                ray_1 = 10
-                for i in range(-ray_1//2+1, ray_1//2):
-                    #go to aperature radius
-                    if self.t[surf_i] != 0:
-                        Yi = (i/(ray_1/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]])
-                        Zi = 0.0                
-                        Xi =  np.sqrt(1.0 - Yi**2 - Zi**2)
-                        x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray((0,self.object_height,0),(Xi,Yi,Zi),
-                                                                 self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
-                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, self.t_cum, color = (0.2,0.8,0.2))
-                        cnt+=1
-
-
 
             if not len(self.t_cum) or self.t_cum[-1] == 0: 
                 k = 1

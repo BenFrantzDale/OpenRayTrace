@@ -195,7 +195,6 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         
             glColor(*colors[i])
             isFlatSameMat = (c[i] == 0 and (i == 0 or n[i-1] == n[i]))
-            print "{} isFlatSameMat? {} c=={}, n-1,n={}".format(i, isFlatSameMat, c[i], (n[i-1]if i else None,n[i]))
             if i == stop_index and isFlatSameMat:
                 z[i] = np.array((t_cum[i], h[i]))
             else:
