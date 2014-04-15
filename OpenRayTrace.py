@@ -60,7 +60,8 @@ modules ={'myCanvas': [0, '', 'myCanvas.py'],
 
 class BoaApp(wx.App):
     def OnInit(self):
-        self.main = wxMainFrame.create(None)
+        import sys
+        self.main = wxMainFrame.wxMainFrame(None, sys.argv)
         
         #self.main = wxFrameRayTrace.create(None)
         # needed when running from Boa under Windows 9X

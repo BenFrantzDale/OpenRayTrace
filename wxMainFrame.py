@@ -33,9 +33,6 @@ from myCanvas import *
 
 TITLE = 'OpenRayTrace:   '
 
-def create(parent):
-    return wxMainFrame(parent)
-
 [wxID_WXMAINFRAME] = map(lambda _init_ctrls: wx.NewId(), range(1))
 
 [wxID_WXMAINFRAMEMENUEXIT, wxID_WXMAINFRAMEMENUNEW, 
@@ -119,7 +116,7 @@ class wxMainFrame(wx.MDIParentFrame):
         self.SetAutoLayout(True)
         self.SetMenuBar(self.menuBar)
 
-    def __init__(self, parent):
+    def __init__(self, parent, argv=()):
         self._init_ctrls(parent)                                    
         #self.Maximize()
         
@@ -157,6 +154,14 @@ class wxMainFrame(wx.MDIParentFrame):
             self.dlg = wx.MessageDialog(self, msg, 'GPL Copyright', wx.OK | wx.ICON_INFORMATION)
             self.dlg.ShowModal()
             #dlg.Destroy()
+        if len(argv) > 1:
+            assert len(argv) == 2, "Up to one filename handled."
+            if argv[1].lower().endswith('.zmx'):
+                from OpenRayTrace.DataModel import System
+                self.file_name = argv[1]
+                self.lens.setSystem(System.loadZMX(self.file_name))
+            else:
+                raise TypeError("Unrecognized argument: {}".format(argv[1]))
         
     def OnMenu_drawingMenu(self, event):
         id = event.GetId()
