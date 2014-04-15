@@ -40,7 +40,7 @@ import wx
 from myCanvas import *
 import math
 from ray_trace import *
-from Numeric import *
+#from Numeric import *
 import random
 #from scipy import *
 
@@ -57,7 +57,7 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_IMAGE,
+        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_IMAGE,
               name='wxMDIChildFrame_image', parent=prnt, pos=wx.Point(348, 145),
               size=wx.Size(1200, 854), style=wx.DEFAULT_FRAME_STYLE,
               title='Image Trace')

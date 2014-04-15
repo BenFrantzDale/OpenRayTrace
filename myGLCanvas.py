@@ -32,20 +32,20 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from wxPython.wx import *
-from wxPython.glcanvas import *
+from wx import *
+from wx.glcanvas import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 import cmath
-from Numeric import *
+#from Numeric import *
 import math
 
           
-class myGLCanvas(wxGLCanvas):
+class myGLCanvas(GLCanvas):
     def __init__(self, parent):
-        wxGLCanvas.__init__(self,parent,-1)
+        GLCanvas.__init__(self,parent,-1)
                 
         self.init = False
         
@@ -73,7 +73,7 @@ class myGLCanvas(wxGLCanvas):
 
         pass # Do nothing, to avoid flashing on MSW.
     
-    def OnSize(self, event = NULL):
+    def OnSize(self, event = None):
         
         self.glSetCurrent()  
         size = self.GetClientSize()
@@ -97,7 +97,7 @@ class myGLCanvas(wxGLCanvas):
         self.Refresh(False)
         
             
-    def OnPaint(self, event=NULL):
+    def OnPaint(self, event=None):
         self.glSetCurrent()  
         dc = wxPaintDC(self)
         self.glSetCurrent()

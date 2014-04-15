@@ -44,7 +44,7 @@ from math  import *
 def create(parent):
     return wxMDIChildFrame_lens_system_ogl(parent)
 
-[wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = map(lambda _init_ctrls: wxNewId(), range(1))
+[wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = map(lambda _init_ctrls: wx.NewId(), range(1))
 
 [wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = [wx.NewId() for _init_ctrls in range(1)]
 
@@ -74,8 +74,8 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         self.can.centered = False
         
         self.rows = 40
-        self.glListStart =  glGenLists(self.rows + 1)
-        self.l = range(self.glListStart,self.glListStart + self.rows)
+        self.glListStart = glGenLists(self.rows + 1)
+        self.l = range(self.glListStart, self.glListStart + self.rows)
         self.can.set_lens_list(self.l)
                  
         

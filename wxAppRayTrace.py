@@ -37,7 +37,7 @@
 
 
 
-from wxPython.wx import *
+from wx import *
 
 #import wxFrameRayTrace
 import wxMainFrame
@@ -58,9 +58,9 @@ modules ={'myCanvas': [0, '', 'myCanvas.py'],
  'wxMDIChildFrame_spot_diagram': [0, '', 'wxMDIChildFrame_spot_diagram.py'],
  'wxMainFrame': [0, '', 'wxMainFrame.py']}
 
-class BoaApp(wxApp):
+class BoaApp(wx.App):
     def OnInit(self):
-        wxInitAllImageHandlers()
+        wx.InitAllImageHandlers()
         
         self.main = wxMainFrame.create(None)
         

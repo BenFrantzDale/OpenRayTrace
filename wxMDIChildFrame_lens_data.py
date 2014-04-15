@@ -37,14 +37,14 @@
 
 import wx
 import wx.grid
-from wxPython.grid import *
+from wx.grid import *
 import wxDialog_wavelengths
 
 from myCanvas import *
 import os, string
 from cmath import *
 import math
-from Numeric import *
+#from Numeric import *
 from ray_trace import *
 
 
@@ -423,19 +423,19 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def OnWxframeopenmodalSize(self, event):
         event.Skip()
     
-    def OnRadiobutton_const_powerRadiobutton(self, event=NULL):
+    def OnRadiobutton_const_powerRadiobutton(self, event=None):
         self.hold_power = True
         self.hold_radius = False
  #       event.Skip()
 
-    def OnRadiobutton_const_radiusRadiobutton(self, event=NULL):
+    def OnRadiobutton_const_radiusRadiobutton(self, event=None):
         self.hold_power = False
         self.hold_radius = True
     
 
-    def OnGrid1GridCellChange(self, event=NULL,r=NULL,c=NULL):  
+    def OnGrid1GridCellChange(self, event=None,r=None,c=None):  
 ##        self.grid1.AutoSize()
-        if(event != NULL):
+        if(event != None):
             r = event.GetRow()
             c = event.GetCol() 
         
@@ -781,7 +781,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         for r in range(self.rows):
             [self.grid1.SetCellValue(r,c,data[r][c]) for c in range(len(self.col_label) )]
         for r in range(self.rows):
-            self.OnGrid1GridCellChange(NULL,r,CURVATURE)
+            self.OnGrid1GridCellChange(None,r,CURVATURE)
                         
             
     def clear_data(self):       
@@ -848,7 +848,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         id = event.GetId()
         if(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSITEMS0):
             self.checkBox_autofocus.SetValue(True)
-            self.OnGrid1GridCellChange(NULL,r, c)
+            self.OnGrid1GridCellChange(None,r, c)
             self.checkBox_autofocus.SetValue(False)
     
     def OnMenu_glassitems0Menu(self, event):
@@ -864,7 +864,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
     def OnTextctrl_object_heightText(self, event):
         self.object_height = float(self.textCtrl_object_height.GetValue())
-        self.OnGrid1GridCellChange(event=NULL,r=0,c=THICKNESS)               
+        self.OnGrid1GridCellChange(event=None,r=0,c=THICKNESS)               
         event.Skip()
 
     def OnButton_compute_allButton(self, event):
@@ -875,14 +875,14 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.waves.Show()                                                         
         event.Skip()
 
-    def OnButton_spot_diagramsButton(self, event = NULL):
+    def OnButton_spot_diagramsButton(self, event = None):
         if(not self.GetParent().spot.IsShown()):
             self.GetParent().spot.Show()
         self.GetParent().spot.draw_spots(self.t,self.n,self.c,self.t_cum,self.h,self.object_height)            
         
         
 
-    def OnButton_imageButton(self, event= NULL):           
+    def OnButton_imageButton(self, event= None):           
         if(not self.GetParent().img.IsShown()):
             self.GetParent().img.Show()
 

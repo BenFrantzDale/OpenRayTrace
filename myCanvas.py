@@ -35,7 +35,7 @@
 from myGLCanvas import *
 
 import cmath
-from Numeric import *
+#from Numeric import *
 import math
 
 

@@ -39,13 +39,13 @@ import wx
 from myCanvas import *
 #import math
 from ray_trace import *
-from Numeric import *
+#from Numeric import *
 
 
 def create(parent):
     return wxMDIChildFrame_spot_diagram(parent)
 
-[wxID_WXMDICHILDFRAME_SPOT_DIAGRAM] = map(lambda _init_ctrls: wxNewId(), range(1))
+[wxID_WXMDICHILDFRAME_SPOT_DIAGRAM] = map(lambda _init_ctrls: wx.NewId(), range(1))
 
 [wxID_WXMDICHILDFRAME_SPOT_DIAGRAM] = [wx.NewId() for _init_ctrls in range(1)]
 

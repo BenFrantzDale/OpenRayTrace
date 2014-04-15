@@ -36,7 +36,7 @@
 
 
 
-from wxPython.wx import *
+from wx import *
 
 def create(parent,fname):
     return wxDialogSaveQuestion(parent,fname)
@@ -44,9 +44,9 @@ def create(parent,fname):
 [wxID_WXDIALOGSAVEQUESTION, wxID_WXDIALOGSAVEQUESTIONBUTTON_CANCEL, 
  wxID_WXDIALOGSAVEQUESTIONBUTTON_NO, wxID_WXDIALOGSAVEQUESTIONBUTTON_YES, 
  wxID_WXDIALOGSAVEQUESTIONSTATICTEXT, 
-] = map(lambda _init_ctrls: wxNewId(), range(5))
+] = map(lambda _init_ctrls: wx.NewId(), range(5))
 
-class wxDialogSaveQuestion(wxDialog):
+class wxDialogSaveQuestion(wx.Dialog):
     def _init_utils(self):
         # generated method, don't edit
         pass

@@ -35,8 +35,8 @@
 
 
 
-from wxPython.wx import *
-from wxPython.grid import *
+from wx import *
+from wx.grid import *
 
 [Y,U,I,YP,UP,IP] = range(6)
 
@@ -44,16 +44,16 @@ def create(parent):
     return wxMDIChildFrame_paraxial_data(parent)
 
 [wxID_WXMDICHILDFRAME_PARAXIAL_DATA, wxID_WXMDICHILDFRAME_PARAXIAL_DATAGRID1, 
-] = map(lambda _init_ctrls: wxNewId(), range(2))
+] = map(lambda _init_ctrls: wx.NewId(), range(2))
 
-class wxMDIChildFrame_paraxial_data(wxMDIChildFrame):
+class wxMDIChildFrame_paraxial_data(wx.MDIChildFrame):
     def _init_utils(self):
         # generated method, don't edit
         pass
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_PARAXIAL_DATA,
+        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_PARAXIAL_DATA,
               name='wxMDIChildFrame_paraxial_data', parent=prnt,
               pos=wxPoint(311, 198), size=wxSize(1200, 854),
               style=wxDEFAULT_FRAME_STYLE, title='Paraxial Data')
@@ -91,9 +91,9 @@ class wxMDIChildFrame_paraxial_data(wxMDIChildFrame):
         self.grid1.SetCellValue(row,UP,str(up))
         self.grid1.AutoSize()
         
-    def OnGrid1GridCellChange(self, event = NULL):
+    def OnGrid1GridCellChange(self, event = None):
         self.grid1.AutoSize()                
-        if(event != NULL):
+        if(event != None):
             r = event.GetRow()
             c = event.GetCol() 
         

@@ -1,8 +1,8 @@
 #Boa:Frame:wxFrameRayTrace
 
 from GridCustTable import *
-from wxPython.wx import *
-from wxPython.grid import *
+from wx import *
+from wxgrid import *
 from myCanvas import *
 from lens import *
 import os, string
@@ -30,7 +30,7 @@ def create(parent):
  wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_RADIUS, 
  wxID_WXFRAMERAYTRACESTATICTEXT_PARAXIAL_FOCUS, 
  wxID_WXFRAMERAYTRACESTATICTEXT_PF, 
-] = map(lambda _init_ctrls: wxNewId(), range(8))
+] = map(lambda _init_ctrls: wx.NewId(), range(8))
 
 class wxFrameRayTrace(wxFrame):
     def _init_utils(self):
@@ -608,12 +608,12 @@ class wxFrameRayTrace(wxFrame):
                 self.grid1.SetCellValue(r,CURVATURE,str(0.0))
                 self.grid1.SetCellValue(r+1,CURVATURE,str(0.0))                
 
-    def OnRadiobutton_const_powerRadiobutton(self, event=NULL):
+    def OnRadiobutton_const_powerRadiobutton(self, event=None):
         self.hold_power = True
         self.hold_radius = False
  #       event.Skip()
 
-    def OnRadiobutton_const_radiusRadiobutton(self, event=NULL):
+    def OnRadiobutton_const_radiusRadiobutton(self, event=None):
         self.hold_power = False
         self.hold_radius = True
 #        event.Skip()

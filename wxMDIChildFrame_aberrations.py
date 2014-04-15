@@ -38,7 +38,7 @@
 
 import wx
 from myCanvas import *
-from Numeric import *
+#from Numeric import *
 from ray_trace import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -56,7 +56,7 @@ class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_ABERRATIONS,
+        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_ABERRATIONS,
               name='wxMDIChildFrame_aberrations', parent=prnt, pos=wx.Point(399,
               218), size=wx.Size(1200, 854), style=wx.DEFAULT_FRAME_STYLE,
               title='Aberrations')

@@ -35,8 +35,8 @@
 
 
 
-from wxPython.wx import *
-from wxPython.grid import *
+from wx import *
+from wx.grid import *
 TSC = 0
 SC  = 1
 CC  = 2
@@ -58,16 +58,16 @@ def create(parent):
     return wxMDIChildFrame_ray_data(parent)
 
 [wxID_WXMDICHILDFRAME_RAY_DATA, wxID_WXMDICHILDFRAME_RAY_DATAGRID1, 
-] = map(lambda _init_ctrls: wxNewId(), range(2))
+] = map(lambda _init_ctrls: wx.NewId(), range(2))
 
-class wxMDIChildFrame_ray_data(wxMDIChildFrame):
+class wxMDIChildFrame_ray_data(wx.MDIChildFrame):
     def _init_utils(self):
         # generated method, don't edit
         pass
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_RAY_DATA,
+        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_RAY_DATA,
               name='wxMDIChildFrame_ray_data', parent=prnt, pos=wxPoint(447,
               260), size=wxSize(798, 498), style=wxDEFAULT_FRAME_STYLE,
               title='Ray Data')
