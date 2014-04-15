@@ -840,17 +840,16 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         event.Skip()
 
     def OnRow_menuitems0Menu(self, event):
-        (r,c) = (self.grid1.GetGridCursorRow(),self.grid1.GetGridCursorCol())
+        r, c = self.grid1.GetGridCursorRow(), self.grid1.GetGridCursorCol()
         id = event.GetId()
         
-        
-        if(id ==  wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_AFTER):
+        if id ==  wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTAFTER:
             self.grid1.InsertRows(r+1)
             self.rows+=1
-        elif(id ==  wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_BEFORE):
+        elif id ==  wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUINSERTBEFORE:
             self.grid1.InsertRows(r)            
             self.rows+=1
-        elif(id ==   wxID_WXMDICHILDFRAME_LENS_DATAMENU1DELETE):            
+        elif id ==   wxID_WXMDICHILDFRAME_LENS_DATAROW_MENUDELETE:            
             self.grid1.DeleteRows(r)
             self.rows-=1
             
