@@ -183,15 +183,19 @@ class wxMainFrame(wx.MDIParentFrame):
             
             
         elif(id == wxID_WXMAINFRAMEMENUOPEN):
-            dlg = wx.FileDialog(self, "Open Lens", ".", "", "*.lns", wx.OPEN | wx.CHANGE_DIR)
+            dlg = wx.FileDialog(self, "Open Lens", ".", "", "Lens file (*.lns)|*.lns|ZEMAX file (*.zmx)|*.zmx", wx.OPEN | wx.CHANGE_DIR)
             try:
                 if dlg.ShowModal() == wx.ID_OK:
                     self.file_name = dlg.GetPath()
                     self.SetTitle(TITLE + self.file_name)
-
-                    fd = open(self.file_name)      
-                    t = pickle.load(fd)
-                    fd.close()
+                    
+                    import os
+                    ext = os.path.splitext(self.file_name)[1].lower()
+                    if ext == '.lns':
+                        with open(self.file_name) as fd:
+                            t = pickle.load(fd)
+                    elif ext == '.zmx':
+                        t = wxMDIChildFrame_lens_data.loadZMXAsTable(self.file_name)
                     
                     self.lens.set_data(t)
                     self.saveable = True
