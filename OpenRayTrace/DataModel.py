@@ -261,8 +261,8 @@ class System(object):
                     if 'CURV' in line:
                         curv = float(line.split()[1])
                         R = 1.0 / curv if curv != 0 else np.inf
-                    if 'DIAM' in line:
-                        semidiam = float(line.split()[1]) / 2.0
+                    if 'DIAM' in line: # Note, this seems to be the semidiameter even though it's called DIAM!
+                        semidiam = float(line.split()[1])
                         if semidiam < 0.1: semidiam = 5.0
                     if 'DISZ' in line:
                         thickness = float(line.split()[1])
