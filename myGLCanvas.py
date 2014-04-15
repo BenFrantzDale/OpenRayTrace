@@ -1,3 +1,4 @@
+from __future__ import division
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -89,7 +90,10 @@ class myGLCanvas(glcanvas.GLCanvas):
         if(self.centered):            
             glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
         else:
-            glOrtho(-.1*self.K,1.1*self.K, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
+            print 'shape', self.HEIGHT, self.WIDTH
+            glOrtho(-.1*self.K,1.1*self.K, -1.1*self.K * 
+                    self.HEIGHT/self.WIDTH/2, 1.1*self.K*self.HEIGHT/self.WIDTH/2,
+                    -self.K,self.K)
         
         glMatrixMode(GL_MODELVIEW)
 
