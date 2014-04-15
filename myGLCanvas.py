@@ -84,21 +84,19 @@ class myGLCanvas(glcanvas.GLCanvas):
 
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()    
-        
+
         if self.centered:            
-            glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
+            left, right = 0.5 * np.array((-1.1, 1.1)) * self.K
         else:
-            print "glOrtho{} for {}, self.K == {}".format((-.1*self.K,1.1*self.K, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K), (self.WIDTH, self.HEIGHT), self.K)
-            left, right= np.array((-0.1, 1.1)) * self.K
-            width = right - left
-            aspect = 1.0 #(self.HEIGHT / self.WIDTH)
-            glOrtho(left,
-                    right,
-                    -0.5 * aspect * width,
-                     0.5 * aspect * width,
-                    -self.K,
-                     self.K)
-            #glOrtho(left,right,0, self.K, -self.K, self.K)
+            left, right = np.array((-0.1, 1.1)) * self.K
+        width = right - left
+        glOrthoArgs = (left,
+                       right,
+                       -0.5 * width,
+                       0.5  * width,
+                       -self.K,
+                       self.K)
+        glOrtho(*glOrthoArgs)
         
         glMatrixMode(GL_MODELVIEW)
 
@@ -265,6 +263,7 @@ class myGLCanvas(glcanvas.GLCanvas):
         self.WIDTH, self.HEIGHT = size
         
         glMatrixMode(GL_PROJECTION)
+        print 'reset view'
         glLoadIdentity()                
         if self.centered:
             glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0,
