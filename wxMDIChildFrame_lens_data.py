@@ -281,7 +281,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
               name='grid1', parent=self, pos=wx.Point(0, 87), size=wx.Size(839,
               773), style=0)
         self.grid1.Bind(EVT_GRID_CELL_CHANGE, self.OnGrid1GridCellChange)
-        self.grid1.Bind(EVT_GRID_SELECT_CELL, self.update_display) # To allow highlighting the active row.
+        self.grid1.Bind(EVT_GRID_SELECT_CELL, self.OnGrid1GridCellChange) # To allow highlighting the active row.
         self.grid1.Bind(EVT_GRID_CELL_RIGHT_CLICK,
               self.OnGrid1GridCellRightClick)
         self.grid1.Bind(EVT_GRID_LABEL_RIGHT_CLICK,
@@ -431,8 +431,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         if val != '':
             val = float(val)                                    
             draw = self.fill_in_values(r,c,val)            
-            self.update_display()                            
-
+            self.update_display(event)
 
             #compute paraxial focus
             y = 0.0
@@ -690,12 +689,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         l = range(1,self.rows)
         self.GetParent().ogl.draw_lenses(self.t,surf,self.t_cum,self.c,self.n,self.h,colors=colors)
 
-        
-        
-
 
     def update_power(self,r):            
-        
         if(self.grid1.GetCellValue(r+1,CURVATURE) != ''):
             n = self.grid1.GetCellValue(r,GLASS)
             if(n != ''):
@@ -718,29 +713,27 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 self.grid1.SetCellValue(r,POWER,str(phi))
                 self.grid1.SetCellValue(r,FLENGTH,str(1.0/phi))
             
-        if(r!=0):                  
-                                        
-            if(self.grid1.GetCellValue(r-1,CURVATURE) != ''):#then we are end of lens
-                n = self.grid1.GetCellValue(r-1,GLASS)                
-                if(n != ''):
-                    n = float(n)
+        if r and self.grid1.GetCellValue(r-1,CURVATURE) != '': # then we are end of lens
+            n = self.grid1.GetCellValue(r-1,GLASS)                
+            if n != '':
+                n = float(n)
+            else:
+                return -1
+
+            if n != 1:
+                # update the power
+                c1 = float(self.grid1.GetCellValue(r-1,CURVATURE))
+                c2 = float(self.grid1.GetCellValue(r,CURVATURE))            
+
+                t = self.grid1.GetCellValue(r-1,THICKNESS)
+                if t != '':
+                    t = float(t)
                 else:
-                    return -1
-            
-                if(n != 1):
-                    #update the power
-                    c1 = float(self.grid1.GetCellValue(r-1,CURVATURE))
-                    c2 = float(self.grid1.GetCellValue(r,CURVATURE))            
-            
-                    t   = self.grid1.GetCellValue(r-1,THICKNESS)
-                    if(t != ''):
-                        t = float(t)
-                    else:
-                        return -1                                    
-                                                          
-                    phi = (n-1.0) * (c1 - c2)+(n-1.0)*(n-1.0)/n*t*c1*c2
-                    self.grid1.SetCellValue(r-1,POWER,str(phi))
-                    self.grid1.SetCellValue(r-1,FLENGTH,str(1.0/phi))
+                    return -1                                    
+
+                phi = (n-1.0) * (c1 - c2)+(n-1.0)*(n-1.0)/n*t*c1*c2
+                self.grid1.SetCellValue(r-1,POWER,str(phi))
+                self.grid1.SetCellValue(r-1,FLENGTH,str(1.0/phi))
 
     def update_radius(self,r):        
             phi = self.grid1.GetCellValue(r,POWER)
