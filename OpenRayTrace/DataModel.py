@@ -208,10 +208,22 @@ class System(object):
     def paraxialEPPosAndSemidiam(self, wavelength=None):
         assert self.apertureStop in self.surfaces, "No stop selected!"
         apInd = self.surfaces.index(self.apertureStop)
-        startInd = 0 if np.isfinite(self.surfaces[0].thickness) else 1
-        RTM = System(self.surfaces[startInd:apInd]).rayTransferMatrix(wavelength)
-        EPSemidiam, EPHalfAngle = self.apertureStop.semidiam / RTM[0]
-        return EPSemidiam / np.real(np.tan(EPHalfAngle)), EPSemidiam
+        RTM2stop = System(self.surfaces[1:apInd]).rayTransferMatrix(wavelength)
+        RTM2front = np.linalg.inv(RTM2stop)
+        EPsemidiam = self.apertureStop.semidiam / RTM2stop[0,0]
+        y, theta = RTM2front[:,1] # Cast a ray with unit slope back from the pupil center
+        EPpos = -y / theta # intersect that ray with the optical axis.
+        return EPpos, EPsemidiam
+
+    def paraxialXPPosAndSemidiam(self, wavelength=None):
+        assert self.apertureStop in self.surfaces, "No stop selected!"
+        apInd = self.surfaces.index(self.apertureStop)
+        RTM2img = System(self.surfaces[apInd:]).rayTransferMatrix(wavelength)
+        RTM2stop = np.linalg.inv(RTM2img)
+        XPsemidiam = self.apertureStop.semidiam / RTM2stop[0,0]
+        y, theta = RTM2img[:,1] # Cast a ray with unit slope back from the pupil center
+        XPpos = -y / theta # intersect that ray with the optical axis.
+        return XPpos, XPsemidiam
 
     def reversed(self):
         """Return the reversed system."""
