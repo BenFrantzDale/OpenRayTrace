@@ -132,6 +132,7 @@ def create(parent):
 [wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS] = [wx.NewId() for _init_coll_menu_thickness_Items in range(1)]
 
 class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
+    col_label = ('f-length  ','power    ','curvature    ','radius   ','thickness    ','aperature radius ','glass    ','bending','bent c','bent r')
     def _init_coll_boxSizerBottom_Items(self, parent):
         # generated method, don't edit
 
@@ -395,7 +396,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.col_label = ['f-length  ','power    ','curvature    ','radius   ','thickness    ','aperature radius ','glass    ','bending','bent c','bent r']
         self.grid1.CreateGrid(self.rows,len(self.col_label))
 
-        [self.grid1.SetColLabelValue(i,self.col_label[i]) for i in range(len(self.col_label))]
+        for i, label in enumerate(self.col_label):
+            self.grid1.SetColLabelValue(i, label)
         self.grid1.SetDefaultCellAlignment(wx.ALIGN_CENTRE,wx.ALIGN_CENTRE)
         
         self.grid1.AutoSize()
@@ -663,23 +665,29 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             
         t1 = 0
         for i in range(self.rows):                        
-            if( (self.grid1.GetCellValue(i,THICKNESS)        != '') |
-                (self.grid1.GetCellValue(i,BENT_C)        != '') |
-                (self.grid1.GetCellValue(i,APERATURE_RADIUS) != '') ):                                
-            
-        
-                self.c.append(float(self.grid1.GetCellValue(i,BENT_C))) 
+            def cell(key):
+                return self.grid1.GetCellValue(i, key)
+            thickness = cell(THICKNESS)
+            bent_c    = cell(BENT_C)
+            aperature_radius = cell(APERATURE_RADIUS)
+            if (thickness        != '' or
+                bent_c           != '' or
+                aperature_radius != ''):
                 
-                self.h.append(float(self.grid1.GetCellValue(i,APERATURE_RADIUS)))
+                if not np.isfinite(float(thickness)): continue # Skip object or image at infinity.
+        
+                self.c.append(float(bent_c) if bent_c else float(cell(CURVATURE)))
+                self.h.append(float(aperature_radius))
                 surf.append(i)    
                     
-                self.n.append(float(self.grid1.GetCellValue(i,GLASS)))
+                glass_n = cell(GLASS)
+                self.n.append(float(glass_n) if glass_n else 1.0)
             
             
-            if(self.grid1.GetCellValue(i,THICKNESS) != ''):
-                t1 += (float(self.grid1.GetCellValue(i,THICKNESS))) 
-                self.t.append(float(self.grid1.GetCellValue(i,THICKNESS)))
-                self.t_cum.append(t1)
+            if thickness != '':
+                t1 += float(thickness)
+                self.t.append(float(thickness))
+                self.t_cum.append(t1) # Could just use np.cumsum after this loop.
 
                                 
         l = range(1,self.rows)
@@ -784,9 +792,11 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         return t
         
 
-    def set_data(self,data):                
-        for r in range(self.rows):
-            [self.grid1.SetCellValue(r,c,data[r][c]) for c in range(len(self.col_label) )]
+    def set_data(self, data):
+        for ri, row in enumerate(data):
+            for ci, cell in enumerate(row):
+                strval = str(cell) if cell is not None else ''
+                self.grid1.SetCellValue(ri, ci, strval)
         for r in range(self.rows):
             self.OnGrid1GridCellChange(None,r,CURVATURE)
                         
@@ -904,3 +914,44 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def OnWxmdichildframe_lens_dataClose(self, event):
         self.Hide()
 
+
+def loadZMXAsTable(zmxfilename):
+    colLables = dict((label.strip(), i) for i, label in enumerate(wxMDIChildFrame_lens_data.col_label))
+    surfaces = []
+    with open(zmxfilename, 'r') as fh:
+        lines = fh.readlines()
+    apertureStop = None
+    i = -1
+    while i < len(lines) - 1:
+        i += 1
+        line = lines[i]
+        if line.startswith('SURF'):
+            isStop = False
+            glass_n = 1.0
+            row = [None] * len(colLables) # New blank row.
+            while i < len(lines) - 1:
+                i += 1
+                line = lines[i]
+                if 'STOP' in line:
+                    isStop = True
+                elif 'TYPE STANDARD' in line or 'TYPE EVENASPH' in line:
+                    pass # Other surfaces not implemented.
+                elif 'CURV' in line:
+                    row[colLables['curvature']] = float(line.split()[1])
+                elif 'DIAM' in line:
+                    row[colLables['aperature radius']] = float(line.split()[1]) / 2.0
+                elif 'DISZ' in line:
+                    row[colLables['thickness']] = float(line.split()[1])
+                elif 'GLAS' in line:
+                    parts = line.split()
+                    row[colLables['glass']] = float(parts[4])
+                    # glass_name = parts[1]
+                if not line.startswith(' '):
+                    i -= 1
+                    try:
+                        surfaces.append(row)
+                    except Exception as e:
+                        print ctor, e
+                        import epdb; epdb.st()
+                    break
+    return surfaces
