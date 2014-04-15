@@ -50,6 +50,7 @@ def create(parent):
 [wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = [wx.NewId() for _init_ctrls in range(1)]
 
 class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
+    _lensSurfaceColor = (0.1, 0.1, 0.1)
     def __init_ctrls(self, prnt):
         # generated method, don't edit
         wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL,
@@ -170,8 +171,7 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
             glVertex3f(x[i],y[i] * cos(p),y[i]*sin(p))            
 
         glEnd()
-        glColor(1.0,1.0,0.0)
-
+        glColor(*self._lensSurfaceColor)
               
         return x[i], y[i]
     
@@ -190,20 +190,19 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
                 glVertex(t_cum[-1],0,0)
                 glEnd()        
         
-            glColor(1.0,1.0,0.0)                                   
+            glColor(*self._lensSurfaceColor)
             z[i] = self.draw_surface(c[i],t_cum[i],h[i],10)
             
-            if i > 0:
-                if n[i-1] != 1:
-                    glBegin(GL_LINES)
+            if i > 0 and n[i-1] != 1:
+                glBegin(GL_LINES)
 
-                    glVertex3f(float(z[i-1][0]),float(z[i-1][1]),0)
-                    glVertex3f(float(z[i][0])  ,float(z[i][1]),0)
+                glVertex3f(float(z[i-1][0]),float(z[i-1][1]),0)
+                glVertex3f(float(z[i][0])  ,float(z[i][1]),0)
 
-                    glVertex3f(float(z[i-1][0]),-float(z[i-1][1]),0)
-                    glVertex3f(float(z[i][0]),-float(z[i][1]),0)
+                glVertex3f(float(z[i-1][0]),-float(z[i-1][1]),0)
+                glVertex3f(float(z[i][0]),-float(z[i][1]),0)
 
-                    glEnd()                        
+                glEnd()                        
                     
             glEndList()
         

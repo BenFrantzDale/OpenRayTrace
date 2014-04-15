@@ -33,6 +33,7 @@ def create(parent):
 ] = map(lambda _init_ctrls: wx.NewId(), range(8))
 
 class wxFrameRayTrace(wxFrame):
+    _lensSurfaceColor = (0.1, 0.1, 0.1)
     def _init_utils(self):
         # generated method, don't edit
         pass
@@ -403,7 +404,7 @@ class wxFrameRayTrace(wxFrame):
         if (self.grid1.GetCellValue(r,APERATURE_RADIUS) == ''):
             self.grid1.SetCellValue(r,APERATURE_RADIUS,str(1.0))
                     
-        if(c == FLENGTH): #focal length changed
+        if(c == FLENGTH): #focal length chanxged
             self.grid1.SetCellValue(r,POWER,str(1.0/val)) #set power            
             if (self.grid1.GetCellValue(r+1,APERATURE_RADIUS) == ''):
                 self.grid1.SetCellValue(r+1,APERATURE_RADIUS,str(1.0))
@@ -507,21 +508,20 @@ class wxFrameRayTrace(wxFrame):
                 glVertexf(t1,0,0)
                 glEnd()        
             
-            glColorf(1.0,1.0,0.0)                                   
+            glColorf(*self._lensSurfaceColor)
             z[i] = self.draw_surface(self.c[i],self.t_cum[i],self.h[i],10)
                 
-            if(i > 0):                        
-                if(self.n[i-1] != 1):
-                    glBegin(GL_LINES)
+            if i > 0 and self.n[i-1] != 1:
+                glBegin(GL_LINES)
     
-                    glVertex3f(float(z[i-1][0]),float(z[i-1][1]),0)
-                    glVertex3f(float(z[i][0])  ,float(z[i][1]),0)
+                glVertex3f(float(z[i-1][0]),float(z[i-1][1]),0)
+                glVertex3f(float(z[i][0])  ,float(z[i][1])  ,0)
 
-                    glVertex3f(float(z[i-1][0]),-float(z[i-1][1]),0)
-                    glVertex3f(float(z[i][0]),-float(z[i][1]),0)
+                glVertex3f(float(z[i-1][0]),-float(z[i-1][1]),0)
+                glVertex3f(float(z[i][0])  ,-float(z[i][1])  ,0)
 
-                    glEnd()                        
-                        
+                glEnd()                        
+                    
             glEndList()        
         self.can.set_lens_list(l)
 
