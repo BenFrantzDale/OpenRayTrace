@@ -494,7 +494,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                     k = 1
                 else:
                     k = self.t_cum[-1] # Cumulative thickness.
-                self.GetParent().ogl.set_k(k)
+                self.GetParent().ogl.K = k
         
 ##                #calc third order aberrations
 ##            

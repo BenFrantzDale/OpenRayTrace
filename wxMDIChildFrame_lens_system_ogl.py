@@ -113,10 +113,11 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     def reset_view(self):
         self.can.reset_view()
         
-        
-    def set_k(self,k):
-        self.can.set_k(k)
-        
+    @property 
+    def K(self): return self.can.K
+
+    @K.setter
+    def K(self, k): self.can.K = k
                 
     def draw_ray(self,x,y,z,ray,T_CUM,color=[1,1,1]):                                    
         self.can.glSetCurrent()

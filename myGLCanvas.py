@@ -39,9 +39,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-import cmath
-#from Numeric import *
-import math
+import numpy as np
 
           
 class myGLCanvas(glcanvas.GLCanvas):
@@ -62,7 +60,7 @@ class myGLCanvas(glcanvas.GLCanvas):
         self.Bind(wx.EVT_RIGHT_UP, self.OnMouseUp)
         self.Bind(wx.EVT_MOTION, self.OnMouseMotion)
         
-        self.K = 1.0
+        self.__K = 1.0
         self.rotatable = True
         self.centered = True
         self.x = 0
@@ -87,13 +85,20 @@ class myGLCanvas(glcanvas.GLCanvas):
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()    
         
-        if(self.centered):            
+        if self.centered:            
             glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
         else:
-            print 'shape', self.HEIGHT, self.WIDTH
-            glOrtho(-.1*self.K,1.1*self.K, -1.1*self.K * 
-                    self.HEIGHT/self.WIDTH/2, 1.1*self.K*self.HEIGHT/self.WIDTH/2,
-                    -self.K,self.K)
+            print "glOrtho{} for {}, self.K == {}".format((-.1*self.K,1.1*self.K, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K), (self.WIDTH, self.HEIGHT), self.K)
+            left, right= np.array((-0.1, 1.1)) * self.K
+            width = right - left
+            aspect = 1.0 #(self.HEIGHT / self.WIDTH)
+            glOrtho(left,
+                    right,
+                    -0.5 * aspect * width,
+                     0.5 * aspect * width,
+                    -self.K,
+                     self.K)
+            #glOrtho(left,right,0, self.K, -self.K, self.K)
         
         glMatrixMode(GL_MODELVIEW)
 
@@ -182,7 +187,7 @@ class myGLCanvas(glcanvas.GLCanvas):
                          self.d,
                          self.d);
                 #glTranslatef(self.K/2,0,0)
-                glMultMatrixd(mat)                
+                glMultMatrixd(mat)
                 self.Refresh(False)
                 
                 #glLoadIdentity();
@@ -243,17 +248,21 @@ class myGLCanvas(glcanvas.GLCanvas):
         self.ReleaseMouse()
 
     
-    def set_k(self,k):
+    @property
+    def K(self):
+        return self.__K
+    @K.setter
+    def K(self, k):
         self.glSetCurrent()  
         assert k > 0
-        self.K = k
+        self.__K = k
         self.reset_view()
         
         
     def reset_view(self):        
         self.glSetCurrent()  
         size = self.GetClientSize()
-        (self.WIDTH,self.HEIGHT) = size
+        self.WIDTH, self.HEIGHT = size
         
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()                
