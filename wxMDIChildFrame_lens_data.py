@@ -452,22 +452,27 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         #print r,c,val
         
         if val != '':
-            try:
-                rowData = self.surfToRowData(self.__system.surfaces[r])
-            except Exception as e:
-                import epdb;epdb.st()
+            rowData = self.surfToRowData(self.__system.surfaces[r])
             if str(rowData[self.col_labels[c]]) == val:
                 return # Value not actually changed.
             val = float(val)                                    
-            draw = self.fill_in_values(r,c,val)            
+            draw = self.fill_in_values(r,c,val)    
             self.update_display(event)
 
             #compute paraxial focus
             y = 0.0
             u = 1.0
-            (l,y,u) = paraxial_ray(y,u,self.t,self.n,self.c)                
+            if np.isfinite(self.t[0]):
+                l, y, u = paraxial_ray(y,u,self.t,self.n,self.c)
+            else:
+                l, y, u = paraxial_ray(y,u,self.t[1:],self.n[1:],self.c[1:])
             #print u
-            mag = u[0]/u[len(u)-1]
+            mag = u[0] / u[-1]
+            print 'paraixal ray:'
+            print l
+            print y
+            print u
+            print 'mag',mag
                 
             self.staticText_mag.SetLabel(str(mag))
             if self.checkBox_autofocus.GetValue():
