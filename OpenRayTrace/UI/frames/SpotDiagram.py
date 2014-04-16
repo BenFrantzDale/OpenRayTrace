@@ -39,7 +39,7 @@ import wx
 from OpenRayTrace.UI.myCanvas import *
 from OpenRayTrace.ray_trace import *
 import numpy as np
-
+from numpy.linalg import norm
 
 class SpotDiagram(wx.MDIChildFrame):
     wxID = wx.NewId()
@@ -114,11 +114,11 @@ class SpotDiagram(wx.MDIChildFrame):
         cnt = self.glRayListStart    
         
         #precalc ray locations
-        pos = np.array([0.0,.7071,1.0])
+        pos = np.array([0.0,np.sqrt(0.5),1.0])
         pos = -object_height * pos
         z_launch = 0
         
-        y_hit = np.array([i for i in range(-angles,angles+1)], dtype=float) * h[1]/angles
+        y_hit = np.linspace(-h[1], h[1], angles)
         z_hit = y_hit
         offset_y = 0
         max_y = []
@@ -142,17 +142,16 @@ class SpotDiagram(wx.MDIChildFrame):
         #t_temp[len(t)-1] = original_t + delta
         #print t_temp,t,delta
             
-        for i in range(len(pos)):
+        for i, y_launch in enumerate(pos): # Iterate over launch rays?
             y_launch = pos[i]
-            yy = y_hit - y_launch 
-            zz = z_hit - z_launch 
-            xx2 = t[0]*t[0]
-            den = (pow(zz*zz + yy*yy + xx2,0.5)) 
+            yy = y_hit - y_launch
+            zz = z_hit - z_launch
+            den = norm([t[0] * np.ones_like(yy), yy, zz], axis=0)
             Yi = yy / den
             Zi = zz / den
                                                             
                 
-            (xs,ys,zs,Xs,Ys,Zs) = self.comp_rays(Yi,Zi,(0.0,y_launch,0.0),t_temp,n,c,t_cum,h)                
+            xs,ys,zs,Xs,Ys,Zs = self.comp_rays(Yi,Zi,(0.0,y_launch,0.0),t_temp,n,c,t_cum,h)                
             
             x.append(xs)                
             y.append(ys)
@@ -161,7 +160,7 @@ class SpotDiagram(wx.MDIChildFrame):
             Y.append(Ys)
             Z.append(Zs)
                             
-            if(len(y[i]) > 0 and len(z[i]) > 0):
+            if len(y[i]) > 0 and len(z[i]) > 0:
                 max_y.append(max(y[i]))
                 min_y.append(min(y[i]))                            
                 width_y.append(max_y[len(max_y)-1] - min_y[len(min_y)-1])

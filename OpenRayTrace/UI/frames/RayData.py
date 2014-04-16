@@ -183,40 +183,18 @@ class RayData(wx.MDIChildFrame):
             s5 = -dc*2*N[last]*u[last]
             cs5 += s5
             
-            self.grid1.SetCellValue(s + 1,TSC,str(tsc))
-            self.grid1.SetCellValue(s + 1,SC,str(sc))
-            self.grid1.SetCellValue(s + 1,CC,str(cc))
-            self.grid1.SetCellValue(s + 1,TAC,str(tac))
-            self.grid1.SetCellValue(s + 1,AC,str(ac))
-            self.grid1.SetCellValue(s + 1,TPC,str(tpc))
-            self.grid1.SetCellValue(s + 1,PC,str(pc))
-            self.grid1.SetCellValue(s + 1,DC,str(dc))
-            self.grid1.SetCellValue(s + 1,TAchC,str(tachc))
-            self.grid1.SetCellValue(s + 1,LchC,str(lchc))
-            self.grid1.SetCellValue(s + 1,TchC,str(tchc))
-            self.grid1.SetCellValue(s + 1,S1,str(s1))
-            self.grid1.SetCellValue(s + 1,S2,str(s2))
-            self.grid1.SetCellValue(s + 1,S3,str(s3))
-            self.grid1.SetCellValue(s + 1,S4,str(s4))
-            self.grid1.SetCellValue(s + 1,S5,str(s5))
-            
+            for label in self.col_labels:
+                label = label.strip()
         
-        self.grid1.SetCellValue(0,TSC,str(ctsc))
-        self.grid1.SetCellValue(0,SC,str(csc))
-        self.grid1.SetCellValue(0,CC,str(ccc))
-        self.grid1.SetCellValue(0,TAC,str(ctac))
-        self.grid1.SetCellValue(0,AC,str(cac))
-        self.grid1.SetCellValue(0,TPC,str(ctpc))
-        self.grid1.SetCellValue(0,PC,str(cpc))
-        self.grid1.SetCellValue(0,DC,str(cdc))
-        self.grid1.SetCellValue(0,TAchC,str(ctachc))
-        self.grid1.SetCellValue(0,LchC,str(clchc))
-        self.grid1.SetCellValue(0,TchC,str(ctchc))
-        self.grid1.SetCellValue(0,S1,str(cs1))
-        self.grid1.SetCellValue(0,S2,str(cs2))
-        self.grid1.SetCellValue(0,S3,str(cs3))
-        self.grid1.SetCellValue(0,S4,str(cs4))
-        self.grid1.SetCellValue(0,S5,str(cs5))
+                self.grid1.SetCellValue(s+1,
+                                        locals()[label],
+                                        label.lower())
 
-    def OnWxmdichildframe_ray_dataClose(self, event):
-        self.Hide()
+            
+        for label in self.col_labels:
+            label = label.strip()
+        
+            self.grid1.SetCellValue(0,
+                                    locals()[label],
+                                    'c{}'.format(label.lower()))
+
