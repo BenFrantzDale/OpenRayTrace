@@ -19,16 +19,17 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import wx
-import wxMDIChildFrame_lens_system_ogl
-import wxMDIChildFrame_lens_data
-import wxMDIChildFrame_ray_data
-import wxMDIChildFrame_paraxial_data
-import wxMDIChildFrame_spot_diagram
-import wxMDIChildFrame_aberrations
-import wxMDIChildFrame_image
-import wxDialogSaveQuestion
+from OpenRayTrace.UI import frames
+#from OpenRayTrace.UI.frames import lens_system_ogl
+#from OpenRayTrace.UI.frames import lens_data
+#from OpenRayTrace.UI.frames import ray_data
+#from OpenRayTrace.UI.frames import paraxial_data
+#from OpenRayTrace.UI.frames import spot_diagram
+#from OpenRayTrace.UI.frames import aberrations
+#from OpenRayTrace.UI.frames import image
+from OpenRayTrace.UI import DialogSaveQuestion
 import pickle
-from myCanvas import *
+from OpenRayTrace.UI.myCanvas import *
 
 
 TITLE = 'OpenRayTrace:   '
@@ -120,14 +121,14 @@ class MainFrame(wx.MDIParentFrame):
         self._init_ctrls(parent)                                    
         #self.Maximize()
         
-        self.ogl      = wxMDIChildFrame_lens_system_ogl.create(self)      
-        self.lens     = wxMDIChildFrame_lens_data.create(self)
-        self.trace    = wxMDIChildFrame_ray_data.create(self)
-        self.paraxial = wxMDIChildFrame_paraxial_data.create(self)
-        self.spot     = wxMDIChildFrame_spot_diagram.create(self)
+        self.ogl      = frames.LensSystemOGL.LensSystemOGL(self)      
+        self.lens     = frames.LensData.LensData(self)
+        self.trace    = frames.RayData.RayData(self)
+        self.paraxial = frames.ParaxialData.ParaxialData(self)
+        self.spot     = frames.SpotDiagram.SpotDiagram(self)
         
-        #self.abr      = wxMDIChildFrame_aberrations.create(self)
-        self.img      = wxMDIChildFrame_image.create(self)
+        self.abr      = frames.Aberrations.Aberrations(self)
+        self.img      = frames.Image.Image(self)
         
         if False:
             self.paraxial.Hide()        
@@ -137,7 +138,7 @@ class MainFrame(wx.MDIParentFrame):
         else:
             for frame in [self.ogl, self.lens]: #, self.trace, self.paraxial, self.spot, self.img]:
                 frame.Show()
-            for frame in [self.trace, self.paraxial, self.spot, self.img]:
+            for frame in [self.abr, self.trace, self.paraxial, self.spot, self.img]:
                 frame.Hide()
 
         self.Tile()

@@ -1,4 +1,4 @@
-#Boa:MDIChild:wxMDIChildFrame_ray_data
+#OpenRayTrace.UI.frames.RayData
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -54,37 +54,37 @@ S3    = 13
 S4    = 14
 S5    = 15
 
-def create(parent):
-    return wxMDIChildFrame_ray_data(parent)
 
-[wxID_WXMDICHILDFRAME_RAY_DATA, wxID_WXMDICHILDFRAME_RAY_DATAGRID1, 
-] = map(lambda _init_ctrls: wx.NewId(), range(2))
+class RayData(wx.MDIChildFrame):
+    wxID = wx.NewId()
+    wxID_DATAGRID1 = wx.NewId()
 
-class wxMDIChildFrame_ray_data(wx.MDIChildFrame):
     def _init_utils(self):
         # generated method, don't edit
         pass
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_RAY_DATA,
-              name='wxMDIChildFrame_ray_data', parent=prnt, pos=wx.Point(447,
-              260), size=wx.Size(798, 498), style=DEFAULT_FRAME_STYLE,
-              title='Ray Data')
+        wx.MDIChildFrame.__init__(self, id=RayData.wxID,
+                                  name='RayData', parent=prnt, 
+                                  pos=wx.Point(447,260), size=wx.Size(798, 498), 
+                                  style=DEFAULT_FRAME_STYLE,
+                                  title='Ray Data')
         self._init_utils()
         self.SetClientSize(wx.Size(790, 464))
-        EVT_CLOSE(self, self.OnWxmdichildframe_ray_dataClose)
+        EVT_CLOSE(self, lambda event: self.Hide)
 
-        self.grid1 = Grid(id=wxID_WXMDICHILDFRAME_RAY_DATAGRID1, name='grid1',
-              parent=self, pos=wx.Point(0, 0), size=wx.Size(790, 464), style=0)
+        self.grid1 = Grid(id=self.wxID_DATAGRID1, name='grid1',
+                          parent=self, pos=wx.Point(0, 0), size=wx.Size(790, 464), style=0)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
         
         self.rows = 40
-        col_label = ['TSC  ','SC','CC   ','TAC  ','AC','TPC   ','PC','DC   ','TAchC   ','LchC','TchC  ','S1','S2','S3','S4','S5']
-        self.grid1.CreateGrid(self.rows,len(col_label))
-        [self.grid1.SetColLabelValue(i,col_label[i]) for i in range(len(col_label))]
+        self.col_labels = ['TSC  ','SC','CC   ','TAC  ','AC','TPC   ','PC','DC   ','TAchC   ','LchC','TchC  ','S1','S2','S3','S4','S5']
+        self.grid1.CreateGrid(self.rows,len(self.col_labels))
+        for i, label in enumerate(self.col_labels): 
+            self.grid1.SetColLabelValue(i, label) 
         
         #self.grid1.setRowLabelValue(0,'Total')
         

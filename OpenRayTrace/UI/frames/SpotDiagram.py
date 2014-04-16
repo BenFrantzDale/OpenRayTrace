@@ -1,4 +1,4 @@
-#Boa:MDIChild:wxMDIChildFrame_spot_diagram
+#OpenRayTrace.UI.frames.SpotDiagram
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -36,28 +36,22 @@
 
 
 import wx
-from myCanvas import *
-#import math
-from ray_trace import *
+from OpenRayTrace.UI.myCanvas import *
+from OpenRayTrace.ray_trace import *
 import numpy as np
 
 
-def create(parent):
-    return wxMDIChildFrame_spot_diagram(parent)
+class SpotDiagram(wx.MDIChildFrame):
+    wxID = wx.NewId()
 
-[wxID_WXMDICHILDFRAME_SPOT_DIAGRAM] = map(lambda _init_ctrls: wx.NewId(), range(1))
-
-[wxID_WXMDICHILDFRAME_SPOT_DIAGRAM] = [wx.NewId() for _init_ctrls in range(1)]
-
-class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_SPOT_DIAGRAM,
-              name='wxMDIChildFrame_spot_diagram', parent=prnt,
-              pos=wx.Point(378, 221), size=wx.Size(991, 713),
-              style=wx.DEFAULT_FRAME_STYLE, title='Spot Diagram')
+        wx.MDIChildFrame.__init__(self, id=SpotDiagram.wxID,
+                                  name='SpotDiagram', parent=prnt,
+                                  pos=wx.Point(378, 221), size=wx.Size(991, 713),
+                                  style=wx.DEFAULT_FRAME_STYLE, title='Spot Diagram')
         self.SetClientSize(wx.Size(983, 679))
-        self.Bind(EVT_CLOSE, self.OnWxmdichildframe_spot_diagramClose)
+        self.Bind(EVT_CLOSE, lambda event: self.Hide)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
@@ -213,8 +207,3 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
         glEnd()        
         glFlush()
         
-        
-
-    def OnWxmdichildframe_spot_diagramClose(self, event):
-        self.Hide()
-    

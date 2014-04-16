@@ -1,4 +1,4 @@
-#Boa:MDIChild:wxMDIChildFrame_image
+#OpenRayTrace.UI.frames.Image
 
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
@@ -37,34 +37,31 @@
 
 
 import wx
-from myCanvas import *
+from OpenRayTrace.UI.myCanvas import *
+from OpenRayTrace.ray_trace import *
+
 import math
-from ray_trace import *
 import numpy as np
 import random
 from numpy.linalg import norm
-#from scipy import *
 
 
-def create(parent):
-    return wxMDIChildFrame_image(parent)
 
-[wxID_WXMDICHILDFRAME_IMAGE] = map(lambda _init_ctrls: wx.NewId(), range(1))
-
-class wxMDIChildFrame_image(wx.MDIChildFrame):
+class Image(wx.MDIChildFrame):
+    wxID = wx.NewId()
     def _init_utils(self):
         # generated method, don't edit
         pass
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_IMAGE,
-              name='wxMDIChildFrame_image', parent=prnt, pos=wx.Point(348, 145),
-              size=wx.Size(1200, 854), style=wx.DEFAULT_FRAME_STYLE,
+        wx.MDIChildFrame.__init__(self, id=self.wxID,
+                                  name='Image', parent=prnt, pos=wx.Point(348, 145),
+                                  size=wx.Size(1200, 854), style=wx.DEFAULT_FRAME_STYLE,
               title='Image Trace')
         self._init_utils()
         self.SetClientSize(wx.Size(1192, 820))
-        self.Bind(EVT_CLOSE, self.OnWxmdichildframe_imageClose)
+        self.Bind(EVT_CLOSE, self.OnClose)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
@@ -179,6 +176,5 @@ class wxMDIChildFrame_image(wx.MDIChildFrame):
         glFlush()        
         #glEndList()
 
-    def OnWxmdichildframe_imageClose(self, event):
-        self.Hide()
+    def OnClose(self, event): self.Hide()
 

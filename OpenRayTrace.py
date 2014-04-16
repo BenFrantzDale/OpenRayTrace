@@ -39,38 +39,17 @@
 
 from wx import *
 
-#import wxFrameRayTrace
 from OpenRayTrace import MainFrame
 
-modules ={'myCanvas': [0, '', 'myCanvas.py'],
- 'myGLCanvas': [0, '', 'myGLCanvas.py'],
- 'ray_trace': [0, '', 'ray_trace.py'],
- 'wxDialogSaveQuestion': [0, '', 'wxDialogSaveQuestion.py'],
- 'wxFrameRayTrace': [0, '', 'wxFrameRayTrace.py'],
- 'wxMDIChildFrame_aberrations': [0, '', 'wxMDIChildFrame_aberrations.py'],
- 'wxMDIChildFrame_image': [0, '', 'wxMDIChildFrame_image.py'],
- 'wxMDIChildFrame_lens_data': [0, '', 'wxMDIChildFrame_lens_data.py'],
- 'wxMDIChildFrame_lens_system_ogl': [0,
-                                     '',
-                                     'wxMDIChildFrame_lens_system_ogl.py'],
- 'wxMDIChildFrame_paraxial_data': [0, '', 'wxMDIChildFrame_paraxial_data.py'],
- 'wxMDIChildFrame_ray_data': [0, '', 'wxMDIChildFrame_ray_data.py'],
- 'wxMDIChildFrame_spot_diagram': [0, '', 'wxMDIChildFrame_spot_diagram.py'],
- 'wxMainFrame': [0, '', 'wxMainFrame.py']}
-
-class BoaApp(wx.App):
+class OpenRayTraceApp(wx.App):
     def OnInit(self):
         import sys
         self.main = MainFrame.MainFrame(None, sys.argv)
-        
-        #self.main = wxFrameRayTrace.create(None)
-        # needed when running from Boa under Windows 9X
-        self.SetTopWindow(self.main)
-        self.main.Show() #;self.main.Hide();self.main.Show()
+        self.main.Show()
         return True
 
 def main():
-    application = BoaApp(0)
+    application = OpenRayTraceApp(0)
     application.MainLoop()
 
 if __name__ == '__main__':

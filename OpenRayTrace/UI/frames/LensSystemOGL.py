@@ -1,5 +1,5 @@
 from __future__ import division
-#Boa:MDIChild:wxMDIChildFrame_lens_system_ogl
+#OpenRayTrace.UI.frames.LensSystemOGL
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -36,32 +36,26 @@ from __future__ import division
 
 
 import wx
-from myCanvas import *
+from OpenRayTrace.UI.myCanvas import *
 import os, string
 from cmath import *
 from math  import *
 import numpy as np
 
 
-def create(parent):
-    return wxMDIChildFrame_lens_system_ogl(parent)
 
-[wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = map(lambda _init_ctrls: wx.NewId(), range(1))
-
-[wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = [wx.NewId() for _init_ctrls in range(1)]
-
-class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
+class LensSystemOGL(wx.MDIChildFrame):
+    wxID = wx.NewId()
     _lensSurfaceColor = (0.1, 0.1, 0.1)
     def __init_ctrls(self, prnt):
         # generated method, don't edit
-        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL,
-              name='wxMDIChildFrame_lens_system_ogl', parent=prnt,
-              pos=wx.Point(448, 244), size=wx.Size(604, 404),
-              style=wx.DEFAULT_FRAME_STYLE, title='Lens System')
+        wx.MDIChildFrame.__init__(self, id=self.wxID,
+                                  name='LensSystemOGL', parent=prnt,
+                                  pos=wx.Point(448, 244), size=wx.Size(604, 404),
+                                  style=wx.DEFAULT_FRAME_STYLE, title='Lens System')
         self.SetClientSize(wx.Size(596, 370))
         self.SetBackgroundColour(wx.Colour(0, 0, 0))
-        self.Bind(wx.EVT_CLOSE, self.OnWxmdichildframe_lens_system_oglClose,
-              id=wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL)
+        self.Bind(wx.EVT_CLOSE, lambda event: self.Hide, id=self.wxID)
 
     def __init__(self, parent):
         self.__init_ctrls(parent)
@@ -107,7 +101,7 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         self.can.DrawGL()
         
 
-    def OnWxmdichildframe_lens_system_oglSize(self, event):
+    def OnSize(self, event):
         self.can.OnSize(event)
         event.Skip()
         
@@ -225,7 +219,3 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
             glEndList()
         
         self.reset_view()
-        
-
-    def OnWxmdichildframe_lens_system_oglClose(self, event):
-        self.Hide()
