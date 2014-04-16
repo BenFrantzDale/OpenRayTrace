@@ -37,7 +37,7 @@
 
 
 
-from wxPython.wx import *
+from wx import *
 
 #import wxFrameRayTrace
 import wxMainFrame
@@ -58,16 +58,14 @@ modules ={'myCanvas': [0, '', 'myCanvas.py'],
  'wxMDIChildFrame_spot_diagram': [0, '', 'wxMDIChildFrame_spot_diagram.py'],
  'wxMainFrame': [0, '', 'wxMainFrame.py']}
 
-class BoaApp(wxApp):
+class BoaApp(wx.App):
     def OnInit(self):
-        wxInitAllImageHandlers()
-        
         self.main = wxMainFrame.create(None)
         
         #self.main = wxFrameRayTrace.create(None)
         # needed when running from Boa under Windows 9X
         self.SetTopWindow(self.main)
-        self.main.Show();self.main.Hide();self.main.Show()
+        self.main.Show() #;self.main.Hide();self.main.Show()
         return True
 
 def main():

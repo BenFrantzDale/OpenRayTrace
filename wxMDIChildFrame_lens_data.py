@@ -37,16 +37,16 @@
 
 import wx
 import wx.grid
-from wxPython.grid import *
+from wx.grid import *
 import wxDialog_wavelengths
 
 from myCanvas import *
 import os, string
 from cmath import *
 import math
-from Numeric import *
+import numpy as np
 from ray_trace import *
-
+import numpy as np
 
 WIDTH=640.0
 HEIGHT=480.0
@@ -396,14 +396,14 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.grid1.CreateGrid(self.rows,len(self.col_label))
 
         [self.grid1.SetColLabelValue(i,self.col_label[i]) for i in range(len(self.col_label))]
-        self.grid1.SetDefaultCellAlignment(wxALIGN_CENTRE,wxALIGN_CENTRE)
+        self.grid1.SetDefaultCellAlignment(wx.ALIGN_CENTRE,wx.ALIGN_CENTRE)
         
         self.grid1.AutoSize()
                 
 
         for row in range(self.rows):
             for col in range(len(self.col_label)):
-                self.grid1.SetCellEditor(row, col, apply(wxGridCellFloatEditor,[]))                    
+                self.grid1.SetCellEditor(row, col, apply(GridCellFloatEditor,[]))                    
 
         self.n = []
         self.c = []
@@ -423,26 +423,26 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def OnWxframeopenmodalSize(self, event):
         event.Skip()
     
-    def OnRadiobutton_const_powerRadiobutton(self, event=NULL):
+    def OnRadiobutton_const_powerRadiobutton(self, event=None):
         self.hold_power = True
         self.hold_radius = False
  #       event.Skip()
 
-    def OnRadiobutton_const_radiusRadiobutton(self, event=NULL):
+    def OnRadiobutton_const_radiusRadiobutton(self, event=None):
         self.hold_power = False
         self.hold_radius = True
     
 
-    def OnGrid1GridCellChange(self, event=NULL,r=NULL,c=NULL):  
+    def OnGrid1GridCellChange(self, event=None,r=None,c=None):  
 ##        self.grid1.AutoSize()
-        if(event != NULL):
+        if(event != None):
             r = event.GetRow()
             c = event.GetCol() 
         
         val = self.grid1.GetCellValue(r,c)
         #print r,c,val
         
-        if(val != ''):
+        if val != '':
             val = float(val)                                    
             draw = self.fill_in_values(r,c,val)            
             self.update_display()                            
@@ -481,7 +481,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                         Xi =  math.pow(1.0 - Yi*Yi - Zi*Zi, 0.5)
                         (x[i],y[i],z[i],X[i],Y[i],Z[i]) = skew_ray((0,0,0),(Xi,Yi,Zi),self.t,self.n,self.c,self.t_cum,self.h)                                
     
-                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum,color = [1.0,0.0,0.0])
+                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum,color = (0.8,0.2,0.2))
                         cnt+=1
                 
                         
@@ -495,12 +495,15 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                         (x[i],y[i],z[i],X[i],Y[i],Z[i]) = skew_ray((0,self.object_height,0),(Xi,Yi,Zi),self.t,self.n,self.c,self.t_cum,self.h) 
 
 
-                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, self.t_cum,color = [0.0,1.0,0.0])
+                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, self.t_cum, color = (0.2,0.8,0.2))
                         cnt+=1
                 
                                                                                                                 
                 
-                k = self.t_cum[len(self.t_cum)-1]                     
+                if not self.t_cum or self.t_cum[-1] == 0: 
+                    k = 1
+                else:
+                    k = self.t_cum[-1] # Cumulative thickness.
                 self.GetParent().ogl.set_k(k)
         
 ##                #calc third order aberrations
@@ -559,7 +562,9 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         if (self.grid1.GetCellValue(r,BENDING) == ''):
             self.grid1.SetCellValue(r,BENDING,str(0.0))
                     
-        if(c == FLENGTH): #focal length changed
+        if c == FLENGTH: #focal length changed
+            if val == 0:
+                val = '' # Shorthand for flat is zero.
             self.grid1.SetCellValue(r,POWER,str(1.0/val)) #set power            
             if (self.grid1.GetCellValue(r+1,APERATURE_RADIUS) == ''):
                 self.grid1.SetCellValue(r+1,APERATURE_RADIUS,str(1.0))
@@ -571,7 +576,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 self.grid1.SetCellValue(r+1,BENDING,str(0))                                                         
             self.update_radius(r)            
                 
-        if(c == POWER): #power has changed    
+        if c == POWER: #power has changed    
             self.grid1.SetCellValue(r,FLENGTH,str(1.0/val))
             
             if (self.grid1.GetCellValue(r+1,APERATURE_RADIUS) == ''):
@@ -752,7 +757,9 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             else:
                 return -1
 
-            rad = ((2*n+2*math.pow((n*n - phi*n*t),.5))*(n-1))/(2*n*phi)
+            if n**2 - phi * n * t < 0:
+                return -1
+            rad = (2*n+2*math.sqrt(n*n - phi*n*t)*(n-1)) / (2*n*phi)
             
             #calc r so that r1 = r2 = r   
             #rad = val * 2 * ( n - 1 )
@@ -781,7 +788,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         for r in range(self.rows):
             [self.grid1.SetCellValue(r,c,data[r][c]) for c in range(len(self.col_label) )]
         for r in range(self.rows):
-            self.OnGrid1GridCellChange(NULL,r,CURVATURE)
+            self.OnGrid1GridCellChange(None,r,CURVATURE)
                         
             
     def clear_data(self):       
@@ -848,7 +855,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         id = event.GetId()
         if(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSITEMS0):
             self.checkBox_autofocus.SetValue(True)
-            self.OnGrid1GridCellChange(NULL,r, c)
+            self.OnGrid1GridCellChange(None,r, c)
             self.checkBox_autofocus.SetValue(False)
     
     def OnMenu_glassitems0Menu(self, event):
@@ -864,7 +871,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
     def OnTextctrl_object_heightText(self, event):
         self.object_height = float(self.textCtrl_object_height.GetValue())
-        self.OnGrid1GridCellChange(event=NULL,r=0,c=THICKNESS)               
+        self.OnGrid1GridCellChange(event=None,r=0,c=THICKNESS)               
         event.Skip()
 
     def OnButton_compute_allButton(self, event):
@@ -875,23 +882,23 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.waves.Show()                                                         
         event.Skip()
 
-    def OnButton_spot_diagramsButton(self, event = NULL):
+    def OnButton_spot_diagramsButton(self, event = None):
         if(not self.GetParent().spot.IsShown()):
             self.GetParent().spot.Show()
         self.GetParent().spot.draw_spots(self.t,self.n,self.c,self.t_cum,self.h,self.object_height)            
         
         
 
-    def OnButton_imageButton(self, event= NULL):           
+    def OnButton_imageButton(self, event= None):           
         if(not self.GetParent().img.IsShown()):
             self.GetParent().img.Show()
 
-        img = array([[1,1,1,1,1],
-                     [1,0,1,.8,1],    
-                     [1,1,1,1,1],
-                     [1,.5,1,0,1],
-                     [1,1,1,1,1],
-                     [1,1,1,1,1] ])                                     
+        img = np.array([[1,1,1,1,1],
+                        [1,0,1,.8,1],    
+                        [1,1,1,1,1],
+                        [1,.5,1,0,1],
+                        [1,1,1,1,1],
+                        [1,1,1,1,1]])                                     
         self.GetParent().img.draw_image(img,self.object_height,self.t,self.n,self.c,self.t_cum,self.h)
 
     def OnWxmdichildframe_lens_dataClose(self, event):

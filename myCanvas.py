@@ -35,7 +35,7 @@
 from myGLCanvas import *
 
 import cmath
-from Numeric import *
+import numpy as np
 import math
 
 
@@ -44,16 +44,15 @@ class myCanvas(myGLCanvas):
     def __init__(self,parent):
         myGLCanvas.__init__(self,parent)
 
-
+        self.WIDTH, self.HEIGHT = 400, 300
         
         #self.gl_list    = []
         self.lens_list = []
         self.ray_list  = []              
-        self.color = [0,0,0]
-
+        self.color = np.ones(3) * 0.8
     def InitGL(self):
         self.glSetCurrent()          
-        glViewport(0, 0, self.WIDTH, self.WIDTH)  #setup the view port
+        glViewport(0, 0, self.WIDTH, self.HEIGHT)  #setup the view port
 
         glClearDepth (0.0) #don't really know
         glDisable (GL_DEPTH_TEST)  #disable the gl_depth_test
@@ -105,7 +104,7 @@ class myCanvas(myGLCanvas):
         glFlush()
         self.SwapBuffers() 
     
-    def glSetCurrent(self):
+    def ___glSetCurrent(self):
         try:
         
             self.SetCurrent()

@@ -38,7 +38,7 @@
 
 import wx
 from myCanvas import *
-from Numeric import *
+import numpy as np
 from ray_trace import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -56,7 +56,7 @@ class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_ABERRATIONS,
+        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_ABERRATIONS,
               name='wxMDIChildFrame_aberrations', parent=prnt, pos=wx.Point(399,
               218), size=wx.Size(1200, 854), style=wx.DEFAULT_FRAME_STYLE,
               title='Aberrations')
@@ -101,12 +101,12 @@ class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
         
         ray = self.glRayListStart
                         
-        pos = array([0.0,0.7071,1.0])
+        pos = np.array([0.0,0.7071,1.0])
         pos = -object_height * pos
         title = ['On Axis SPA',str(pos[1]) + 'mm SPA ', str(pos[2]) + 'mm SPA ']
         cnt = 0
                 
-        y_hit = array([i*h[1]/angles for i in range(-angles,angles+1)],Float32)
+        y_hit = np.array([i*h[1]/angles for i in range(-angles,angles+1)],dtype=float)
         
         for i in range(len(pos)):  
             p    = pos[i]
@@ -130,21 +130,21 @@ class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
                     r.append(y[1])
                                                                                             
             if(cnt == 1 and len(Hp) > 0):
-                mx = max(array(Hp))     
+                mx = np.max(Hp)
                 #print Hp,tanUp      
                 LA = []
                 for i in range(len(Hp)):
                     if(tanUp[i] != 0.0):
-                        LA.append(-1 * array(Hp[i])/array(tanUp[i]))
+                        LA.append(-1 * np.array(Hp[i])/np.array(tanUp[i]))
                     else:
                         LA.append(0)
                                                 
-                self.plotxy(LA,array(r),(2, 0),'LA',ray,color = [1,0,0])
+                self.plotxy(LA,np.array(r),(2, 0),'LA',ray, color = (0.8,0.2,0.2))
                 ray += 1
                 
             ##print r,Hp
             if(len(Hp) > 0):
-                self.plotxy(y_hit,array(Hp),(0,0),title[cnt-1],ray,color = [0,1,0])
+                self.plotxy(y_hit,np.array(Hp),(0,0),title[cnt-1],ray,color = (0.2,0.8,0.2))
             Hp = []
             tanUp = []
             r = []
@@ -153,7 +153,7 @@ class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
                         
     
     
-    def plotxy(self,x,y,offset,title,ray,color):              
+    def plotxy(self,x,y, offset, title, ray, color):              
         self.can.glSetCurrent()
         
         mxy = max(y)
@@ -167,15 +167,15 @@ class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
                 
         glNewList(ray, GL_COMPILE)              
         glTranslatef(offset[0],offset[1],0)
-        glColorf(color[0],color[1],color[2])                
-        x_norm = array(x)/rngx
-        y_norm = array(y)/rngy
+        glColorf(*color)
+        x_norm = np.array(x)/rngx
+        y_norm = np.array(y)/rngy
 
-        mxy = max(y_norm)
-        mny = min(y_norm)
+        mxy = np.max(y_norm)
+        mny = np.min(y_norm)
         
-        mxx = max(x_norm)
-        mnx = min(x_norm)                
+        mxx = np.max(x_norm)
+        mnx = np.min(x_norm)                
           
                                     
         glBegin(GL_LINE_STRIP)       

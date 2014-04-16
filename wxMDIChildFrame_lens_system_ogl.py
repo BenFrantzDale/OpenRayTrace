@@ -39,17 +39,19 @@ from myCanvas import *
 import os, string
 from cmath import *
 from math  import *
+import numpy as np
 
 
 def create(parent):
     return wxMDIChildFrame_lens_system_ogl(parent)
 
-[wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = map(lambda _init_ctrls: wxNewId(), range(1))
+[wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = map(lambda _init_ctrls: wx.NewId(), range(1))
 
 [wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL] = [wx.NewId() for _init_ctrls in range(1)]
 
 class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
-    def _init_ctrls(self, prnt):
+    _lensSurfaceColor = (0.1, 0.1, 0.1)
+    def __init_ctrls(self, prnt):
         # generated method, don't edit
         wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL,
               name='wxMDIChildFrame_lens_system_ogl', parent=prnt,
@@ -61,21 +63,25 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
               id=wxID_WXMDICHILDFRAME_LENS_SYSTEM_OGL)
 
     def __init__(self, parent):
-        self._init_ctrls(parent)
-                
+        self.__init_ctrls(parent)
+        self._frameInit = False        
         #self.gl_list    = []
         self.lens_list = []
         self.ray_list  = []              
         self.color = [0,0,0]
         
-        self.Show()          
+        self.Show()    
         self.can = myCanvas(self)
-        self.can.glSetCurrent()
         self.can.centered = False
-        
         self.rows = 40
-        self.glListStart =  glGenLists(self.rows + 1)
-        self.l = range(self.glListStart,self.glListStart + self.rows)
+        self.__listsInitialized = False
+        self.can.glSetCurrent()
+        self.__initializeLists()
+
+    def __initializeLists(self):
+        if self.__listsInitialized: return
+        self.glListStart = glGenLists(self.rows + 1)
+        self.l = range(self.glListStart, self.glListStart + self.rows)
         self.can.set_lens_list(self.l)
                  
         
@@ -83,9 +89,11 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         self.glRayListStart = glGenLists(self.rays)
         self.l = range(self.glRayListStart,self.glRayListStart + self.rays)
         self.can.set_ray_list(self.l)
+        self.__listsInitialized = True
         
     def clear_list(self):
         self.can.glSetCurrent()
+        self.__initializeLists()
         glDeleteLists(self.glRayListStart,self.rays)                
         self.glRayListStart = glGenLists(self.rays)
         self.rayList = range(self.glRayListStart,self.glRayListStart+self.rays)        
@@ -113,43 +121,27 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     def draw_ray(self,x,y,z,ray,T_CUM,color=[1,1,1]):                                    
         self.can.glSetCurrent()
         glNewList(ray + self.glRayListStart, GL_COMPILE)      
-        glColorf(color[0],color[1],color[2])                
+        glColor(*color)
         glBegin(GL_LINE_STRIP)
         
         for i in range(len(x)):            
-            glVertexf(x[i] + T_CUM[i],y[i],z[i]) 
+            glVertex(x[i] + T_CUM[i],y[i],z[i]) 
             
         glEnd()        
         glEndList()                                
                         
 
     def draw_surface(self,c,t,h,n):        
-        
         self.can.glSetCurrent()
         
-        if(c!=0):
-            r = 1/c
-        else:
-            r = 1E5
+        r = 1 / c if c else 1e5
                         
         n+=1
         
 
         #draw part of lens surface
-        if( h*h < r*r ):
-
-            b = pow(r*r - h*h, 0.5)        
-        else:
-            b = 0
-            
-
-        if(r > 0):
-
-            a = r - b    
-
-        else:
-
-            a = r + b            
+        b = np.sqrt(r**2 - h**2) if h**2 < r**2 else 0.0
+        a = r - b  if r > 0 else r + b
         inc = a / n        
         
         #calc lens shape
@@ -158,42 +150,20 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         x2 = [(i*inc - r)*(i*inc - r) for i in range(n)]                
         r2 = r*r 
         for i in range(n):
-            if(x2[i] < r2):
-                y[i] = pow(r2 - x2[i],.5)
-            else:
-                y[i] = 0
-                                    
-
-##        glBegin(GL_LINE_STRIP)    
-
-##        for i in range(n):                    
-
-##            glVertex3f(x[i],y[i],0)            
-
-##        glEnd()
-##      
-##        glBegin(GL_LINE_STRIP)    
-
-##        for i in range(n):                    
-
-##            glVertex3f(x[i],-y[i],0)            
-
-##        glEnd()
+            y[i] = np.sqrt(r2 - x2[i]) if x2[i] < r2 else 0.0
               
         for theta in range(0,359,180):      
-            p = theta * 3.14159/180.0
+            p = theta * np.pi / 180.0
             glBegin(GL_LINE_STRIP)    
 
             for i in range(n):
-
                 glVertex3f(x[i],y[i] * cos(p),y[i]*sin(p))            
-
             glEnd()
         
-        glColorf(1,1,1,.25)    
+        glColor(1,1,1,.25)    
         glBegin(GL_LINE_STRIP)    
         for theta in range(0,365,5):      
-            p = theta * 3.14159/180.0
+            p = theta * np.pi/180.0
             
 
             i = n-1
@@ -201,10 +171,9 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
             glVertex3f(x[i],y[i] * cos(p),y[i]*sin(p))            
 
         glEnd()
-        glColorf(1.0,1.0,0.0)
-
+        glColor(*self._lensSurfaceColor)
               
-        return (x[i],y[i])
+        return x[i], y[i]
     
     
     
@@ -212,30 +181,28 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
         self.can.glSetCurrent()
         self.clear_list()
         z = [0 for i in range(self.rows)]
-
         for i in range(len(t)):                                                        
             glNewList(self.glListStart + surf[i], GL_COMPILE_AND_EXECUTE)        
-            glColorf(1.0,1.0,1.0)                                   
-            if(i == 0):
+            glColor(1.0,1.0,1.0)                                   
+            if i == 0:
                 glBegin(GL_LINES)
-                glVertexf(0,0,0)
-                glVertexf(t_cum[len(t_cum)-1],0,0)
+                glVertex(0,0,0)
+                glVertex(t_cum[-1],0,0)
                 glEnd()        
         
-            glColorf(1.0,1.0,0.0)                                   
+            glColor(*self._lensSurfaceColor)
             z[i] = self.draw_surface(c[i],t_cum[i],h[i],10)
             
-            if(i > 0):                        
-                if(n[i-1] != 1):
-                    glBegin(GL_LINES)
+            if i > 0 and n[i-1] != 1:
+                glBegin(GL_LINES)
 
-                    glVertex3f(float(z[i-1][0]),float(z[i-1][1]),0)
-                    glVertex3f(float(z[i][0])  ,float(z[i][1]),0)
+                glVertex3f(float(z[i-1][0]),float(z[i-1][1]),0)
+                glVertex3f(float(z[i][0])  ,float(z[i][1]),0)
 
-                    glVertex3f(float(z[i-1][0]),-float(z[i-1][1]),0)
-                    glVertex3f(float(z[i][0]),-float(z[i][1]),0)
+                glVertex3f(float(z[i-1][0]),-float(z[i-1][1]),0)
+                glVertex3f(float(z[i][0]),-float(z[i][1]),0)
 
-                    glEnd()                        
+                glEnd()                        
                     
             glEndList()
         

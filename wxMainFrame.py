@@ -121,10 +121,8 @@ class wxMainFrame(wx.MDIParentFrame):
 
     def __init__(self, parent):
         self._init_ctrls(parent)                                    
-        self.Maximize()
+        #self.Maximize()
         
-        
-                
         self.ogl      = wxMDIChildFrame_lens_system_ogl.create(self)      
         self.lens     = wxMDIChildFrame_lens_data.create(self)
         self.trace    = wxMDIChildFrame_ray_data.create(self)
@@ -134,11 +132,15 @@ class wxMainFrame(wx.MDIParentFrame):
         #self.abr      = wxMDIChildFrame_aberrations.create(self)
         self.img      = wxMDIChildFrame_image.create(self)
         
-        self.paraxial.Hide()        
-        self.spot.Hide()        
-        self.img.Hide()        
-        self.trace.Hide()        
-        
+        if False:
+            self.paraxial.Hide()        
+            self.spot.Hide()        
+            self.img.Hide()        
+            self.trace.Hide()        
+        else:
+            for frame in [self.ogl, self.lens, self.trace, self.paraxial, self.spot, self.img]:
+                frame.Show()
+
         self.Tile()
         self.Cascade()
         self.Tile()
@@ -148,12 +150,11 @@ class wxMainFrame(wx.MDIParentFrame):
         self.saveable = False
         
         showDialog = True
-        if(showDialog):
+        if showDialog:
             msg =  'OpenRayTrace, Copyright (C) 2007 Andrew Wilson\nOpenRayTrace comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it under certain conditions (see About menu)'
-            dlg = wxMessageDialog(self,msg,
-            'GPL Copyright', wxOK | wxICON_INFORMATION)
-            dlg.ShowModal()
-            dlg.Destroy()
+            self.dlg = wx.MessageDialog(self, msg, 'GPL Copyright', wx.OK | wx.ICON_INFORMATION)
+            self.dlg.ShowModal()
+            #dlg.Destroy()
         
     def OnMenu_drawingMenu(self, event):
         id = event.GetId()
@@ -161,7 +162,6 @@ class wxMainFrame(wx.MDIParentFrame):
             self.ogl.reset_view()
         elif(id == wxID_WXMAINFRAMEMENU_DRAWINGSPOTDIAGRAM):
             self.spot.Show()
-            
             
         event.Skip()
 
@@ -183,9 +183,9 @@ class wxMainFrame(wx.MDIParentFrame):
             
             
         elif(id == wxID_WXMAINFRAMEMENUOPEN):
-            dlg = wxFileDialog(self, "Open Lens", ".", "", "*.lns", wxOPEN | wxCHANGE_DIR)
+            dlg = wx.FileDialog(self, "Open Lens", ".", "", "*.lns", wx.OPEN | wx.CHANGE_DIR)
             try:
-                if dlg.ShowModal() == wxID_OK:
+                if dlg.ShowModal() == wx.ID_OK:
                     self.file_name = dlg.GetPath()
                     self.SetTitle(TITLE + self.file_name)
 
@@ -216,10 +216,10 @@ class wxMainFrame(wx.MDIParentFrame):
                 a = pickle.dump(t,fd)        
                 fd.close()
         else:
-            dlg = wxFileDialog(self, "Save Lens", ".", "", "*.lns", wxSAVE | wxOVERWRITE_PROMPT | wxCHANGE_DIR)
+            dlg = wx.FileDialog(self, "Save Lens", ".", "", "*.lns", wx.SAVE | wx.OVERWRITE_PROMPT | wx.CHANGE_DIR)
             dlg.SetPath(self.file_name)
             try:
-                if dlg.ShowModal() == wxID_OK:
+                if dlg.ShowModal() == wx.ID_OK:
                     self.file_name = dlg.GetPath()
                     self.SetTitle(TITLE + self.file_name)
                     t = self.lens.get_data()

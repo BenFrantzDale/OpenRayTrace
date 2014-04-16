@@ -1,3 +1,4 @@
+from __future__ import division
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -32,34 +33,34 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from wxPython.wx import *
-from wxPython.glcanvas import *
+from wx import *
+from wx import glcanvas
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 import cmath
-from Numeric import *
+#from Numeric import *
 import math
 
           
-class myGLCanvas(wxGLCanvas):
+class myGLCanvas(glcanvas.GLCanvas):
     def __init__(self, parent):
-        wxGLCanvas.__init__(self,parent,-1)
-                
+        glcanvas.GLCanvas.__init__(self,parent,-1)
         self.init = False
+        self.context = glcanvas.GLContext(self)
         
-        EVT_ERASE_BACKGROUND(self, self.OnEraseBackground)
-        EVT_SIZE(self,self.OnSize)
-        EVT_PAINT(self,self.OnPaint)        
-        #EVT_IDLE(self,self.OnIdle)
-        EVT_LEFT_DOWN(self,self.OnMouseDown)
-        EVT_LEFT_UP(self,self.OnMouseUp)
-        EVT_MIDDLE_DOWN(self,self.OnMouseDown)
-        EVT_MIDDLE_UP(self,self.OnMouseUp)
-        EVT_RIGHT_DOWN(self,self.OnMouseDown)
-        EVT_RIGHT_UP(self,self.OnMouseUp)
-        EVT_MOTION(self, self.OnMouseMotion)
+        self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
+        self.Bind(wx.EVT_SIZE,self.OnSize)
+        self.Bind(wx.EVT_PAINT,self.OnPaint)        
+        #self.Bind(wx.EVT_IDLE,self.OnIdle)
+        self.Bind(wx.EVT_LEFT_DOWN,self.OnMouseDown)
+        self.Bind(wx.EVT_LEFT_UP,self.OnMouseUp)
+        self.Bind(wx.EVT_MIDDLE_DOWN,self.OnMouseDown)
+        self.Bind(wx.EVT_MIDDLE_UP, self.OnMouseUp)
+        self.Bind(wx.EVT_RIGHT_DOWN, self.OnMouseDown)
+        self.Bind(wx.EVT_RIGHT_UP, self.OnMouseUp)
+        self.Bind(wx.EVT_MOTION, self.OnMouseMotion)
         
         self.K = 1.0
         self.rotatable = True
@@ -68,12 +69,15 @@ class myGLCanvas(wxGLCanvas):
         self.y = 0
         
 
+    def glSetCurrent(self):
+        self.SetCurrent(self.context)
+
     def OnEraseBackground(self, event):
         self.glSetCurrent()  
 
         pass # Do nothing, to avoid flashing on MSW.
     
-    def OnSize(self, event = NULL):
+    def OnSize(self, event = None):
         
         self.glSetCurrent()  
         size = self.GetClientSize()
@@ -86,7 +90,10 @@ class myGLCanvas(wxGLCanvas):
         if(self.centered):            
             glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
         else:
-            glOrtho(-.1*self.K,1.1*self.K, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
+            print 'shape', self.HEIGHT, self.WIDTH
+            glOrtho(-.1*self.K,1.1*self.K, -1.1*self.K * 
+                    self.HEIGHT/self.WIDTH/2, 1.1*self.K*self.HEIGHT/self.WIDTH/2,
+                    -self.K,self.K)
         
         glMatrixMode(GL_MODELVIEW)
 
@@ -97,9 +104,9 @@ class myGLCanvas(wxGLCanvas):
         self.Refresh(False)
         
             
-    def OnPaint(self, event=NULL):
+    def OnPaint(self, event=None):
         self.glSetCurrent()  
-        dc = wxPaintDC(self)
+        dc = wx.PaintDC(self)
         self.glSetCurrent()
 
         if not self.init:            
@@ -238,6 +245,7 @@ class myGLCanvas(wxGLCanvas):
     
     def set_k(self,k):
         self.glSetCurrent()  
+        assert k > 0
         self.K = k
         self.reset_view()
         
@@ -249,12 +257,15 @@ class myGLCanvas(wxGLCanvas):
         
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()                
-        if(self.centered):            
-            glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
+        if self.centered:
+            glOrtho(-1.1*self.K/2.0,1.1*self.K/2.0,
+                    -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,
+                    -self.K,self.K)
         else:
-            glOrtho(-.1*self.K,1.1*self.K, -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
+            glOrtho(-.1*self.K, 1.1*self.K,
+                    -1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,
+                    -self.K,self.K)
 
-        #glOrtho(-.1*self.K,1.1*self.K,-1.1*self.K * self.HEIGHT/self.WIDTH/2,1.1*self.K*self.HEIGHT/self.WIDTH/2,-self.K,self.K)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 

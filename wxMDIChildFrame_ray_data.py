@@ -35,8 +35,8 @@
 
 
 
-from wxPython.wx import *
-from wxPython.grid import *
+from wx import *
+from wx.grid import *
 TSC = 0
 SC  = 1
 CC  = 2
@@ -58,25 +58,25 @@ def create(parent):
     return wxMDIChildFrame_ray_data(parent)
 
 [wxID_WXMDICHILDFRAME_RAY_DATA, wxID_WXMDICHILDFRAME_RAY_DATAGRID1, 
-] = map(lambda _init_ctrls: wxNewId(), range(2))
+] = map(lambda _init_ctrls: wx.NewId(), range(2))
 
-class wxMDIChildFrame_ray_data(wxMDIChildFrame):
+class wxMDIChildFrame_ray_data(wx.MDIChildFrame):
     def _init_utils(self):
         # generated method, don't edit
         pass
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxMDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_RAY_DATA,
-              name='wxMDIChildFrame_ray_data', parent=prnt, pos=wxPoint(447,
-              260), size=wxSize(798, 498), style=wxDEFAULT_FRAME_STYLE,
+        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_RAY_DATA,
+              name='wxMDIChildFrame_ray_data', parent=prnt, pos=wx.Point(447,
+              260), size=wx.Size(798, 498), style=DEFAULT_FRAME_STYLE,
               title='Ray Data')
         self._init_utils()
-        self.SetClientSize(wxSize(790, 464))
+        self.SetClientSize(wx.Size(790, 464))
         EVT_CLOSE(self, self.OnWxmdichildframe_ray_dataClose)
 
-        self.grid1 = wxGrid(id=wxID_WXMDICHILDFRAME_RAY_DATAGRID1, name='grid1',
-              parent=self, pos=wxPoint(0, 0), size=wxSize(790, 464), style=0)
+        self.grid1 = Grid(id=wxID_WXMDICHILDFRAME_RAY_DATAGRID1, name='grid1',
+              parent=self, pos=wx.Point(0, 0), size=wx.Size(790, 464), style=0)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
@@ -88,7 +88,7 @@ class wxMDIChildFrame_ray_data(wxMDIChildFrame):
         
         #self.grid1.setRowLabelValue(0,'Total')
         
-        self.grid1.SetDefaultCellAlignment(wxALIGN_CENTRE,wxALIGN_CENTRE)
+        self.grid1.SetDefaultCellAlignment(ALIGN_CENTRE,ALIGN_CENTRE)
         self.grid1.AutoSizeRow(True)
         self.grid1.AutoSizeColumns(True)
         

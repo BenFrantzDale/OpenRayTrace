@@ -14,7 +14,7 @@ class Target:
         self.name = "OpenRayTrace"
 
 ################################################################
-# A program using wxPython
+# A program using wx
 
 # The manifest will be inserted as resource into test_wx.exe.  This
 # gives the controls the Windows XP appearance (if run on XP ;-)
