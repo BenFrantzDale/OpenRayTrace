@@ -55,21 +55,17 @@ from numpy.linalg import norm
 WIDTH=640.0
 HEIGHT=480.0
 
-#FLENGTH = 0
-#POWER = 1
-#CURVATURE = 2
-RADIUS = 3
-THICKNESS = 4
-APERATURE_RADIUS = 5
-GLASS = 6
-#BENDING = 7
-#BENT_C  = 8
-#BENT_R  = 9
-
-
 class LensData(wx.MDIChildFrame):
     wxID = wx.NewId()
     col_labels = ('surf type','comment','radius','thickness','aperature radius','glass')
+    @property 
+    def RADIUS_COL(self): return self.col_labels.index('radius')
+    @property 
+    def THICKNESS_COL(self): return self.col_labels.index('thickness')
+    @property 
+    def APERATURE_RADIUS_COL(self): return self.col_labels.index('aperature radius')
+    @property 
+    def GLASS_COL(self): return self.col_labels.index('aperature radius')
     MENU_GLASSBK7 = wx.NewId()
     MENU_GLASSDIRECT = wx.NewId()
     MENU_THICKNESSPARAXIALFOCUS = wx.NewId()
@@ -472,8 +468,8 @@ class LensData(wx.MDIChildFrame):
 
         self.staticText_mag.SetLabel(str(mag))
         if self.checkBox_autofocus.GetValue():
-            self.grid1.SetCellValue(len(self.t)-1,THICKNESS,str(l))
-            draw = self.fill_in_values(len(self.t)-1,THICKNESS,l)            
+            self.grid1.SetCellValue(len(self.t)-1,self.THICKNESS_COL,str(l))
+            draw = self.fill_in_values(len(self.t)-1,self.THICKNESS_COL,l)            
             self.update_display()                            
 
         print 'stop at', self.__system.surfaces.index(self.__system.apertureStop)
@@ -564,17 +560,13 @@ class LensData(wx.MDIChildFrame):
     
     def fill_in_values(self,r,c,val):                               
         #AUTOFILL SOME STUFF
-        if (self.grid1.GetCellValue(r,GLASS) == ''):
-            self.grid1.SetCellValue(r,GLASS,str(1))
-            
-        if (self.grid1.GetCellValue(r,THICKNESS) == ''):
-            self.grid1.SetCellValue(r,THICKNESS,str(0))     
-                
-        if (self.grid1.GetCellValue(r,RADIUS) == ''):
-            self.grid1.SetCellValue(r,RADIUS,str(0))            
-        
-        if (self.grid1.GetCellValue(r,APERATURE_RADIUS) == ''):
-            self.grid1.SetCellValue(r,APERATURE_RADIUS,str(1.0))
+        autofills = {self.THICKNESS_COL: '0',
+                     self.RADIUS_COL: '0',
+                     self.APERATURE_RADIUS_COL: '1.0'}
+        for col, default in autofills.iteritems():
+            if self.grid1.GetCellValue(r, col) == '':
+                self.grid1.SetCellValue(r, col, default)
+
 
         self._sync_system_to_grid(r, c, val)
 
@@ -626,7 +618,7 @@ class LensData(wx.MDIChildFrame):
                                          stop_index=stop_index)
 
     def get_data(self):
-        t =  []
+        t = []
         tble = self.grid1.GetTable()                     
         for r in range(self.rows):
             t.append([tble.GetValue(r,c) for c in range(len(self.col_labels))])
@@ -700,9 +692,9 @@ class LensData(wx.MDIChildFrame):
         pos.x += offset.x
         pos.y += offset.y
         
-        if(c == THICKNESS):             
+        if c == self.THICKNESS_COL:
             self.PopupMenu(self.menu_thickness,pos)
-        elif(c == GLASS):
+        elif c == self.GLASS_COL:
             id = self.PopupMenu(self.menu_glass,pos)
         
         event.Skip()
@@ -771,7 +763,7 @@ class LensData(wx.MDIChildFrame):
 
     def OnTextctrl_object_heightText(self, event):
         #self.object_height = float(self.textCtrl_object_height.GetValue())
-        self.OnGrid1GridCellChange() #event=None,r=0,c=THICKNESS)               
+        self.OnGrid1GridCellChange() #event=None,r=0,c=self.THICKNESS_COL)               
         event.Skip()
 
     def OnButton_compute_allButton(self, event):
