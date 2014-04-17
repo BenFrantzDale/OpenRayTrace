@@ -436,7 +436,6 @@ class LensData(wx.MDIChildFrame):
         if event is not None:
             r = event.GetRow()
             c = event.GetCol() 
-            #import epdb;epdb.st()
         
         val = None
         if r is not None and c is not None:
@@ -569,6 +568,7 @@ class LensData(wx.MDIChildFrame):
 
 
         self._sync_system_to_grid(r, c, val)
+        self._sync_grid_to_system(r, c)
 
         return True
 
@@ -633,18 +633,19 @@ class LensData(wx.MDIChildFrame):
                 strval = str(cell) if cell is not None else ''
                 self.grid1.SetCellValue(ri, ci, strval)
 
-    def _sync_grid_to_system(self):
+    def _sync_grid_to_system(self, row=None, col=None):
         newNumRows = max(1, self.rows)
         if self.grid1.GetNumberRows() < newNumRows:
             self.grid1.InsertRows(self.grid1.GetNumberRows(), newNumRows - self.grid1.GetNumberRows())
-        #return # Stuff below isn't implemented.
-        for ri, surface in enumerate(self.__system):
+        rowIndsSurfaces = (enumerate(self.__system) if row is None 
+                           else [(row, self.__system.surfaces[row])])
+        for ri, surface in rowIndsSurfaces:
             rowData = self.surfToRowData(surface)
             if surface is self.__system.apertureStop:
                 self.grid1.SetRowLabelValue(ri, '[{}]'.format(ri+1))
             else:
                 self.grid1.SetRowLabelValue(ri, '{}'.format(ri+1))
-
+            color = '#FFFFFF' if surface.n(None) == 1.0 else '#d7e6ec' # Default to white; glass gets light blue.
             for ci, col_label in enumerate(self.col_labels):
                 cell = rowData[col_label]
                 strval = str(cell) if cell is not None else ''
@@ -655,6 +656,7 @@ class LensData(wx.MDIChildFrame):
                     if strval == '1.0':
                         strval = '' # Don't bother writing the 1.0 for air.
                 self.grid1.SetCellValue(ri, ci, strval)
+                self.grid1.SetCellBackgroundColour(ri, ci, color)
 
     def _sync_system_to_grid(self, r, c=None, val=None):
         """Sync the given entry to the system model."""
@@ -718,7 +720,6 @@ class LensData(wx.MDIChildFrame):
         
         if id == self.DATAROW_MENU_SET_AS_STOP:
             self.__system.apertureStop = self.__system.surfaces[r]
-            #import epdb;epdb.st()
             self._sync_grid_to_system()
             self.OnGrid1GridCellChange()
         elif id == self.DATAROW_MENUINSERTAFTER:
