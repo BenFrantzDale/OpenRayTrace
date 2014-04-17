@@ -69,7 +69,7 @@ BENT_R  = 9
 
 class LensData(wx.MDIChildFrame):
     wxID = wx.NewId()
-    col_labels = ('f-length','power','curvature','radius','thickness','aperature radius','glass','bending','bent c','bent r')
+    col_labels = ('f-length','power','radius','thickness','aperature radius','glass','bending','bent c','bent r')
     MENU_GLASSBK7 = wx.NewId()
     MENU_GLASSDIRECT = wx.NewId()
     MENU_THICKNESSPARAXIALFOCUS = wx.NewId()
@@ -137,7 +137,6 @@ class LensData(wx.MDIChildFrame):
         """Given a DataModel.Surface, return the row of values as a dictionary."""
         getter = {'f-length': lambda s: None,
                   'power': lambda s: None,
-                  'curvature': lambda s: 1.0/float(s.R) if hasattr(s, 'R') else 0.0,
                   'radius': lambda s: s.R if hasattr(s, 'R') else np.inf,
                   'thickness': lambda s: s.thickness,
                   'aperature radius': lambda s: s.semidiam,
@@ -574,9 +573,6 @@ class LensData(wx.MDIChildFrame):
         if (self.grid1.GetCellValue(r,THICKNESS) == ''):
             self.grid1.SetCellValue(r,THICKNESS,str(0))     
                 
-        if (self.grid1.GetCellValue(r,CURVATURE) == ''):
-            self.grid1.SetCellValue(r,CURVATURE,str(0))
-            
         if (self.grid1.GetCellValue(r,RADIUS) == ''):
             self.grid1.SetCellValue(r,RADIUS,str(0))            
         
@@ -613,26 +609,7 @@ class LensData(wx.MDIChildFrame):
                 self.grid1.SetCellValue(r+1,BENDING,str(0))                                                                         
             self.update_radius(r)
                                     
-        if(c == CURVATURE): #curvature changed
-            #update the radius
-            if(val != 0):
-                self.grid1.SetCellValue(r,RADIUS,str(1.0/val))
-            else:
-                self.grid1.SetCellValue(r,RADIUS,str(0.0))
-                
-            self.update_power(r)                                            
-                        
         if(c == RADIUS): #radius changed
-            #update the curvature
-            
-            if(val != 0):
-                self.grid1.SetCellValue(r,CURVATURE,str(1.0/val))
-            else:
-                self.grid1.SetCellValue(r,CURVATURE,str(0.0))
-            
-##            if(self.grid1.GetCellValue(r,POWER) == ''):
-##                self.radioButton_const_radius.SetValue(True)
-##                self.OnRadiobutton_const_radiusRadiobutton()
             self.update_power(r)                                
                         
         if(c == THICKNESS): #thickness changed
@@ -649,7 +626,7 @@ class LensData(wx.MDIChildFrame):
         
         #c = BENDING
         #if(c == BENDING):#GLASS CHANGED            
-        cnew = float(self.grid1.GetCellValue(r,CURVATURE)) + float( self.grid1.GetCellValue(r,BENDING))
+        cnew = float( self.grid1.GetCellValue(r,BENDING))
         #print cnew
         self.grid1.SetCellValue(r,BENT_C, str(cnew))
         if(cnew == 0):
@@ -658,7 +635,7 @@ class LensData(wx.MDIChildFrame):
             self.grid1.SetCellValue(r,BENT_R, str(1.0/cnew))
 
         if(c ==POWER or c == FLENGTH):
-            cnew = float(self.grid1.GetCellValue(r+1,CURVATURE)) + float( self.grid1.GetCellValue(r,BENDING))
+            cnew = float( self.grid1.GetCellValue(r,BENDING))
             #print cnew
             self.grid1.SetCellValue(r+1,BENT_C, str(cnew))
             if(cnew == 0):
@@ -668,7 +645,6 @@ class LensData(wx.MDIChildFrame):
                         
             self.update_power(r)
 
-        #self.grid1.SetCellValue(r,BENT_C,self.grid1.GetCellValue(r,CURVATURE))            
         #self.grid1.SetCellValue(r,BENT_R,self.grid1.GetCellValue(r,RADIUS))            
 
         self._sync_system_to_grid(r, c, val)
@@ -722,51 +698,7 @@ class LensData(wx.MDIChildFrame):
 
 
     def update_power(self,r):            
-        print 'update_power',(r,)
-        #import epdb;epdb.st()
-        if(self.grid1.GetCellValue(r+1,CURVATURE) != ''):
-            n = self.grid1.GetCellValue(r,GLASS)
-            if(n != ''):
-                n = float(n)
-            else:
-                return -1
-            
-            if(n != 1):  
-                #update the power
-                c1 = float(self.grid1.GetCellValue(r,CURVATURE))
-                c2 = float(self.grid1.GetCellValue(r+1,CURVATURE))                                            
-            
-                t   = self.grid1.GetCellValue(r,THICKNESS)
-                if(t != ''):
-                    t = float(t)
-                else:
-                    return -1                                    
-                                    
-                phi = (n-1.0) * (c1 - c2)+(n-1.0)*(n-1.0)/n*t*c1*c2
-                self.grid1.SetCellValue(r,POWER,str(phi))
-                self.grid1.SetCellValue(r,FLENGTH,str(1.0/phi))
-            
-        if r and self.grid1.GetCellValue(r-1,CURVATURE) != '': # then we are end of lens
-            n = self.grid1.GetCellValue(r-1,GLASS)                
-            if n != '':
-                n = float(n)
-            else:
-                return -1
-
-            if n != 1:
-                # update the power
-                c1 = float(self.grid1.GetCellValue(r-1,CURVATURE))
-                c2 = float(self.grid1.GetCellValue(r,CURVATURE))            
-
-                t = self.grid1.GetCellValue(r-1,THICKNESS)
-                if t != '':
-                    t = float(t)
-                else:
-                    return -1                                    
-
-                phi = (n-1.0) * (c1 - c2)+(n-1.0)*(n-1.0)/n*t*c1*c2
-                self.grid1.SetCellValue(r-1,POWER,str(phi))
-                self.grid1.SetCellValue(r-1,FLENGTH,str(1.0/phi))
+        pass
 
     def update_radius(self,r):        
             print 'update_radius',(r,)
@@ -797,14 +729,6 @@ class LensData(wx.MDIChildFrame):
             #rad = val * 2 * ( n - 1 )
             self.grid1.SetCellValue(r,RADIUS,str(rad))
             self.grid1.SetCellValue(r+1,RADIUS,str(-rad))
-            
-            if(rad != 0):
-                self.grid1.SetCellValue(r,CURVATURE,str(1.0/rad))
-                self.grid1.SetCellValue(r+1,CURVATURE,str(-1.0/rad))                
-            else:
-                self.grid1.SetCellValue(r,CURVATURE,str(0.0))
-                self.grid1.SetCellValue(r+1,CURVATURE,str(0.0))  
-                
                 
     def get_data(self):
         t =  []
@@ -822,8 +746,6 @@ class LensData(wx.MDIChildFrame):
             for ci, cell in enumerate(row):
                 strval = str(cell) if cell is not None else ''
                 self.grid1.SetCellValue(ri, ci, strval)
-        for r in range(self.rows):
-            self.OnGrid1GridCellChange(None,r,CURVATURE)
 
     def _sync_grid_to_system(self):
         newNumRows = max(1, self.rows)
@@ -847,9 +769,6 @@ class LensData(wx.MDIChildFrame):
                     if strval == '1.0':
                         strval = '' # Don't bother writing the 1.0 for air.
                 self.grid1.SetCellValue(ri, ci, strval)
-        for r in range(self.rows):
-            self.OnGrid1GridCellChange(None,r,CURVATURE)
-
 
     def _sync_system_to_grid(self, r, c=None, val=None):
         """Sync the given entry to the system model."""
@@ -865,8 +784,7 @@ class LensData(wx.MDIChildFrame):
 
         surface = self.__system.surfaces[r]
         label = self.col_labels[c]
-        if label == 'curvature': surface.R = 1.0 / float(val)
-        elif label == 'radius': surface.R = val
+        if label == 'radius': surface.R = val
         elif label == 'thickness': surface.thickness = val
         elif label == 'aperature radius': surface.semidiam = val
         elif label == 'glass': surface.glass = DataModel.SimpleGlass(val)
