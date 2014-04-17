@@ -175,8 +175,8 @@ class MainFrame(wx.MDIParentFrame):
 
     def OnMenu(self, event):
         id = event.GetId()
-        if(id == wxID_MAINFRAMEMENUNEW):    
-            sv = wxDialogSaveQuestion.create(self,self.file_name)                    
+        if id == wxID_MAINFRAMEMENUNEW:
+            sv = DialogSaveQuestion.DialogSaveQuestion(self, self.file_name)                    
             res = sv.ShowModal()
             try:                
                 if res == 0:     #yes
@@ -216,7 +216,7 @@ class MainFrame(wx.MDIParentFrame):
             self.saveable = False
             self.Save()
         elif(id == wxID_MAINFRAMEMENUEXIT):
-            sv = wxDialogSaveQuestion.create(self,self.file_name)
+            sv = DialogSaveQuestion.DialogSaveQuestion(self,self.file_name)
             sv.Show()                        
         event.Skip()
             

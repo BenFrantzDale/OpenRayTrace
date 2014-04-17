@@ -1,6 +1,7 @@
 #Boa:Frame:wxFrameRayTrace
 
 from GridCustTable import *
+import wx
 from wx import *
 from wxgrid import *
 from myCanvas import *
@@ -21,18 +22,18 @@ APERATURE_RADIUS = 5
 GLASS = 6
 
 
-def create(parent):
-    return wxFrameRayTrace(parent)
 
-[wxID_WXFRAMERAYTRACE, wxID_WXFRAMERAYTRACEBUTTON_QUIT, 
- wxID_WXFRAMERAYTRACECHECKBOX_AUTOFOCUS, wxID_WXFRAMERAYTRACEGRID1, 
- wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_POWER, 
- wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_RADIUS, 
- wxID_WXFRAMERAYTRACESTATICTEXT_PARAXIAL_FOCUS, 
- wxID_WXFRAMERAYTRACESTATICTEXT_PF, 
-] = map(lambda _init_ctrls: wx.NewId(), range(8))
+class FrameRayTrace(wx.Frame):
+    wxID = wx.NewId()
+    wxID_
+BUTTON_QUIT, 
+     wxID_CHECKBOX_AUTOFOCUS, wxID_GRID1, 
+     wxID_RADIOBUTTON_CONST_POWER, 
+     wxID_RADIOBUTTON_CONST_RADIUS, 
+     wxID_STATICTEXT_PARAXIAL_FOCUS, 
+     wxID_STATICTEXT_PF, 
+    ] = map(lambda _init_ctrls: wx.NewId(), range(8))
 
-class wxFrameRayTrace(wxFrame):
     _lensSurfaceColor = (0.1, 0.1, 0.1)
     def _init_utils(self):
         # generated method, don't edit
@@ -40,51 +41,51 @@ class wxFrameRayTrace(wxFrame):
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wxFrame.__init__(self, id=wxID_WXFRAMERAYTRACE, name='wxFrameRayTrace',
+        wx.Frame.__init__(self, id=FrameRayTrace.wxID, name='FrameRayTrace',
               parent=prnt, pos=wx.Point(501, 238), size=wx.Size(1032, 814),
               style=wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxRESIZE_BORDER | wxSYSTEM_MENU | wxSTAY_ON_TOP | wxDEFAULT_FRAME_STYLE,
               title='PyRayTrace')
         self._init_utils()
         self.SetClientSize(wx.Size(1024, 780))
-        self.Center(wxBOTH)
+        self.Center(wx.BOTH)
         EVT_SIZE(self, self.OnWxframeopenmodalSize)
 
-        self.button_Quit = wxButton(id=wxID_WXFRAMERAYTRACEBUTTON_QUIT,
+        self.button_Quit = wxButton(id=self.wxID_BUTTON_QUIT,
               label='Quit', name='button_Quit', parent=self, pos=wx.Point(880,
               0), size=wx.Size(144, 48), style=0)
-        EVT_BUTTON(self.button_Quit, wxID_WXFRAMERAYTRACEBUTTON_QUIT,
+        EVT_BUTTON(self.button_Quit, self.wxID_BUTTON_QUIT,
               self.OnButton_quitButton)
 
-        self.grid1 = wxGrid(id=wxID_WXFRAMERAYTRACEGRID1, name='grid1',
+        self.grid1 = wxGrid(id=self.wxID_GRID1, name='grid1',
               parent=self, pos=wx.Point(0, 536), size=wx.Size(1024, 240),
               style=0)
         EVT_GRID_CELL_CHANGE(self.grid1, self.OnGrid1GridCellChange)
 
-        self.radioButton_const_power = wxRadioButton(id=wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_POWER,
+        self.radioButton_const_power = wxRadioButton(id=self.wxID_RADIOBUTTON_CONST_POWER,
               label='Const Power/F-length', name='radioButton_const_power',
               parent=self, pos=wx.Point(848, 264), size=wx.Size(79, 13), style=0)
         self.radioButton_const_power.SetValue(True)
         EVT_RADIOBUTTON(self.radioButton_const_power,
-              wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_POWER,
+              self.wxID_RADIOBUTTON_CONST_POWER,
               self.OnRadiobutton_const_powerRadiobutton)
 
-        self.radioButton_const_radius = wxRadioButton(id=wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_RADIUS,
+        self.radioButton_const_radius = wxRadioButton(id=self.wxID_RADIOBUTTON_CONST_RADIUS,
               label='Const Radius', name='radioButton_const_radius',
               parent=self, pos=wx.Point(848, 288), size=wx.Size(79, 13), style=0)
         self.radioButton_const_radius.SetValue(False)
         EVT_RADIOBUTTON(self.radioButton_const_radius,
-              wxID_WXFRAMERAYTRACERADIOBUTTON_CONST_RADIUS,
+              self.wxID_RADIOBUTTON_CONST_RADIUS,
               self.OnRadiobutton_const_radiusRadiobutton)
 
-        self.staticText_pf = wxStaticText(id=wxID_WXFRAMERAYTRACESTATICTEXT_PF,
+        self.staticText_pf = wxStaticText(id=self.wxID_STATICTEXT_PF,
               label='Paraxial Focus', name='staticText_pf', parent=self,
               pos=wx.Point(848, 312), size=wx.Size(69, 13), style=0)
 
-        self.staticText_paraxial_focus = wxStaticText(id=wxID_WXFRAMERAYTRACESTATICTEXT_PARAXIAL_FOCUS,
+        self.staticText_paraxial_focus = wxStaticText(id=self.wxID_STATICTEXT_PARAXIAL_FOCUS,
               label='', name='staticText_paraxial_focus', parent=self,
               pos=wx.Point(928, 312), size=wx.Size(0, 13), style=0)
 
-        self.checkBox_autofocus = wxCheckBox(id=wxID_WXFRAMERAYTRACECHECKBOX_AUTOFOCUS,
+        self.checkBox_autofocus = wxCheckBox(id=self.wxID_CHECKBOX_AUTOFOCUS,
               label='Autofocus (paraxial)', name='checkBox_autofocus',
               parent=self, pos=wx.Point(848, 336), size=wx.Size(120, 13),
               style=0)
