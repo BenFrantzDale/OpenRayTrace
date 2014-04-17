@@ -123,6 +123,7 @@ class MainFrame(wx.MDIParentFrame):
         #self.Maximize()
         
         self.ogl      = frames.LensSystemOGL.LensSystemOGL(self)      
+        self.field     = frames.FieldData.FieldData(self)
         self.lens     = frames.LensData.LensData(self)
         self.trace    = frames.RayData.RayData(self)
         self.paraxial = frames.ParaxialData.ParaxialData(self)
