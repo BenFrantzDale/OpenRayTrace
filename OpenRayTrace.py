@@ -37,9 +37,9 @@
 
 
 
-from wx import *
+import wx
 
-from OpenRayTrace import MainFrame
+from OpenRayTrace.UI import MainFrame
 
 class OpenRayTraceApp(wx.App):
     def OnInit(self):
