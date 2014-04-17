@@ -1,3 +1,4 @@
+from __future__ import division
 #Boa:MDIChild:wxMDIChildFrame_lens_system_ogl
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
@@ -119,14 +120,18 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     @K.setter
     def K(self, k): self.can.K = k
                 
-    def draw_ray(self,x,y,z,ray,T_CUM,color=[1,1,1]):                                    
+    def draw_ray(self,x,y,z,ray,T_CUM=None,color=[1,1,1]):                                    
         self.can.glSetCurrent()
         glNewList(ray + self.glRayListStart, GL_COMPILE)      
         glColor(*color)
         glBegin(GL_LINE_STRIP)
         
-        for i in range(len(x)):            
-            glVertex(x[i] + T_CUM[i],y[i],z[i]) 
+        if T_CUM is not None:
+            for i in range(len(x)) :
+                glVertex(x[i] + T_CUM[i],y[i],z[i]) 
+        else:
+            for xyz in zip(x,y,z):
+                glVertex(*xyz)
             
         glEnd()        
         glEndList()                                
@@ -176,7 +181,8 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
     
     
     def draw_lenses(self,t,surf,t_cum,c,n,h,
-                    colors=None):
+                    colors=None,
+                    stop_index=None):
         if colors is None:
             colors = [self._lensSurfaceColor] * len(t)
         self.can.glSetCurrent()
@@ -192,8 +198,11 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
                 glEnd()        
         
             glColor(*colors[i])
-            z[i] = self.draw_surface(c[i], t_cum[i], h[i], 10)
-            
+            isFlatSameMat = (c[i] == 0 and (i == 0 or n[i-1] == n[i]))
+            if i == stop_index and isFlatSameMat:
+                z[i] = np.array((t_cum[i], h[i]))
+            else:
+                z[i] = self.draw_surface(c[i], t_cum[i], h[i], 10)
             if i > 0 and n[i-1] != 1: # Draw lens edges to previous surface?
                 glBegin(GL_LINES)
 
@@ -203,6 +212,14 @@ class wxMDIChildFrame_lens_system_ogl(wx.MDIChildFrame):
                 glVertex3f(float(z[i-1][0]),-float(z[i-1][1]),0)
                 glVertex3f(float(z[i][0]),  -float(z[i][1]),  0)
 
+                glEnd()
+            if i == stop_index:
+                glBegin(GL_LINES)
+                Y, Z = z[i]
+                d = Z * 0.1 # Edge length
+                for sgn in (-1, 1):
+                    glVertex(Y, Z*sgn); glVertex(Y, (Z + d)*sgn)
+                    glVertex(Y-d/2, Z*sgn); glVertex(Y+d/2, Z*sgn)
                 glEnd()
                     
             glEndList()

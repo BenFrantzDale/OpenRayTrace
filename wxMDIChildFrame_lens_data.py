@@ -524,6 +524,9 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                     raydirs = [normalized(epCtr - objPt)] * fp_i
                     offsets = pupilPts - epCtr
                 
+                rays = DataModel.Rays(np.transpose([objPt+offset for offset in offsets]),
+                                      np.transpose([direction for direction in raydirs]))
+                traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
                 for i, (offset, direction) in enumerate(zip(offsets,
                                                           raydirs)):
                     #go to aperature radius
@@ -533,31 +536,11 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                     #direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
                     #print "direction {}: {} -> {}".format(i, objPt + offset, direction)
                     
-                    x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt + offset, direction[::-1],
-                                                             self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
-                    rays = DataModel.Rays((objPt+offset)[:,None], direction[:,None]);
-                    traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
-                    print 'old\n',np.array([x[i], y[i], z[i]]).T
-                    z[i], y[i], x[i] = traces[:,:,0].T
-                    print traces[:,:,0]
-                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,np.zeros_like(self.t_cum[surf_i:]), color=color)
+                    #rays = DataModel.Rays((objPt+offset)[:,None], direction[:,None]);
+                    #traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
+                    z[i], y[i], x[i] = traces[:,:,i].T
                     cnt+=1
-
-
-            if False:
-                ray_1 = 10
-                for i in range(-ray_1//2+1, ray_1//2):
-                    #go to aperature radius
-                    if self.t[surf_i] != 0:
-                        Yi = (i/(ray_1/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]])
-                        Zi = 0.0                
-                        Xi =  np.sqrt(1.0 - Yi**2 - Zi**2)
-                        x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray((0,self.object_height,0),(Xi,Yi,Zi),
-                                                                 self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
-                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, self.t_cum, color = (0.2,0.8,0.2))
-                        cnt+=1
-
-
+                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, color=color)
 
             if not len(self.t_cum) or self.t_cum[-1] == 0: 
                 k = 1
@@ -712,6 +695,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.n = []
         self.h = []
         surf_i = []
+        stop_index = None
             
         t1 = 0
         colors = [self.GetParent().ogl._lensSurfaceColor] * self.rows
@@ -731,10 +715,11 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 self.h.append(float(surf.semidiam))
                 surf_i.append(i)
                 self.n.append(surf.n(None))
-            
-            
+                
                 t1 += float(surf.thickness)
                 self.t.append(float(surf.thickness))
+                if surf is self.__system.apertureStop:
+                    stop_index = i
         # We want t_cum to be the positions of each surface. Need to deel with infinate thicknesses at ends of the system.
         if len(self.t) == 0 or np.isfinite(self.t[0]):
             self.t_cum = np.hstack([[0], np.cumsum(self.t)])
@@ -742,7 +727,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             self.t_cum = np.hstack([[-np.inf, 0], np.cumsum(self.t[1:])])
             
         l = range(1,self.rows)
-        self.GetParent().ogl.draw_lenses(self.t,surf_i,self.t_cum,self.c,self.n,self.h,colors=colors)
+        self.GetParent().ogl.draw_lenses(self.t,surf_i,self.t_cum,self.c,self.n,self.h,colors=colors,
+                                         stop_index=stop_index)
 
 
     def update_power(self,r):            
