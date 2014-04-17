@@ -56,7 +56,7 @@ WIDTH=640.0
 HEIGHT=480.0
 
 #FLENGTH = 0
-POWER = 1
+#POWER = 1
 #CURVATURE = 2
 RADIUS = 3
 THICKNESS = 4
@@ -69,7 +69,7 @@ BENT_R  = 9
 
 class LensData(wx.MDIChildFrame):
     wxID = wx.NewId()
-    col_labels = ('surf type','comment','power','radius','thickness','aperature radius','glass','bending','bent c','bent r')
+    col_labels = ('surf type','comment','radius','thickness','aperature radius','glass','bending','bent c','bent r')
     MENU_GLASSBK7 = wx.NewId()
     MENU_GLASSDIRECT = wx.NewId()
     MENU_THICKNESSPARAXIALFOCUS = wx.NewId()
@@ -137,7 +137,6 @@ class LensData(wx.MDIChildFrame):
         """Given a DataModel.Surface, return the row of values as a dictionary."""
         getter = {'surf type': lambda s: s.__class__.__name__.replace('Surface',''),
                   'comment': lambda s: None,
-                  'power': lambda s: None,                  
                   'radius': lambda s: s.R if hasattr(s, 'R') else np.inf,
                   'thickness': lambda s: s.thickness,
                   'aperature radius': lambda s: s.semidiam,
@@ -583,31 +582,14 @@ class LensData(wx.MDIChildFrame):
         if (self.grid1.GetCellValue(r,BENDING) == ''):
             self.grid1.SetCellValue(r,BENDING,str(0.0))
                     
-        if c == POWER: #power has changed    
-            if (self.grid1.GetCellValue(r+1,APERATURE_RADIUS) == ''):
-                self.grid1.SetCellValue(r+1,APERATURE_RADIUS,str(1.0))
-            if (self.grid1.GetCellValue(r+1,GLASS) == ''):
-                self.grid1.SetCellValue(r+1,GLASS,str(1))            
-            if (self.grid1.GetCellValue(r+1,THICKNESS) == ''):
-                self.grid1.SetCellValue(r+1,THICKNESS,str(0))                 
-            if (self.grid1.GetCellValue(r+1,BENDING) == ''):
-                self.grid1.SetCellValue(r+1,BENDING,str(0))                                                                         
-            self.update_radius(r)
-                                    
         if(c == RADIUS): #radius changed
-            self.update_power(r)                                
+            pass # Nothing to do.
                         
         if(c == THICKNESS): #thickness changed
-            if(self.hold_power):
-                self.update_radius(r)
-            elif(self.hold_radius):        
-                self.update_power(r)
+            pass # Nothing to do.
                         
         if(c == GLASS):#GLASS CHANGED            
-            if(self.hold_power):
-                self.update_radius(r)
-            elif(self.hold_radius):                
-                self.update_power(r)                
+            pass # Nothing to do.
         
         #c = BENDING
         #if(c == BENDING):#GLASS CHANGED            
@@ -619,18 +601,6 @@ class LensData(wx.MDIChildFrame):
         else:
             self.grid1.SetCellValue(r,BENT_R, str(1.0/cnew))
 
-        if c == POWER:
-            cnew = float( self.grid1.GetCellValue(r,BENDING))
-            #print cnew
-            self.grid1.SetCellValue(r+1,BENT_C, str(cnew))
-            if(cnew == 0):
-                self.grid1.SetCellValue(r+1,BENT_R, str(0.0))
-            else:
-                self.grid1.SetCellValue(r+1,BENT_R, str(1.0/cnew))
-                        
-            self.update_power(r)
-
-        #self.grid1.SetCellValue(r,BENT_R,self.grid1.GetCellValue(r,RADIUS))            
 
         self._sync_system_to_grid(r, c, val)
 
@@ -681,40 +651,6 @@ class LensData(wx.MDIChildFrame):
         self.GetParent().ogl.draw_lenses(self.t,surf_i,self.t_cum,self.c,self.n,self.h,colors=colors,
                                          stop_index=stop_index)
 
-
-    def update_power(self,r):            
-        pass
-
-    def update_radius(self,r):        
-            print 'update_radius',(r,)
-            phi = self.grid1.GetCellValue(r,POWER)
-            if(phi != ''):
-                phi = float(phi)
-            else:
-                return -1
-            
-            n   = self.grid1.GetCellValue(r,GLASS)
-            if(n != ''):
-                n = float(n)
-            else:
-                return -1
-            
-            
-            t   = self.grid1.GetCellValue(r,THICKNESS)
-            if(t != ''):
-                t = float(t)
-            else:
-                return -1
-
-            if n**2 - phi * n * t < 0:
-                return -1
-            rad = (2*n+2*math.sqrt(n*n - phi*n*t)*(n-1)) / (2*n*phi)
-            
-            #calc r so that r1 = r2 = r   
-            #rad = val * 2 * ( n - 1 )
-            self.grid1.SetCellValue(r,RADIUS,str(rad))
-            self.grid1.SetCellValue(r+1,RADIUS,str(-rad))
-                
     def get_data(self):
         t =  []
         tble = self.grid1.GetTable()                     
