@@ -55,9 +55,9 @@ from numpy.linalg import norm
 WIDTH=640.0
 HEIGHT=480.0
 
-FLENGTH = 0
+#FLENGTH = 0
 POWER = 1
-CURVATURE = 2
+#CURVATURE = 2
 RADIUS = 3
 THICKNESS = 4
 APERATURE_RADIUS = 5
@@ -69,7 +69,7 @@ BENT_R  = 9
 
 class LensData(wx.MDIChildFrame):
     wxID = wx.NewId()
-    col_labels = ('f-length','power','radius','thickness','aperature radius','glass','bending','bent c','bent r')
+    col_labels = ('surf type','comment','power','radius','thickness','aperature radius','glass','bending','bent c','bent r')
     MENU_GLASSBK7 = wx.NewId()
     MENU_GLASSDIRECT = wx.NewId()
     MENU_THICKNESSPARAXIALFOCUS = wx.NewId()
@@ -135,8 +135,9 @@ class LensData(wx.MDIChildFrame):
     @staticmethod
     def surfToRowData(surf):
         """Given a DataModel.Surface, return the row of values as a dictionary."""
-        getter = {'f-length': lambda s: None,
-                  'power': lambda s: None,
+        getter = {'surf type': lambda s: s.__class__.__name__.replace('Surface',''),
+                  'comment': lambda s: None,
+                  'power': lambda s: None,                  
                   'radius': lambda s: s.R if hasattr(s, 'R') else np.inf,
                   'thickness': lambda s: s.thickness,
                   'aperature radius': lambda s: s.semidiam,
@@ -582,23 +583,7 @@ class LensData(wx.MDIChildFrame):
         if (self.grid1.GetCellValue(r,BENDING) == ''):
             self.grid1.SetCellValue(r,BENDING,str(0.0))
                     
-        if c == FLENGTH: #focal length changed
-            if val == 0:
-                val = '' # Shorthand for flat is zero.
-            self.grid1.SetCellValue(r,POWER,str(1.0/val)) #set power            
-            if (self.grid1.GetCellValue(r+1,APERATURE_RADIUS) == ''):
-                self.grid1.SetCellValue(r+1,APERATURE_RADIUS,str(1.0))
-            if (self.grid1.GetCellValue(r+1,GLASS) == ''):
-                self.grid1.SetCellValue(r+1,GLASS,str(1))            
-            if (self.grid1.GetCellValue(r+1,THICKNESS) == ''):
-                self.grid1.SetCellValue(r+1,THICKNESS,str(0)) 
-            if (self.grid1.GetCellValue(r+1,BENDING) == ''):
-                self.grid1.SetCellValue(r+1,BENDING,str(0))                                                         
-            self.update_radius(r)            
-                
         if c == POWER: #power has changed    
-            self.grid1.SetCellValue(r,FLENGTH,str(1.0/val))
-            
             if (self.grid1.GetCellValue(r+1,APERATURE_RADIUS) == ''):
                 self.grid1.SetCellValue(r+1,APERATURE_RADIUS,str(1.0))
             if (self.grid1.GetCellValue(r+1,GLASS) == ''):
@@ -634,7 +619,7 @@ class LensData(wx.MDIChildFrame):
         else:
             self.grid1.SetCellValue(r,BENT_R, str(1.0/cnew))
 
-        if(c ==POWER or c == FLENGTH):
+        if c == POWER:
             cnew = float( self.grid1.GetCellValue(r,BENDING))
             #print cnew
             self.grid1.SetCellValue(r+1,BENT_C, str(cnew))
