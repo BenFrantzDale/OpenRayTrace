@@ -47,6 +47,8 @@ import math
 import numpy as np
 from ray_trace import *
 from numpy.linalg import norm
+from OpenRayTrace import DataModel
+
 
 WIDTH=640.0
 HEIGHT=480.0
@@ -118,21 +120,33 @@ def create(parent):
  wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT, 
 ] = [wx.NewId() for _init_ctrls in range(17)]
 
-[wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7, 
- wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT, 
-] = [wx.NewId() for _init_coll_menu_glass_Items in range(2)]
-
-[wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS] = [wx.NewId() for _init_coll_menu_thickness_Items in range(1)]
-
 
 class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
-    col_label = ('f-length  ','power    ','curvature    ','radius   ','thickness    ','aperature radius ','glass    ','bending','bent c','bent r')
+    col_labels = ('f-length','power','curvature','radius','thickness','aperature radius','glass','bending','bent c','bent r')
+    MENU_GLASSBK7 = wx.NewId()
+    MENU_GLASSDIRECT = wx.NewId()
+    MENU_THICKNESSPARAXIALFOCUS = wx.NewId()
+
     [DATAROW_MENUCOPY, 
      DATAROW_MENUDELETE, 
      DATAROW_MENUINSERTAFTER, 
      DATAROW_MENUINSERTBEFORE, 
      DATAROW_MENUPASTE] = [wx.NewId() for _ in range(5)]
-    
+    @staticmethod
+    def surfToRowData(surf):
+        """Given a DataModel.Surface, return the row of values as a dictionary."""
+        getter = {'f-length': lambda s: None,
+                  'power': lambda s: None,
+                  'curvature': lambda s: 1/s.R,
+                  'radius': lambda s: s.R,
+                  'thickness': lambda s: s.thickness,
+                  'aperature radius': lambda s: s.semidiam,
+                  'glass': lambda s: s.n(None),
+                  'bending': lambda s: None,
+                  'bent c': lambda s: None,
+                  'bent r': lambda s: None}
+        return dict((label, getter[label](surf)) for label in wxMDIChildFrame_lens_data.col_labels)
+            
     def _init_coll_boxSizerBottom_Items(self, parent):
         # generated method, don't edit
 
@@ -211,23 +225,23 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         # generated method, don't edit
 
         parent.Append(help='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT,
-              kind=wx.ITEM_NORMAL, text='Direct')
-        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7,
-              kind=wx.ITEM_NORMAL, text='BK7')
+                      id=self.MENU_GLASSDIRECT,
+                      kind=wx.ITEM_NORMAL, text='Direct')
+        parent.Append(help='', id=self.MENU_GLASSBK7,
+                      kind=wx.ITEM_NORMAL, text='BK7')
         self.Bind(wx.EVT_MENU, self.OnMenu_glassitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT)
+                  id=self.MENU_GLASSDIRECT)
         self.Bind(wx.EVT_MENU, self.OnMenu_glassitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7)
+                  id=self.MENU_GLASSBK7)
 
     def _init_coll_menu_thickness_Items(self, parent):
         # generated method, don't edit
 
         parent.Append(help='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS,
+              id=self.MENU_THICKNESSPARAXIALFOCUS,
               kind=wx.ITEM_NORMAL, text='Paraxial Focus')
         self.Bind(wx.EVT_MENU, self.OnMenu_thicknessitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS)
+              id=self.MENU_THICKNESSPARAXIALFOCUS)
 
     def _init_sizers(self):
         # generated method, don't edit
@@ -374,27 +388,26 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def __init__(self, parent):
         self._init_ctrls(parent)
         self.waves = wxDialog_wavelengths.create(self)
+        self.__system = DataModel.System([])
         
         
-        self.rows = 40
-        self.col_label = ['f-length  ','power    ','curvature    ','radius   ','thickness    ','aperature radius ','glass    ','bending','bent c','bent r']
-        self.grid1.CreateGrid(self.rows,len(self.col_label))
+        self.grid1.CreateGrid(max(1,self.rows), self.cols)
 
-        for i, label in enumerate(self.col_label):
+        for i, label in enumerate(self.col_labels):
             self.grid1.SetColLabelValue(i, label)
-        self.grid1.SetDefaultCellAlignment(wx.ALIGN_CENTRE,wx.ALIGN_CENTRE)
+        self.grid1.SetDefaultCellAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE)
         
         self.grid1.AutoSize()
                 
 
         for row in range(self.rows):
-            for col in range(len(self.col_label)):
-                self.grid1.SetCellEditor(row, col, apply(GridCellFloatEditor,[]))                    
+            for col in range(self.cols):
+                self.grid1.SetCellEditor(row, col, apply(GridCellFloatEditor, []))
 
-        self.n = []
-        self.c = []
-        self.t = []
-        self.c_unbent = [0 for i in range(self.rows)]                
+        #self.n = []
+        #self.c = []
+        #self.t = []
+        #self.c_unbent = [0 for i in range(self.rows)]                
             
         self.hold_power = self.radioButton_const_power.GetValue()        
         self.hold_radius = self.radioButton_const_radius.GetValue()        
@@ -405,6 +418,15 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.rays = 100
         
         
+    @property
+    def rows(self): return len(self.__system)
+    @property
+    def cols(self): return len(self.col_labels)
+    
+    def setSystem(self, system):
+        if system is not self.__system:
+            self.__system = system
+            self._sync_grid_to_system()
 
     def OnWxframeopenmodalSize(self, event):
         event.Skip()
@@ -776,24 +798,42 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         t =  []
         tble = self.grid1.GetTable()                     
         for r in range(self.rows):
-            t.append([tble.GetValue(r,c) for c in range(len(self.col_label))])
+            t.append([tble.GetValue(r,c) for c in range(len(self.col_labels))])
         
         #print 'saving unbent as ',self.c_unbent
         return t
         
 
     def set_data(self, data):
+        import epdb;epdb.st()
+        self._sync_grid_to_system()
         for ri, row in enumerate(data):
             for ci, cell in enumerate(row):
                 strval = str(cell) if cell is not None else ''
                 self.grid1.SetCellValue(ri, ci, strval)
         for r in range(self.rows):
             self.OnGrid1GridCellChange(None,r,CURVATURE)
-                        
+
+    def _sync_grid_to_system(self):
+        import epdb;epdb.st()
+        #self.grid1.CreateGrid(
+        newNumRows = max(1, self.rows)
+        if self.grid1.GetNumberRows() < newNumRows:
+            self.grid1.InsertRows(self.grid1.GetNumberRows(), newNumRows - self.grid1.GetNumberRows())
+        #return # Stuff below isn't implemented.
+        for ri, surface in enumerate(self.__system):
+            rowData = self.surfToRowData(surface)
+            for ci, col_label in enumerate(self.col_labels):
+                cell = rowData[col_label]
+                strval = str(cell) if cell is not None else ''
+                self.grid1.SetCellValue(ri, ci, strval)
+        for r in range(self.rows):
+            self.OnGrid1GridCellChange(None,r,CURVATURE)
+
             
     def clear_data(self):       
         for r in range(self.rows):
-            [self.grid1.SetCellValue(r,c,'') for c in range(len(self.col_label))]
+            [self.grid1.SetCellValue(r,c,'') for c in range(len(self.col_labels))]
 
     def OnGrid1GridCellRightClick(self, event):
         r = event.GetRow()
@@ -860,9 +900,9 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def OnMenu_glassitems0Menu(self, event):
         (r,c) = (self.grid1.GetGridCursorRow(),self.grid1.GetGridCursorCol())
         id = event.GetId()
-        if(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT):            
+        if(id == self.MENU_GLASSDIRECT):            
             self.grid1.SetCellValue(r,c,'')
-        elif(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7):            
+        elif(id == selfMENU_GLASSBK7):            
             self.grid1.SetCellValue(r,c,'BK7')
  
  
@@ -905,7 +945,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
 
 def loadZMXAsTable(zmxfilename):
-    colLables = dict((label.strip(), i) for i, label in enumerate(wxMDIChildFrame_lens_data.col_label))
+    colLables = dict((label.strip(), i) for i, label in enumerate(wxMDIChildFrame_lens_data.col_labels))
     surfaces = []
     with open(zmxfilename, 'r') as fh:
         lines = fh.readlines()

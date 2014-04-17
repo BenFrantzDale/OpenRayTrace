@@ -194,10 +194,10 @@ class wxMainFrame(wx.MDIParentFrame):
                     if ext == '.lns':
                         with open(self.file_name) as fd:
                             t = pickle.load(fd)
+                        self.lens.set_data(t)
                     elif ext == '.zmx':
-                        t = wxMDIChildFrame_lens_data.loadZMXAsTable(self.file_name)
-                    
-                    self.lens.set_data(t)
+                        from OpenRayTrace.DataModel import System
+                        self.lens.setSystem(System.loadZMX(self.file_name))
                     self.saveable = True
             finally:
                 dlg.Destroy()
