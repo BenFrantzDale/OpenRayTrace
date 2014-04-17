@@ -62,14 +62,14 @@ RADIUS = 3
 THICKNESS = 4
 APERATURE_RADIUS = 5
 GLASS = 6
-BENDING = 7
-BENT_C  = 8
-BENT_R  = 9
+#BENDING = 7
+#BENT_C  = 8
+#BENT_R  = 9
 
 
 class LensData(wx.MDIChildFrame):
     wxID = wx.NewId()
-    col_labels = ('surf type','comment','radius','thickness','aperature radius','glass','bending','bent c','bent r')
+    col_labels = ('surf type','comment','radius','thickness','aperature radius','glass')
     MENU_GLASSBK7 = wx.NewId()
     MENU_GLASSDIRECT = wx.NewId()
     MENU_THICKNESSPARAXIALFOCUS = wx.NewId()
@@ -140,10 +140,7 @@ class LensData(wx.MDIChildFrame):
                   'radius': lambda s: s.R if hasattr(s, 'R') else np.inf,
                   'thickness': lambda s: s.thickness,
                   'aperature radius': lambda s: s.semidiam,
-                  'glass': lambda s: s.n(None),
-                  'bending': lambda s: None,
-                  'bent c': lambda s: None,
-                  'bent r': lambda s: None}
+                  'glass': lambda s: s.n(None)}
         return dict((label, getter[label](surf)) for label in LensData.col_labels)
             
     def _init_coll_boxSizerBottom_Items(self, parent):
@@ -579,29 +576,6 @@ class LensData(wx.MDIChildFrame):
         if (self.grid1.GetCellValue(r,APERATURE_RADIUS) == ''):
             self.grid1.SetCellValue(r,APERATURE_RADIUS,str(1.0))
 
-        if (self.grid1.GetCellValue(r,BENDING) == ''):
-            self.grid1.SetCellValue(r,BENDING,str(0.0))
-                    
-        if(c == RADIUS): #radius changed
-            pass # Nothing to do.
-                        
-        if(c == THICKNESS): #thickness changed
-            pass # Nothing to do.
-                        
-        if(c == GLASS):#GLASS CHANGED            
-            pass # Nothing to do.
-        
-        #c = BENDING
-        #if(c == BENDING):#GLASS CHANGED            
-        cnew = float( self.grid1.GetCellValue(r,BENDING))
-        #print cnew
-        self.grid1.SetCellValue(r,BENT_C, str(cnew))
-        if(cnew == 0):
-            self.grid1.SetCellValue(r,BENT_R, str(0.0))
-        else:
-            self.grid1.SetCellValue(r,BENT_R, str(1.0/cnew))
-
-
         self._sync_system_to_grid(r, c, val)
 
         return True
@@ -627,7 +601,7 @@ class LensData(wx.MDIChildFrame):
             if row is not None and row < self.rows:
                 colors[row] = (1.0,0.0,0.0)
         for i, surf in enumerate(self.__system):                        
-            if (surf.thickness is not None or #                bent_c           != '' or
+            if (surf.thickness is not None or
                 surf.semidiam is not None):
                 
                 #if not np.isfinite(float(thickness)): continue # Skip object or image at infinity.
@@ -657,7 +631,6 @@ class LensData(wx.MDIChildFrame):
         for r in range(self.rows):
             t.append([tble.GetValue(r,c) for c in range(len(self.col_labels))])
         
-        #print 'saving unbent as ',self.c_unbent
         return t
         
 
