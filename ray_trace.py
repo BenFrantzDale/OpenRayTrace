@@ -1,64 +1,64 @@
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
-##    This file is part of OpenRayTrace.
-##
-##    OpenRayTrace is free software; you can redistribute it and/or modify
-##    it under the terms of the GNU General Public License as published by
-##    the Free Software Foundation; either version 2 of the License, or
-##    (at your option) any later version.
-##
-##    OpenRayTrace is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##    GNU General Public License for more details.
-##
-##    You should have received a copy of the GNU General Public License
-##    along with OpenRayTrace; if not, write to the Free Software
-##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##    This file is part of OpenRayTrace.
+##
+##    OpenRayTrace is free software; you can redistribute it and/or modify
+##    it under the terms of the GNU General Public License as published by
+##    the Free Software Foundation; either version 2 of the License, or
+##    (at your option) any later version.
+##
+##    OpenRayTrace is distributed in the hope that it will be useful,
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##    GNU General Public License for more details.
+##
+##    You should have received a copy of the GNU General Public License
+##    along with OpenRayTrace; if not, write to the Free Software
+##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+from __future__ import division
+import numpy as np
 
 def paraxial_ray(yi,ui,t,n,c):
-        u = []
-        y = []
-                
-        u.append(ui)
-        y.append(yi)        
-                
-        for i in range(len(t)-1):
-            y.append(y[i] + u[i] * t[i])                        
-            N = n[i]
-            Np = n[i+1]            
-            u.append(N*u[i]/Np - c[i+1]*y[i+1]*(Np - N)/Np)
-            
+    """
+    Cast a paraixal ray through the system.
+    * yi, ui are the ray y position and angle with the optical axis
+    * t, n and c are vectors defining the thickness, index, and curvature of the surfaces.
+    Return a 3-tuple:
+    * ?
+    * y, the y values at each surface
+    * u, the angle values at each surface.
+    """
+    yu = np.nan * np.ones((2, len(t)))
+    yu[:,0] = yi, ui
+    for i in range(len(t)-1):
+        n1, n2 = n[i:i+2]
+        ABCD = np.array([[1, t[i]],[(n1-n2)/n2, n1/n2]])
+        yu[:,i+1] = ABCD.dot(yu[:,i])
 
-        #print u,y
-        if (u[len(u)-1] != 0):
-            l = -y[len(y)-1]/u[len(u)-1]
-        else:
-            l = 0
-            
-        return (l,y,u)
+    l = -yu[0,-1] / yu[1,-1] if yu[1,-1] else 0
+    return l, yu[0], yu[1]
     
 def paraxial_ray2(yi,ui,t,n,c):
-        u = []
-        y = []
+    u = []
+    y = []
                 
-        u.append(ui)
-        y.append(yi)        
+    u.append(ui)
+    y.append(yi)        
                 
-        for i in range(len(t)-1):
-            N = n[i]
-            Np = n[i+1]            
-            u.append(N*u[i]/Np - c[i+1]*y[i]*(Np - N)/Np)            
-            y.append(y[i] + u[i+1] * t[i+1])   
+    for i in range(len(t)-1):
+        N = n[i]
+        Np = n[i+1]            
+        u.append(N*u[i]/Np - c[i+1]*y[i]*(Np - N)/Np)            
+        y.append(y[i] + u[i+1] * t[i+1])   
 
         
-        if (u[len(u)-1] != 0):
-            l = -y[len(y)-1]/u[len(u)-1]
-        else:
-            l = 0
+    if (u[len(u)-1] != 0):
+        l = -y[len(y)-1]/u[len(u)-1]
+    else:
+        l = 0
             
-        return (l,y,u)
+    return (l,y,u)
 
 
 def skew_ray((xi,yi,zi),(Xi,Yi,Zi),T,N,C,T_CUM,H,surf = 0):
@@ -152,17 +152,17 @@ def skew_ray((xi,yi,zi),(Xi,Yi,Zi),T,N,C,T_CUM,H,surf = 0):
 
                 
         
-        if(check_aperature):            
-            done = False
-            for i in range(1,len(T)):            
-                if(len(T) !=0):                      
-                    if(not done):
-                        r = pow(y[i]*y[i] + z[i]*z[i],0.5)
-                    
-                        if(r > H[i]):
-                            x = x[0:i+1]
-                            y = y[0:i+1]
-                            z = z[0:i+1]
+        if(check_aperature):            
+            done = False
+            for i in range(1,len(T)):            
+                if(len(T) !=0):                      
+                    if(not done):
+                        r = pow(y[i]*y[i] + z[i]*z[i],0.5)
+                    
+                        if(r > H[i]):
+                            x = x[0:i+1]
+                            y = y[0:i+1]
+                            z = z[0:i+1]
                             done = True
                             
         T_CUM.append(T_CUM[len(T_CUM)-1])                

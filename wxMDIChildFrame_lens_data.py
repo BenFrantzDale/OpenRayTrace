@@ -1,3 +1,4 @@
+from __future__ import division
 #Boa:MDIChild:wxMDIChildFrame_lens_data
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
@@ -47,6 +48,8 @@ import math
 import numpy as np
 from ray_trace import *
 from numpy.linalg import norm
+from OpenRayTrace import DataModel
+
 
 WIDTH=640.0
 HEIGHT=480.0
@@ -95,7 +98,7 @@ def create(parent):
  wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_AFTER, 
  wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_BEFORE, 
  wxID_WXMDICHILDFRAME_LENS_DATAMENU1PASTE, 
-] = map(lambda _init_coll_row_menu_Items: wx.NewId(), range(5))
+] = [wx.NewId() for _ in range(5)]
 
 [wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSITEMS0] = map(lambda _init_coll_menu_thickness_Items: wx.NewId(), range(1))
 
@@ -118,21 +121,33 @@ def create(parent):
  wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT, 
 ] = [wx.NewId() for _init_ctrls in range(17)]
 
-[wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7, 
- wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT, 
-] = [wx.NewId() for _init_coll_menu_glass_Items in range(2)]
-
-[wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS] = [wx.NewId() for _init_coll_menu_thickness_Items in range(1)]
-
 
 class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
-    col_label = ('f-length  ','power    ','curvature    ','radius   ','thickness    ','aperature radius ','glass    ','bending','bent c','bent r')
+    col_labels = ('f-length','power','curvature','radius','thickness','aperature radius','glass','bending','bent c','bent r')
+    MENU_GLASSBK7 = wx.NewId()
+    MENU_GLASSDIRECT = wx.NewId()
+    MENU_THICKNESSPARAXIALFOCUS = wx.NewId()
+
     [DATAROW_MENUCOPY, 
      DATAROW_MENUDELETE, 
      DATAROW_MENUINSERTAFTER, 
      DATAROW_MENUINSERTBEFORE, 
      DATAROW_MENUPASTE] = [wx.NewId() for _ in range(5)]
-    
+    @staticmethod
+    def surfToRowData(surf):
+        """Given a DataModel.Surface, return the row of values as a dictionary."""
+        getter = {'f-length': lambda s: None,
+                  'power': lambda s: None,
+                  'curvature': lambda s: 1.0/float(s.R) if hasattr(s, 'R') else 0.0,
+                  'radius': lambda s: s.R if hasattr(s, 'R') else np.inf,
+                  'thickness': lambda s: s.thickness,
+                  'aperature radius': lambda s: s.semidiam,
+                  'glass': lambda s: s.n(None),
+                  'bending': lambda s: None,
+                  'bent c': lambda s: None,
+                  'bent r': lambda s: None}
+        return dict((label, getter[label](surf)) for label in wxMDIChildFrame_lens_data.col_labels)
+            
     def _init_coll_boxSizerBottom_Items(self, parent):
         # generated method, don't edit
 
@@ -211,23 +226,23 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         # generated method, don't edit
 
         parent.Append(help='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT,
-              kind=wx.ITEM_NORMAL, text='Direct')
-        parent.Append(help='', id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7,
-              kind=wx.ITEM_NORMAL, text='BK7')
+                      id=self.MENU_GLASSDIRECT,
+                      kind=wx.ITEM_NORMAL, text='Direct')
+        parent.Append(help='', id=self.MENU_GLASSBK7,
+                      kind=wx.ITEM_NORMAL, text='BK7')
         self.Bind(wx.EVT_MENU, self.OnMenu_glassitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT)
+                  id=self.MENU_GLASSDIRECT)
         self.Bind(wx.EVT_MENU, self.OnMenu_glassitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7)
+                  id=self.MENU_GLASSBK7)
 
     def _init_coll_menu_thickness_Items(self, parent):
         # generated method, don't edit
 
         parent.Append(help='',
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS,
+              id=self.MENU_THICKNESSPARAXIALFOCUS,
               kind=wx.ITEM_NORMAL, text='Paraxial Focus')
         self.Bind(wx.EVT_MENU, self.OnMenu_thicknessitems0Menu,
-              id=wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSPARAXIALFOCUS)
+              id=self.MENU_THICKNESSPARAXIALFOCUS)
 
     def _init_sizers(self):
         # generated method, don't edit
@@ -374,37 +389,49 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def __init__(self, parent):
         self._init_ctrls(parent)
         self.waves = wxDialog_wavelengths.create(self)
+        self.__system = DataModel.System([])
         
         
-        self.rows = 40
-        self.col_label = ['f-length  ','power    ','curvature    ','radius   ','thickness    ','aperature radius ','glass    ','bending','bent c','bent r']
-        self.grid1.CreateGrid(self.rows,len(self.col_label))
+        self.grid1.CreateGrid(max(1,self.rows), self.cols)
 
-        for i, label in enumerate(self.col_label):
+        for i, label in enumerate(self.col_labels):
             self.grid1.SetColLabelValue(i, label)
-        self.grid1.SetDefaultCellAlignment(wx.ALIGN_CENTRE,wx.ALIGN_CENTRE)
+        self.grid1.SetDefaultCellAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE)
         
         self.grid1.AutoSize()
                 
 
         for row in range(self.rows):
-            for col in range(len(self.col_label)):
-                self.grid1.SetCellEditor(row, col, apply(GridCellFloatEditor,[]))                    
+            for col in range(self.cols):
+                self.grid1.SetCellEditor(row, col, apply(GridCellFloatEditor, []))
 
-        self.n = []
-        self.c = []
-        self.t = []
-        self.c_unbent = [0 for i in range(self.rows)]                
+        #self.n = []
+        #self.c = []
+        #self.t = []
+        #self.c_unbent = [0 for i in range(self.rows)]                
             
         self.hold_power = self.radioButton_const_power.GetValue()        
         self.hold_radius = self.radioButton_const_radius.GetValue()        
 
         self.Layout()
         self.Centre()
-        self.object_height = float(self.textCtrl_object_height.GetValue())
         self.rays = 100
         
         
+    @property
+    def object_height(self):
+        return float(self.textCtrl_object_height.GetValue())
+
+    @property
+    def rows(self): return len(self.__system)
+    @property
+    def cols(self): return len(self.col_labels)
+    
+    def setSystem(self, system):
+        if system is not self.__system:
+            self.__system = system
+            self._sync_grid_to_system()
+            self.OnGrid1GridCellChange()
 
     def OnWxframeopenmodalSize(self, event):
         event.Skip()
@@ -425,112 +452,143 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             r = event.GetRow()
             c = event.GetCol() 
         
-        val = self.grid1.GetCellValue(r,c)
+        val = None
+        if r is not None and c is not None:
+            val = self.grid1.GetCellValue(r,c)
         #print r,c,val
         
-        if val != '':
-            val = float(val)                                    
-            draw = self.fill_in_values(r,c,val)            
-            self.update_display(event)
+        if val == '':
+            return
+        if val is not None:
+            rowData = self.surfToRowData(self.__system.surfaces[r])
+            if str(rowData[self.col_labels[c]]) == val:
+                return # Value not actually changed.
+            val = float(val)                 
+            draw = self.fill_in_values(r,c,val)
+        self.update_display(event)
 
-            #compute paraxial focus
-            y = 0.0
-            u = 1.0
-            (l,y,u) = paraxial_ray(y,u,self.t,self.n,self.c)                
-            #print u
-            mag = u[0]/u[len(u)-1]
-                
-            self.staticText_mag.SetLabel(str(mag))
-            if(self.checkBox_autofocus.GetValue()):
-                self.grid1.SetCellValue(len(self.t)-1,THICKNESS,str(l))
-                draw = self.fill_in_values(len(self.t)-1,THICKNESS,l)            
-                self.update_display()                            
-         
-                                                 
-            x   = [0] * self.rays
-            y   = [0] * self.rays
-            z   = [0] * self.rays
-            X   = [0] * self.rays
-            Y   = [0] * self.rays
-            Z   = [0] * self.rays
-            cnt = 0
-            
-            surf_i = 0
-            for surf_i in range(len(self.t)): # Make surf_i index the first surface with finite non-zero thickness. 
-                if np.isfinite(self.t[surf_i]) and self.t[surf_i] != 0: break
-            
-            if len(self.t) > 1:
-                # Loop over field points:
-                for fp_i, objPt, color in [(10, (0,0,0), (0.8,0.2,0.2)),
-                                           (10, (0,self.object_height,0), (0.2,0.8,0.2))]:
-                    for i in range(-fp_i/2+1, fp_i/2):                        
-                        #go to aperature radius
-                        assert self.t[surf_i] != 0
-                        direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
-                        direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
-                        x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt, direction,
-                                                                 self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
+        #compute paraxial focus
+        y = 0.0
+        u = 1.0
+        if np.isfinite(self.t[0]):
+            l, y, u = paraxial_ray(y,u,self.t,self.n,self.c)
+        else:
+            l, y, u = paraxial_ray(y,u,self.t[1:],self.n[1:],self.c[1:])
+        #print u
+        mag = u[0] / u[-1]
+        print 'paraixal ray:'
+        print l
+        print y
+        print u
+        print 'mag',mag
 
-                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum[surf_i:], color=color)
-                        cnt+=1
-                
-                        
-                if False:
-                    ray_1 = 10
-                    for i in range(-ray_1/2+1, ray_1/2):
-                        #go to aperature radius
-                        if self.t[surf_i] != 0:
-                            Yi = (i/(ray_1/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]])
-                            Zi = 0.0                
-                            Xi =  np.sqrt(1.0 - Yi**2 - Zi**2)
-                            x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray((0,self.object_height,0),(Xi,Yi,Zi),
-                                                                     self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
-                            self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, self.t_cum, color = (0.2,0.8,0.2))
-                            cnt+=1
+        self.staticText_mag.SetLabel(str(mag))
+        if self.checkBox_autofocus.GetValue():
+            self.grid1.SetCellValue(len(self.t)-1,THICKNESS,str(l))
+            draw = self.fill_in_values(len(self.t)-1,THICKNESS,l)            
+            self.update_display()                            
 
-                                                                                                                
-                
-                if not len(self.t_cum) or self.t_cum[-1] == 0: 
-                    k = 1
+
+        x   = [None] * self.rays
+        y   = [None] * self.rays
+        z   = [None] * self.rays
+        X   = [None] * self.rays
+        Y   = [None] * self.rays
+        Z   = [None] * self.rays
+        cnt = 0
+
+        surf_i = 0
+        for surf_i in range(len(self.t)): # Make surf_i index the first surface with finite non-zero thickness. 
+            if np.isfinite(self.t[surf_i]) and self.t[surf_i] != 0: break
+
+        if len(self.t) > 1:
+            # Loop over field points:
+            eppos, epsemidiam = self.__system.paraxialEPPosAndSemidiam()
+            epslope = epsemidiam / eppos
+            epCtr   = np.array([0,  0, eppos])
+            topEdge = np.array([0,  epsemidiam, eppos])
+            botEdge = np.array([0, -epsemidiam, eppos])
+            normalized = lambda v: v / norm(v)
+
+            for fp_i, objPt, color in [(10, (0,0,0), (0.8,0.2,0.2)),
+                                       (10, (0,self.object_height,0), (0.2,0.8,0.2))]:
+                pupilPts = np.array([topEdge * alpha + botEdge * (1-alpha)
+                                     for alpha in np.linspace(0, 1, fp_i)])
+                #for i in range(-fp_i//2+1, fp_i//2):
+                if surf_i == 0:
+                    raydirs = [normalized(target - objPt) for target in pupilPts]
+                    offsets = np.zeros((len(raydirs),3))
                 else:
-                    k = self.t_cum[-1] # Cumulative thickness.
-                self.GetParent().ogl.K = k
-        
-##                #calc third order aberrations
-##            
-                #we need data from axial ray 
-                #calc efL
+                    # Object at -infinity => columnated rays
+                    raydirs = [normalized(epCtr - objPt)] * fp_i
+                    offsets = pupilPts - epCtr
+                
+                for i, (offset, direction) in enumerate(zip(offsets,
+                                                          raydirs)):
+                    #go to aperature radius
+                    assert self.t[surf_i] != 0
+                    # It looks like it is trying to aim the outermost ray at the clear aperature of the next surface:
+                    #direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
+                    #direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
+                    print "direction {}: {} -> {}".format(i, objPt + offset, direction)
+                    
+                    x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt + offset, direction[::-1],
+                                                             self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
+                    print 'c:', self.c[surf_i:]
+                    print 'n:', self.n[surf_i:]
 
-                (l,y,u)    = paraxial_ray2(self.h[surf_i+1], 0.0,self.t,self.n,self.c)
-                (lp,yp,up) = paraxial_ray2(0.0, 0.1,self.t,self.n,self.c)
-                num = (y[surf_i]*up[surf_i] - u[surf_i]*yp[surf_i])
-                den = (u[surf_i]*up[-1] - up[0]*u[-1])                
-                if (den != 0):
-                    efl = num/den
-                    self.staticText_efl.SetLabel(str(efl))
+                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum[surf_i:], color=color)
+                    cnt+=1
+
+
+            if False:
+                ray_1 = 10
+                for i in range(-ray_1//2+1, ray_1//2):
+                    #go to aperature radius
+                    if self.t[surf_i] != 0:
+                        Yi = (i/(ray_1/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]])
+                        Zi = 0.0                
+                        Xi =  np.sqrt(1.0 - Yi**2 - Zi**2)
+                        x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray((0,self.object_height,0),(Xi,Yi,Zi),
+                                                                 self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
+                        self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, self.t_cum, color = (0.2,0.8,0.2))
+                        cnt+=1
 
 
 
-##                #(l,y,u) = self.paraxial_ray2(18.5, 0)
-##                #print y,u
-##            
-##                if(len(y) > 1):
-##                    #data from a principal ray
-##                    (lp,yp,up) = paraxial_ray2(0.0, 0.1,self.t,self.n,self.c)
-##                    #(lp,yp,up) = self.paraxial_ray2(-6.3, 0.25)
-##                    #print yp,up
-##                    self.GetParent().trace.calc_third_order_abberations(y,u,yp,up,self.n,self.c)
-           
-        
+            if not len(self.t_cum) or self.t_cum[-1] == 0: 
+                k = 1
+            else:
+                k = self.t_cum[-1] # Cumulative thickness.
+            self.GetParent().ogl.K = k
+
+            ##                #calc third order aberrations
+            ##            
+            #we need data from axial ray 
+            #calc efL
+
+            (l,y,u)    = paraxial_ray2(self.h[surf_i+1], 0.0,self.t,self.n,self.c)
+            (lp,yp,up) = paraxial_ray2(0.0, 0.1,self.t,self.n,self.c)
+            num = (y[surf_i]*up[surf_i] - u[surf_i]*yp[surf_i])
+            den = (u[surf_i]*up[-1] - up[0]*u[-1])                
+            if (den != 0):
+                efl = num/den
+                self.staticText_efl.SetLabel(str(efl))
+
+
+
+                ##                #(l,y,u) = self.paraxial_ray2(18.5, 0)
+                ##                #print y,u
+                ##            
+                ##                if(len(y) > 1):
+                ##                    #data from a principal ray
+                ##                    (lp,yp,up) = paraxial_ray2(0.0, 0.1,self.t,self.n,self.c)
+                ##                    #(lp,yp,up) = self.paraxial_ray2(-6.3, 0.25)
+                ##                    #print yp,up
+                ##                    self.GetParent().trace.calc_third_order_abberations(y,u,yp,up,self.n,self.c)
                 #self.GetParent().abr.calc_abr(self.t,self.n,self.c,self.t_cum,self.h,self.object_height)
                 
         
-
-        
-    
-    
-    
-    
     
     def fill_in_values(self,r,c,val):                               
         #AUTOFILL SOME STUFF
@@ -590,6 +648,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                         
         if(c == RADIUS): #radius changed
             #update the curvature
+            
             if(val != 0):
                 self.grid1.SetCellValue(r,CURVATURE,str(1.0/val))
             else:
@@ -636,10 +695,12 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         #self.grid1.SetCellValue(r,BENT_C,self.grid1.GetCellValue(r,CURVATURE))            
         #self.grid1.SetCellValue(r,BENT_R,self.grid1.GetCellValue(r,RADIUS))            
 
+        self._sync_system_to_grid(r, c, val)
 
         return True
 
     def update_display(self, event=None):
+        print 'update_display',event
         thickness = 0                
         
         self.t = []
@@ -647,7 +708,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.c = []
         self.n = []
         self.h = []
-        surf = []
+        surf_i = []
             
         t1 = 0
         colors = [self.GetParent().ogl._lensSurfaceColor] * self.rows
@@ -657,29 +718,20 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             #print "Row:", row, event.GetRow()
             if row is not None and row < self.rows:
                 colors[row] = (1.0,0.0,0.0)
-        for i in range(self.rows):                        
-            def cell(key):
-                return self.grid1.GetCellValue(i, key)
-            thickness = cell(THICKNESS)
-            bent_c    = cell(BENT_C)
-            aperature_radius = cell(APERATURE_RADIUS)
-            if (thickness        != '' or
-                bent_c           != '' or
-                aperature_radius != ''):
+        for i, surf in enumerate(self.__system):                        
+            if (surf.thickness is not None or #                bent_c           != '' or
+                surf.semidiam is not None):
                 
                 #if not np.isfinite(float(thickness)): continue # Skip object or image at infinity.
         
-                self.c.append(float(bent_c) if bent_c else float(cell(CURVATURE)))
-                self.h.append(float(aperature_radius))
-                surf.append(i)    
-                    
-                glass_n = cell(GLASS)
-                self.n.append(float(glass_n) if glass_n else 1.0)
+                self.c.append(float(1/surf.R))
+                self.h.append(float(surf.semidiam))
+                surf_i.append(i)
+                self.n.append(surf.n(None))
             
             
-            if thickness != '':
-                t1 += float(thickness)
-                self.t.append(float(thickness))
+                t1 += float(surf.thickness)
+                self.t.append(float(surf.thickness))
         # We want t_cum to be the positions of each surface. Need to deel with infinate thicknesses at ends of the system.
         if len(self.t) == 0 or np.isfinite(self.t[0]):
             self.t_cum = np.hstack([[0], np.cumsum(self.t)])
@@ -687,10 +739,12 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             self.t_cum = np.hstack([[-np.inf, 0], np.cumsum(self.t[1:])])
             
         l = range(1,self.rows)
-        self.GetParent().ogl.draw_lenses(self.t,surf,self.t_cum,self.c,self.n,self.h,colors=colors)
+        self.GetParent().ogl.draw_lenses(self.t,surf_i,self.t_cum,self.c,self.n,self.h,colors=colors)
 
 
     def update_power(self,r):            
+        print 'update_power',(r,)
+        #import epdb;epdb.st()
         if(self.grid1.GetCellValue(r+1,CURVATURE) != ''):
             n = self.grid1.GetCellValue(r,GLASS)
             if(n != ''):
@@ -698,7 +752,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             else:
                 return -1
             
-            if(n != 1):            
+            if(n != 1):  
                 #update the power
                 c1 = float(self.grid1.GetCellValue(r,CURVATURE))
                 c2 = float(self.grid1.GetCellValue(r+1,CURVATURE))                                            
@@ -736,6 +790,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 self.grid1.SetCellValue(r-1,FLENGTH,str(1.0/phi))
 
     def update_radius(self,r):        
+            print 'update_radius',(r,)
             phi = self.grid1.GetCellValue(r,POWER)
             if(phi != ''):
                 phi = float(phi)
@@ -776,24 +831,66 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         t =  []
         tble = self.grid1.GetTable()                     
         for r in range(self.rows):
-            t.append([tble.GetValue(r,c) for c in range(len(self.col_label))])
+            t.append([tble.GetValue(r,c) for c in range(len(self.col_labels))])
         
         #print 'saving unbent as ',self.c_unbent
         return t
         
 
     def set_data(self, data):
+        self._sync_grid_to_system()
         for ri, row in enumerate(data):
             for ci, cell in enumerate(row):
                 strval = str(cell) if cell is not None else ''
                 self.grid1.SetCellValue(ri, ci, strval)
         for r in range(self.rows):
             self.OnGrid1GridCellChange(None,r,CURVATURE)
-                        
+
+    def _sync_grid_to_system(self):
+        newNumRows = max(1, self.rows)
+        if self.grid1.GetNumberRows() < newNumRows:
+            self.grid1.InsertRows(self.grid1.GetNumberRows(), newNumRows - self.grid1.GetNumberRows())
+        #return # Stuff below isn't implemented.
+        for ri, surface in enumerate(self.__system):
+            rowData = self.surfToRowData(surface)
+            if surface is self.__system.apertureStop:
+                self.grid1.SetRowLabelValue(ri, '[{}]'.format(ri+1))
+            else:
+                self.grid1.SetRowLabelValue(ri, '{}'.format(ri+1))
+
+            for ci, col_label in enumerate(self.col_labels):
+                cell = rowData[col_label]
+                strval = str(cell) if cell is not None else ''
+                self.grid1.SetCellValue(ri, ci, strval)
+        for r in range(self.rows):
+            self.OnGrid1GridCellChange(None,r,CURVATURE)
+
+
+    def _sync_system_to_grid(self, r, c=None, val=None):
+        """Sync the given entry to the system model."""
+        if c is None:
+            if val is not None: raise TypeError('val must be unspecified if c is.')
+            for c, label in enumerate(col_labels):
+                if label in ('radius', 'thickness', 'aperature radius', 'glass'):
+                    self._sync_system_to_grid(r, c)
+            return
+
+        if val is None:
+            val = self.grid1.GetValue(r, c)
+
+        surface = self.__system.surfaces[r]
+        label = self.col_labels[c]
+        if label == 'curvature': surface.R = 1.0 / float(val)
+        elif label == 'radius': surface.R = val
+        elif label == 'thickness': surface.thickness = val
+        elif label == 'aperature radius': surface.semidiam = val
+        elif label == 'glass': surface.glass = DataModel.SimpleGlass(val)
+        else:
+            print "Unimplemented."
             
     def clear_data(self):       
         for r in range(self.rows):
-            [self.grid1.SetCellValue(r,c,'') for c in range(len(self.col_label))]
+            [self.grid1.SetCellValue(r,c,'') for c in range(len(self.col_labels))]
 
     def OnGrid1GridCellRightClick(self, event):
         r = event.GetRow()
@@ -832,13 +929,15 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         
         if id == self.DATAROW_MENUINSERTAFTER:
             self.grid1.InsertRows(r+1)
-            self.rows+=1
+            self.__system.insert_surface(r+1, DataModel.StandardSurface(thickness=0, R=np.inf))
+            self._sync_grid_to_system()
         elif id == self.DATAROW_MENUINSERTBEFORE:
             self.grid1.InsertRows(r)            
-            self.rows+=1
+            self.__system.insert_surface(r, DataModel.StandardSurface(thickness=0, R=np.inf))
+            self._sync_grid_to_system()
         elif id == self.DATAROW_MENUDELETE:
             self.grid1.DeleteRows(r)
-            self.rows-=1
+            self.__system.delete_surface(r)
             
             
 ##        if(id ==   wxID_WXMDICHILDFRAME_LENS_DATAMENU1COPY):
@@ -860,17 +959,17 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def OnMenu_glassitems0Menu(self, event):
         (r,c) = (self.grid1.GetGridCursorRow(),self.grid1.GetGridCursorCol())
         id = event.GetId()
-        if(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSDIRECT):            
+        if(id == self.MENU_GLASSDIRECT):            
             self.grid1.SetCellValue(r,c,'')
-        elif(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSBK7):            
+        elif(id == selfMENU_GLASSBK7):            
             self.grid1.SetCellValue(r,c,'BK7')
  
  
         #event.Skip()
 
     def OnTextctrl_object_heightText(self, event):
-        self.object_height = float(self.textCtrl_object_height.GetValue())
-        self.OnGrid1GridCellChange(event=None,r=0,c=THICKNESS)               
+        #self.object_height = float(self.textCtrl_object_height.GetValue())
+        self.OnGrid1GridCellChange() #event=None,r=0,c=THICKNESS)               
         event.Skip()
 
     def OnButton_compute_allButton(self, event):
@@ -905,7 +1004,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
 
 def loadZMXAsTable(zmxfilename):
-    colLables = dict((label.strip(), i) for i, label in enumerate(wxMDIChildFrame_lens_data.col_label))
+    colLabels = dict((label.strip(), i) for i, label in enumerate(wxMDIChildFrame_lens_data.col_labels))
     surfaces = []
     with open(zmxfilename, 'r') as fh:
         lines = fh.readlines()
@@ -917,7 +1016,7 @@ def loadZMXAsTable(zmxfilename):
         if line.startswith('SURF'):
             isStop = False
             glass_n = 1.0
-            row = [None] * len(colLables) # New blank row.
+            row = [None] * len(colLabels) # New blank row.
             while i < len(lines) - 1:
                 i += 1
                 line = lines[i]
@@ -926,14 +1025,14 @@ def loadZMXAsTable(zmxfilename):
                 elif 'TYPE STANDARD' in line or 'TYPE EVENASPH' in line:
                     pass # Other surfaces not implemented.
                 elif 'CURV' in line:
-                    row[colLables['curvature']] = float(line.split()[1])
+                    row[colLabels['curvature']] = float(line.split()[1])
                 elif 'DIAM' in line:
-                    row[colLables['aperature radius']] = float(line.split()[1]) / 2.0
+                    row[colLabels['aperature radius']] = float(line.split()[1]) / 2.0
                 elif 'DISZ' in line:
-                    row[colLables['thickness']] = float(line.split()[1])
+                    row[colLabels['thickness']] = float(line.split()[1])
                 elif 'GLAS' in line:
                     parts = line.split()
-                    row[colLables['glass']] = float(parts[4])
+                    row[colLabels['glass']] = float(parts[4])
                     # glass_name = parts[1]
                 if not line.startswith(' '):
                     i -= 1

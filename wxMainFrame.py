@@ -138,8 +138,10 @@ class wxMainFrame(wx.MDIParentFrame):
             self.img.Hide()        
             self.trace.Hide()        
         else:
-            for frame in [self.ogl, self.lens, self.trace, self.paraxial, self.spot, self.img]:
+            for frame in [self.ogl, self.lens]: #, self.trace, self.paraxial, self.spot, self.img]:
                 frame.Show()
+            for frame in [self.trace, self.paraxial, self.spot, self.img]:
+                frame.Hide()
 
         self.Tile()
         self.Cascade()
@@ -194,10 +196,10 @@ class wxMainFrame(wx.MDIParentFrame):
                     if ext == '.lns':
                         with open(self.file_name) as fd:
                             t = pickle.load(fd)
+                        self.lens.set_data(t)
                     elif ext == '.zmx':
-                        t = wxMDIChildFrame_lens_data.loadZMXAsTable(self.file_name)
-                    
-                    self.lens.set_data(t)
+                        from OpenRayTrace.DataModel import System
+                        self.lens.setSystem(System.loadZMX(self.file_name))
                     self.saveable = True
             finally:
                 dlg.Destroy()
