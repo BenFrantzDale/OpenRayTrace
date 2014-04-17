@@ -120,6 +120,8 @@ class StandardSurface(Surface):
         Surface.__init__(self, thickness=thickness, glass=glass, semidiam=semidiam)
         self._R = R
 
+    def __str__(self):
+        return 'R={:>0.3f},\tth={:>0.3f},\tn={:>0.3f},\tsemidiam={:>0.3f}'.format(self.R, self.thickness, self.glass.n(None), self.semidiam)
     def reversed(self, thickness, glass):
         return StandardSurface(thickness, R=-self.R, glass=glass, semidiam=self.semidiam)
 
@@ -185,6 +187,11 @@ class System(object):
         self._surfaces = surfaces
         self._apertureStop = apertureStop
         self._ndim = ndim
+    def __str__(self):
+        result = ''
+        for i, surf in enumerate(self.surfaces):
+            result += '{:>2d}{} {}\n'.format(i, '*' if surf is self.apertureStop else ' ', surf)
+        return result
     def __iter__(self): return iter(self._surfaces)
     def __len__(self): return len(self._surfaces)
     def insert_surface(self, si, surf):
@@ -218,7 +225,7 @@ class System(object):
     def paraxialXPPosAndSemidiam(self, wavelength=None):
         assert self.apertureStop in self.surfaces, "No stop selected!"
         apInd = self.surfaces.index(self.apertureStop)
-        RTM2img = System(self.surfaces[apInd:]).rayTransferMatrix(wavelength)
+        RTM2img = System(self.surfaces[apInd:-1]).rayTransferMatrix(wavelength)
         RTM2stop = np.linalg.inv(RTM2img)
         XPsemidiam = self.apertureStop.semidiam / RTM2stop[0,0]
         y, theta = RTM2img[:,1] # Cast a ray with unit slope back from the pupil center
@@ -513,6 +520,13 @@ class FieldAngle(object):
         return rays
         
     
+def Ray(origin, direciton, n=1.0, wavelength=None):
+    """Make a single ray just for ease of use."""
+    return Rays(np.array(origin)[:,None],
+                np.array(direciton)[:,None], n=n, wavelength=wavelength)
+
+
+
 class Rays(object):
     """
     A collection of rays of the given wavelengths in the given index medium.
