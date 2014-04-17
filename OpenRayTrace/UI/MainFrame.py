@@ -76,10 +76,10 @@ class MainFrame(wx.MDIParentFrame):
         parent.Append(help='', id=self.wxID_MENUEXIT, kind=wx.ITEM_NORMAL,
               text='Exit')
         self.Bind(wx.EVT_MENU, self.OnMenuNew, id=wx.ID_NEW)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=self.wxID_MENUSAVE)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=self.wxID_MENUSAVEAS)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=self.wxID_MENUEXIT)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=wx.ID_OPEN)
+        self.Bind(wx.EVT_MENU, self.OnMenuSave, id=self.wxID_MENUSAVE)
+        self.Bind(wx.EVT_MENU, self.OnMenuSaveAs, id=self.wxID_MENUSAVEAS)
+        self.Bind(wx.EVT_MENU, self.OnMenuExit, id=self.wxID_MENUEXIT)
+        self.Bind(wx.EVT_MENU, self.OnMenuOpen, id=wx.ID_OPEN)
 
     def _init_coll_menu_drawing_Items(self, parent):
         # generated method, don't edit
@@ -174,37 +174,34 @@ class MainFrame(wx.MDIParentFrame):
             
         event.Skip()
 
-    def OnMenu(self, event):
-        id = event.GetId()
-        if id == wx.ID_OPEN:
-            dlg = wx.FileDialog(self, "Open Lens", ".", "", "Lens file (*.lns)|*.lns|ZEMAX file (*.zmx)|*.zmx", wx.OPEN | wx.CHANGE_DIR)
-            try:
-                if dlg.ShowModal() == wx.ID_OK:
-                    self.file_name = dlg.GetPath()
-                    self.SetTitle(TITLE + self.file_name)
-                    
-                    import os
-                    ext = os.path.splitext(self.file_name)[1].lower()
-                    if ext == '.lns':
-                        with open(self.file_name) as fd:
-                            t = pickle.load(fd)
-                        self.lens.set_data(t)
-                    elif ext == '.zmx':
-                        from OpenRayTrace.DataModel import System
-                        self.lens.setSystem(System.loadZMX(self.file_name))
-                    self.saveable = True
-            finally:
-                dlg.Destroy()
-                        
-        elif id == self.wxID_MENUSAVE:                        
-            self.Save()                        
-        elif id == self.wxID_MENUSAVE_AS:
-            self.saveable = False
-            self.Save()
-        elif id == self.wxID_MENUEXIT:
-            sv = DialogSaveQuestion.DialogSaveQuestion(self,self.file_name)
-            sv.Show()                        
-        event.Skip()
+    def OnMenuOpen(self, event):
+        dlg = wx.FileDialog(self, "Open Lens", ".", "", "Lens file (*.lns)|*.lns|ZEMAX file (*.zmx)|*.zmx", wx.OPEN | wx.CHANGE_DIR)
+        try:
+            if dlg.ShowModal() == wx.ID_OK:
+                self.file_name = dlg.GetPath()
+                self.SetTitle(TITLE + self.file_name)
+
+                import os
+                ext = os.path.splitext(self.file_name)[1].lower()
+                if ext == '.lns':
+                    with open(self.file_name) as fd:
+                        t = pickle.load(fd)
+                    self.lens.set_data(t)
+                elif ext == '.zmx':
+                    from OpenRayTrace.DataModel import System
+                    self.lens.setSystem(System.loadZMX(self.file_name))
+                self.saveable = True
+        finally:
+            dlg.Destroy()
+
+    def OnMenuSave(self, event):
+        self.Save()         
+    def OnMenuSaveAs(self, event):
+        self.saveable = False
+        self.Save()
+    def OnMenuExit(self, event):
+        sv = DialogSaveQuestion.DialogSaveQuestion(self,self.file_name)
+        sv.Show()                        
     def OnMenuNew(self, event):
         sv = DialogSaveQuestion.DialogSaveQuestion(self, self.file_name)                    
         res = sv.ShowModal()
