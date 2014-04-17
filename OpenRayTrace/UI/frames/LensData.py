@@ -378,10 +378,13 @@ class LensData(wx.MDIChildFrame):
     def __init__(self, parent):
         self._init_ctrls(parent)
         self.waves = Dialog_wavelengths.Dialog_wavelengths(self)
-        self.__system = DataModel.System([], ndim=3)
-        
-        
-        self.grid1.CreateGrid(max(1,self.rows), self.cols)
+        stopSurface = DataModel.StandardSurface(thickness=0.0,R=np.inf,semidiam=1.0)
+        self.__system = DataModel.System([DataModel.StandardSurface(thickness=np.inf,R=np.inf),
+                                          stopSurface,
+                                          DataModel.StandardSurface(thickness=0,R=np.inf)], 
+                                         apertureStop = stopSurface,
+                                         ndim=3)
+        self.grid1.CreateGrid(max(1,self.rows), self.cols)       
 
         for i, label in enumerate(self.col_labels):
             self.grid1.SetColLabelValue(i, label)
@@ -405,6 +408,7 @@ class LensData(wx.MDIChildFrame):
         self.Layout()
         self.Centre()
         self.rays = 100
+        self._sync_grid_to_system()
         
         
     @property
@@ -486,8 +490,8 @@ class LensData(wx.MDIChildFrame):
         cnt = 0
 
         surf_i = 0
-        for surf_i in range(len(self.t)): # Make surf_i index the first surface with finite non-zero thickness. 
-            if np.isfinite(self.t[surf_i]) and self.t[surf_i] != 0: break
+        for surf_i in range(len(self.t)): # Make surf_i index the first surface with finite thickness. 
+            if np.isfinite(self.t[surf_i]): break
 
         if len(self.t) > 1:
             # Loop over field points:
@@ -517,7 +521,6 @@ class LensData(wx.MDIChildFrame):
                 for i, (offset, direction) in enumerate(zip(offsets,
                                                           raydirs)):
                     #go to aperature radius
-                    assert self.t[surf_i] != 0
                     # It looks like it is trying to aim the outermost ray at the clear aperature of the next surface:
                     #direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
                     #direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
@@ -837,6 +840,12 @@ class LensData(wx.MDIChildFrame):
             for ci, col_label in enumerate(self.col_labels):
                 cell = rowData[col_label]
                 strval = str(cell) if cell is not None else ''
+                if col_label == 'thickness':
+                    if surface is self.__system.surfaces[-1]:
+                        strval = '-'
+                elif col_label == 'glass':
+                    if strval == '1.0':
+                        strval = '' # Don't bother writing the 1.0 for air.
                 self.grid1.SetCellValue(ri, ci, strval)
         for r in range(self.rows):
             self.OnGrid1GridCellChange(None,r,CURVATURE)
