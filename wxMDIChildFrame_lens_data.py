@@ -132,7 +132,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
      DATAROW_MENUDELETE, 
      DATAROW_MENUINSERTAFTER, 
      DATAROW_MENUINSERTBEFORE, 
-     DATAROW_MENUPASTE] = [wx.NewId() for _ in range(5)]
+     DATAROW_MENU_SET_AS_STOP,
+     DATAROW_MENUPASTE] = [wx.NewId() for _ in range(6)]
     @staticmethod
     def surfToRowData(surf):
         """Given a DataModel.Surface, return the row of values as a dictionary."""
@@ -214,7 +215,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
               span=(1, 1))
 
     def _init_coll_row_menu_Items(self, parent):
-        for ID, text in [(self.DATAROW_MENUINSERTBEFORE, 'Insert Before'),
+        for ID, text in [(self.DATAROW_MENU_SET_AS_STOP, 'Set as system stop'),
+                         (self.DATAROW_MENUINSERTBEFORE, 'Insert Before'),
                          (self.DATAROW_MENUINSERTAFTER,  'Insert After'),
                          (self.DATAROW_MENUDELETE,       'Delete'),
                          (self.DATAROW_MENUCOPY,         'Copy'),
@@ -389,7 +391,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def __init__(self, parent):
         self._init_ctrls(parent)
         self.waves = wxDialog_wavelengths.create(self)
-        self.__system = DataModel.System([])
+        self.__system = DataModel.System([], ndim=3)
         
         
         self.grid1.CreateGrid(max(1,self.rows), self.cols)
@@ -451,20 +453,19 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         if event is not None:
             r = event.GetRow()
             c = event.GetCol() 
+            #import epdb;epdb.st()
         
         val = None
         if r is not None and c is not None:
             val = self.grid1.GetCellValue(r,c)
-        #print r,c,val
         
         if val == '':
             return
         if val is not None:
             rowData = self.surfToRowData(self.__system.surfaces[r])
-            if str(rowData[self.col_labels[c]]) == val:
-                return # Value not actually changed.
-            val = float(val)                 
-            draw = self.fill_in_values(r,c,val)
+            if str(rowData[self.col_labels[c]]) != val:
+                val = float(val)                 
+                draw = self.fill_in_values(r,c,val)
         self.update_display(event)
 
         #compute paraxial focus
@@ -488,7 +489,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             draw = self.fill_in_values(len(self.t)-1,THICKNESS,l)            
             self.update_display()                            
 
-
+        print 'stop at', self.__system.surfaces.index(self.__system.apertureStop)
         x   = [None] * self.rays
         y   = [None] * self.rays
         z   = [None] * self.rays
@@ -530,14 +531,16 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                     # It looks like it is trying to aim the outermost ray at the clear aperature of the next surface:
                     #direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
                     #direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
-                    print "direction {}: {} -> {}".format(i, objPt + offset, direction)
+                    #print "direction {}: {} -> {}".format(i, objPt + offset, direction)
                     
                     x[i],y[i],z[i],X[i],Y[i],Z[i] = skew_ray(objPt + offset, direction[::-1],
                                                              self.t[surf_i:],self.n[surf_i:],self.c[surf_i:],self.t_cum[surf_i:],self.h[surf_i:])
-                    print 'c:', self.c[surf_i:]
-                    print 'n:', self.n[surf_i:]
-
-                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,self.t_cum[surf_i:], color=color)
+                    rays = DataModel.Rays((objPt+offset)[:,None], direction[:,None]);
+                    traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
+                    print 'old\n',np.array([x[i], y[i], z[i]]).T
+                    z[i], y[i], x[i] = traces[:,:,0].T
+                    print traces[:,:,0]
+                    self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt,np.zeros_like(self.t_cum[surf_i:]), color=color)
                     cnt+=1
 
 
@@ -927,7 +930,12 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         r, c = self.grid1.GetGridCursorRow(), self.grid1.GetGridCursorCol()
         id = event.GetId()
         
-        if id == self.DATAROW_MENUINSERTAFTER:
+        if id == self.DATAROW_MENU_SET_AS_STOP:
+            self.__system.apertureStop = self.__system.surfaces[r]
+            #import epdb;epdb.st()
+            self._sync_grid_to_system()
+            self.OnGrid1GridCellChange()
+        elif id == self.DATAROW_MENUINSERTAFTER:
             self.grid1.InsertRows(r+1)
             self.__system.insert_surface(r+1, DataModel.StandardSurface(thickness=0, R=np.inf))
             self._sync_grid_to_system()

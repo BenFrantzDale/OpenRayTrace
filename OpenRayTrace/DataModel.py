@@ -120,6 +120,8 @@ class StandardSurface(Surface):
         Surface.__init__(self, thickness=thickness, glass=glass, semidiam=semidiam)
         self._R = R
 
+    def __str__(self):
+        return 'R={:>0.3f},\tth={:>0.3f},\tn={:>0.3f},\tsemidiam={:>0.3f}'.format(self.R, self.thickness, self.glass.n(None), self.semidiam)
     def reversed(self, thickness, glass):
         return StandardSurface(thickness, R=-self.R, glass=glass, semidiam=self.semidiam)
 
@@ -165,7 +167,7 @@ class StandardSurface(Surface):
         """
         n0 = rays.n
         n1 = self.n(rays.wavelengths)
-        positions, mask = self.intersectRays(z, rays, clip=clip)
+        positions, mask = self.intersectRays(z, rays)
         l = rays.directions / norm(rays.directions, axis=0)[None]
         if np.isfinite(self.R):
             c = np.zeros_like(positions[:,:1]); c[-1] = z + self.R
@@ -185,6 +187,11 @@ class System(object):
         self._surfaces = surfaces
         self._apertureStop = apertureStop
         self._ndim = ndim
+    def __str__(self):
+        result = ''
+        for i, surf in enumerate(self.surfaces):
+            result += '{:>2d}{} {}\n'.format(i, '*' if surf is self.apertureStop else ' ', surf)
+        return result
     def __iter__(self): return iter(self._surfaces)
     def __len__(self): return len(self._surfaces)
     def insert_surface(self, si, surf):
@@ -208,10 +215,22 @@ class System(object):
     def paraxialEPPosAndSemidiam(self, wavelength=None):
         assert self.apertureStop in self.surfaces, "No stop selected!"
         apInd = self.surfaces.index(self.apertureStop)
-        startInd = 0 if np.isfinite(self.surfaces[0].thickness) else 1
-        RTM = System(self.surfaces[startInd:apInd]).rayTransferMatrix(wavelength)
-        EPSemidiam, EPHalfAngle = self.apertureStop.semidiam / RTM[0]
-        return EPSemidiam / np.real(np.tan(EPHalfAngle)), EPSemidiam
+        RTM2stop = System(self.surfaces[1:apInd]).rayTransferMatrix(wavelength)
+        RTM2front = np.linalg.inv(RTM2stop)
+        EPsemidiam = self.apertureStop.semidiam / RTM2stop[0,0]
+        y, theta = RTM2front[:,1] # Cast a ray with unit slope back from the pupil center
+        EPpos = -y / theta # intersect that ray with the optical axis.
+        return EPpos, EPsemidiam
+
+    def paraxialXPPosAndSemidiam(self, wavelength=None):
+        assert self.apertureStop in self.surfaces, "No stop selected!"
+        apInd = self.surfaces.index(self.apertureStop)
+        RTM2img = System(self.surfaces[apInd:-1]).rayTransferMatrix(wavelength)
+        RTM2stop = np.linalg.inv(RTM2img)
+        XPsemidiam = self.apertureStop.semidiam / RTM2stop[0,0]
+        y, theta = RTM2img[:,1] # Cast a ray with unit slope back from the pupil center
+        XPpos = -y / theta # intersect that ray with the optical axis.
+        return XPpos, XPsemidiam
 
     def reversed(self):
         """Return the reversed system."""
@@ -224,10 +243,10 @@ class System(object):
             surfaces.append(S.reversed(*thkGls[i]))
             if S is self.apertureStop:
                 apertureStop = surfaces[-1]
-        return System(surfaces[::-1], apertureStop=apertureStop)
+        return System(surfaces[::-1], apertureStop=apertureStop, ndim=self.ndim)
 
     @staticmethod
-    def loadZMX(zmxfile):
+    def loadZMX(zmxfile, ndim=3):
         surfaces = []
         with open(zmxfile, 'r') as fh:
             lines = fh.readlines()
@@ -249,8 +268,8 @@ class System(object):
                     if 'CURV' in line:
                         curv = float(line.split()[1])
                         R = 1.0 / curv if curv != 0 else np.inf
-                    if 'DIAM' in line:
-                        semidiam = float(line.split()[1]) / 2.0
+                    if 'DIAM' in line: # Note, this seems to be the semidiameter even though it's called DIAM!
+                        semidiam = float(line.split()[1])
                         if semidiam < 0.1: semidiam = 5.0
                     if 'DISZ' in line:
                         thickness = float(line.split()[1])
@@ -268,7 +287,7 @@ class System(object):
                             import epdb; epdb.st()
                         break
                         
-        return System(surfaces, apertureStop=apertureStop)
+        return System(surfaces, apertureStop=apertureStop, ndim=ndim)
     @property
     def surfaces(self): return self._surfaces
     #@property
@@ -302,6 +321,11 @@ class System(object):
         return result
     @property
     def apertureStop(self): return self._apertureStop
+    @apertureStop.setter
+    def apertureStop(self, newOne): 
+        if newOne not in self._surfaces:
+            raise TypeError('New aperature stop must be in the System.')
+        self._apertureStop = newOne
     
     def rayTransferMatrix(self, wavelength=None):
         TM = np.eye(2)
@@ -423,7 +447,7 @@ class System(object):
             raise NotImplemented()
 
     def __getitem__(self, *a ,**k):
-        return System(self._surfaces.__getitem__(*a, **k), apertureStop=self.apertureStop)
+        return System(self._surfaces.__getitem__(*a, **k), apertureStop=self.apertureStop, ndim=self.ndim)
     def outlines(self):
         tops = []
         bottoms = []
@@ -456,7 +480,7 @@ class System(object):
     def cast(self, rays, settings=RaytraceSettings()):
         """Cast the rays through the system.
         Return the sequence of lines and the resulting output rays."""
-        assert self.ndim == rays.ndim
+        assert self.ndim == rays.ndim, "Rays ndim ({}) should match our ndim ({}).".format(rays.ndim, self.ndim)
         points = [rays.origins]
         for z, S in zip(self.surfaceVertices[-1], self.surfaces):
             clip = settings.clip if S is not self.apertureStop else settings.clipAperture
@@ -496,6 +520,13 @@ class FieldAngle(object):
         return rays
         
     
+def Ray(origin, direciton, n=1.0, wavelength=None):
+    """Make a single ray just for ease of use."""
+    return Rays(np.array(origin)[:,None],
+                np.array(direciton)[:,None], n=n, wavelength=wavelength)
+
+
+
 class Rays(object):
     """
     A collection of rays of the given wavelengths in the given index medium.
