@@ -67,31 +67,31 @@ class MainFrame(wx.MDIParentFrame):
 
         parent.Append(help='', id=wx.ID_OPEN, kind=wx.ITEM_NORMAL,
               text='&Open')
-        parent.Append(help='', id=wxID_MENUNEW, kind=wx.ITEM_NORMAL,
+        parent.Append(help='', id=wx.ID_NEW, kind=wx.ITEM_NORMAL,
               text='New')
-        parent.Append(help='', id=wxID_MENUSAVE, kind=wx.ITEM_NORMAL,
+        parent.Append(help='', id=self.wxID_MENUSAVE, kind=wx.ITEM_NORMAL,
               text='Save')
-        parent.Append(help='', id=wxID_MENUSAVEAS,
+        parent.Append(help='', id=self.wxID_MENUSAVEAS,
               kind=wx.ITEM_NORMAL, text='Save As')
-        parent.Append(help='', id=wxID_MENUEXIT, kind=wx.ITEM_NORMAL,
+        parent.Append(help='', id=self.wxID_MENUEXIT, kind=wx.ITEM_NORMAL,
               text='Exit')
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_MENUNEW)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_MENUSAVE)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_MENUSAVEAS)
-        self.Bind(wx.EVT_MENU, self.OnMenu, id=wxID_MENUEXIT)
+        self.Bind(wx.EVT_MENU, self.OnMenuNew, id=wx.ID_NEW)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=self.wxID_MENUSAVE)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=self.wxID_MENUSAVEAS)
+        self.Bind(wx.EVT_MENU, self.OnMenu, id=self.wxID_MENUEXIT)
         self.Bind(wx.EVT_MENU, self.OnMenu, id=wx.ID_OPEN)
 
     def _init_coll_menu_drawing_Items(self, parent):
         # generated method, don't edit
 
-        parent.Append(help='', id=wxID_MENU_DRAWINGRESETRAYTRACE,
+        parent.Append(help='', id=self.wxID_MENU_DRAWINGRESETRAYTRACE,
               kind=wx.ITEM_NORMAL, text='Reset Ray Trace View')
-        parent.Append(help='', id=wxID_MENU_DRAWINGSPOTDIAGRAM,
+        parent.Append(help='', id=self.wxID_MENU_DRAWINGSPOTDIAGRAM,
               kind=wx.ITEM_NORMAL, text='Spot Diagram')
         self.Bind(wx.EVT_MENU, self.OnMenu_drawingMenu,
-              id=wxID_MENU_DRAWINGRESETRAYTRACE)
+              id=self.wxID_MENU_DRAWINGRESETRAYTRACE)
         self.Bind(wx.EVT_MENU, self.OnMenu_drawingMenu,
-              id=wxID_MENU_DRAWINGSPOTDIAGRAM)
+              id=self.wxID_MENU_DRAWINGSPOTDIAGRAM)
 
     def _init_utils(self):
         # generated method, don't edit
@@ -167,31 +167,16 @@ class MainFrame(wx.MDIParentFrame):
         
     def OnMenu_drawingMenu(self, event):
         id = event.GetId()
-        if(id == wxID_MENU_DRAWINGRESETRAYTRACE):                        
+        if id == self.wxID_MENU_DRAWINGRESETRAYTRACE:
             self.ogl.reset_view()
-        elif(id == wxID_MENU_DRAWINGSPOTDIAGRAM):
+        elif id == self.wxID_MENU_DRAWINGSPOTDIAGRAM:
             self.spot.Show()
             
         event.Skip()
 
     def OnMenu(self, event):
         id = event.GetId()
-        if id == wxID_MENUNEW:
-            sv = DialogSaveQuestion.DialogSaveQuestion(self, self.file_name)                    
-            res = sv.ShowModal()
-            try:                
-                if res == 0:     #yes
-                    self.Save()
-                    self.New()
-                elif res == 1:   #no
-                    self.New()
-                elif res == 2:   #cancel
-                    pass
-            finally:
-                sv.Destroy()
-            
-            
-        elif(id == wx.ID_OPEN):
+        if id == wx.ID_OPEN:
             dlg = wx.FileDialog(self, "Open Lens", ".", "", "Lens file (*.lns)|*.lns|ZEMAX file (*.zmx)|*.zmx", wx.OPEN | wx.CHANGE_DIR)
             try:
                 if dlg.ShowModal() == wx.ID_OK:
@@ -211,15 +196,28 @@ class MainFrame(wx.MDIParentFrame):
             finally:
                 dlg.Destroy()
                         
-        elif id == wxID_MENUSAVE:                        
+        elif id == self.wxID_MENUSAVE:                        
             self.Save()                        
-        elif id == wxID_MENUSAVE_AS:
+        elif id == self.wxID_MENUSAVE_AS:
             self.saveable = False
             self.Save()
-        elif id == wxID_MENUEXIT:
+        elif id == self.wxID_MENUEXIT:
             sv = DialogSaveQuestion.DialogSaveQuestion(self,self.file_name)
             sv.Show()                        
         event.Skip()
+    def OnMenuNew(self, event):
+        sv = DialogSaveQuestion.DialogSaveQuestion(self, self.file_name)                    
+        res = sv.ShowModal()
+        try:                
+            if res == 0:     #yes
+                self.Save()
+                self.New()
+            elif res == 1:   #no
+                self.New()
+            elif res == 2:   #cancel
+                pass
+        finally:
+            sv.Destroy()
             
         
     def Save(self):
