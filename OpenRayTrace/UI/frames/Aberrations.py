@@ -1,4 +1,4 @@
-#Boa:MDIChild:wxMDIChildFrame_aberrations
+# OpenRayTrace.UI.Frames.Aberrations
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -36,34 +36,28 @@
 
 
 
+from OpenRayTrace.UI.myCanvas import *
+from OpenRayTrace.ray_trace import *
+
 import wx
-from myCanvas import *
 import numpy as np
-from ray_trace import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-def create(parent):
-    return wxMDIChildFrame_aberrations(parent)
 
-[wxID_WXMDICHILDFRAME_ABERRATIONS] = map(lambda _init_ctrls: wx.NewId(), range(1))
-
-class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
-    def _init_utils(self):
-        # generated method, don't edit
-        pass
+class Aberrations(wx.MDIChildFrame):
+    wxID = wx.NewId()
+    #def _init_utils(self): pass
 
     def _init_ctrls(self, prnt):
-        # generated method, don't edit
-        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_ABERRATIONS,
-              name='wxMDIChildFrame_aberrations', parent=prnt, pos=wx.Point(399,
-              218), size=wx.Size(1200, 854), style=wx.DEFAULT_FRAME_STYLE,
-              title='Aberrations')
-        self._init_utils()
+        wx.MDIChildFrame.__init__(self, id=self.wxID,
+                                  name='Aberrations', parent=prnt, pos=wx.Point(399,218), 
+                                  size=wx.Size(1200, 854), style=wx.DEFAULT_FRAME_STYLE,
+                                  title='Aberrations')
         self.SetClientSize(wx.Size(1192, 820))
         self.Center(wx.BOTH)
-        EVT_CLOSE(self, self.OnWxmdichildframe_aberrationsClose)
+        EVT_CLOSE(self, self.OnClose)
 
     def __init__(self, parent):
         self._init_ctrls(parent)                                
@@ -220,5 +214,4 @@ class wxMDIChildFrame_aberrations(wx.MDIChildFrame):
         glFlush()
         glEndList()
 
-    def OnWxmdichildframe_aberrationsClose(self, event):
-        self.Hide()
+    def OnClose(self, event): self.Hide()

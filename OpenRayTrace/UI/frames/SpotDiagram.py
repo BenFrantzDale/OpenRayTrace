@@ -1,4 +1,4 @@
-#Boa:MDIChild:wxMDIChildFrame_spot_diagram
+#OpenRayTrace.UI.frames.SpotDiagram
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -36,28 +36,22 @@
 
 
 import wx
-from myCanvas import *
-#import math
-from ray_trace import *
+from OpenRayTrace.UI.myCanvas import *
+from OpenRayTrace.ray_trace import *
 import numpy as np
+from numpy.linalg import norm
 
+class SpotDiagram(wx.MDIChildFrame):
+    wxID = wx.NewId()
 
-def create(parent):
-    return wxMDIChildFrame_spot_diagram(parent)
-
-[wxID_WXMDICHILDFRAME_SPOT_DIAGRAM] = map(lambda _init_ctrls: wx.NewId(), range(1))
-
-[wxID_WXMDICHILDFRAME_SPOT_DIAGRAM] = [wx.NewId() for _init_ctrls in range(1)]
-
-class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_SPOT_DIAGRAM,
-              name='wxMDIChildFrame_spot_diagram', parent=prnt,
-              pos=wx.Point(378, 221), size=wx.Size(991, 713),
-              style=wx.DEFAULT_FRAME_STYLE, title='Spot Diagram')
+        wx.MDIChildFrame.__init__(self, id=SpotDiagram.wxID,
+                                  name='SpotDiagram', parent=prnt,
+                                  pos=wx.Point(378, 221), size=wx.Size(991, 713),
+                                  style=wx.DEFAULT_FRAME_STYLE, title='Spot Diagram')
         self.SetClientSize(wx.Size(983, 679))
-        self.Bind(EVT_CLOSE, self.OnWxmdichildframe_spot_diagramClose)
+        self.Bind(EVT_CLOSE, lambda event: self.Hide)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
@@ -120,11 +114,11 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
         cnt = self.glRayListStart    
         
         #precalc ray locations
-        pos = np.array([0.0,.7071,1.0])
+        pos = np.array([0.0,np.sqrt(0.5),1.0])
         pos = -object_height * pos
         z_launch = 0
         
-        y_hit = np.array([i for i in range(-angles,angles+1)], dtype=float) * h[1]/angles
+        y_hit = np.linspace(-h[1], h[1], angles)
         z_hit = y_hit
         offset_y = 0
         max_y = []
@@ -148,17 +142,16 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
         #t_temp[len(t)-1] = original_t + delta
         #print t_temp,t,delta
             
-        for i in range(len(pos)):
+        for i, y_launch in enumerate(pos): # Iterate over launch rays?
             y_launch = pos[i]
-            yy = y_hit - y_launch 
-            zz = z_hit - z_launch 
-            xx2 = t[0]*t[0]
-            den = (pow(zz*zz + yy*yy + xx2,0.5)) 
+            yy = y_hit - y_launch
+            zz = z_hit - z_launch
+            den = norm([t[0] * np.ones_like(yy), yy, zz], axis=0)
             Yi = yy / den
             Zi = zz / den
                                                             
                 
-            (xs,ys,zs,Xs,Ys,Zs) = self.comp_rays(Yi,Zi,(0.0,y_launch,0.0),t_temp,n,c,t_cum,h)                
+            xs,ys,zs,Xs,Ys,Zs = self.comp_rays(Yi,Zi,(0.0,y_launch,0.0),t_temp,n,c,t_cum,h)                
             
             x.append(xs)                
             y.append(ys)
@@ -167,7 +160,7 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
             Y.append(Ys)
             Z.append(Zs)
                             
-            if(len(y[i]) > 0 and len(z[i]) > 0):
+            if len(y[i]) > 0 and len(z[i]) > 0:
                 max_y.append(max(y[i]))
                 min_y.append(min(y[i]))                            
                 width_y.append(max_y[len(max_y)-1] - min_y[len(min_y)-1])
@@ -213,8 +206,3 @@ class wxMDIChildFrame_spot_diagram(wx.MDIChildFrame):
         glEnd()        
         glFlush()
         
-        
-
-    def OnWxmdichildframe_spot_diagramClose(self, event):
-        self.Hide()
-    

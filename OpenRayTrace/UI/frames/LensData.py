@@ -1,5 +1,5 @@
 from __future__ import division
-#Boa:MDIChild:wxMDIChildFrame_lens_data
+#OpenRayTrace.UI.frames.LensData
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -39,94 +39,87 @@ from __future__ import division
 import wx
 import wx.grid
 from wx.grid import *
-import wxDialog_wavelengths
+from OpenRayTrace.UI import Dialog_wavelengths
 
-from myCanvas import *
+from OpenRayTrace.UI.myCanvas import *
+from OpenRayTrace.ray_trace import *
+from OpenRayTrace import DataModel
+
 import os, string
 from cmath import *
 import math
 import numpy as np
-from ray_trace import *
 from numpy.linalg import norm
-from OpenRayTrace import DataModel
 
 
 WIDTH=640.0
 HEIGHT=480.0
 
-FLENGTH = 0
-POWER = 1
-CURVATURE = 2
-RADIUS = 3
-THICKNESS = 4
-APERATURE_RADIUS = 5
-GLASS = 6
-BENDING = 7
-BENT_C  = 8
-BENT_R  = 9
-
-def create(parent):
-    return wxMDIChildFrame_lens_data(parent)
-
-[wxID_WXMDICHILDFRAME_LENS_DATA, 
- wxID_WXMDICHILDFRAME_LENS_DATABUTTON_COMPUTE_ALL, 
- wxID_WXMDICHILDFRAME_LENS_DATABUTTON_IMAGE, 
- wxID_WXMDICHILDFRAME_LENS_DATABUTTON_SPOT_DIAGRAMS, 
- wxID_WXMDICHILDFRAME_LENS_DATABUTTON_WAVE_LENGTHS, 
- wxID_WXMDICHILDFRAME_LENS_DATACHECKBOX_AUTOFOCUS, 
- wxID_WXMDICHILDFRAME_LENS_DATAGRID1, 
- wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_POWER, 
- wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_RADIUS, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICBOX1, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT1, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_EFL, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MAG, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MG, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_OBJ_HEIGHT, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_PARAXIAL_FOCUS, 
- wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT, 
-] = map(lambda _init_ctrls: wx.NewId(), range(17))
-
-
-
-[wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSITEMS_BK7, 
- wxID_WXMDICHILDFRAME_LENS_DATAMENU_GLASSITEMS_DIRECT, 
-] = map(lambda _init_coll_menu_glass_Items: wx.NewId(), range(2))
-
-[wxID_WXMDICHILDFRAME_LENS_DATAMENU1COPY, 
- wxID_WXMDICHILDFRAME_LENS_DATAMENU1DELETE, 
- wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_AFTER, 
- wxID_WXMDICHILDFRAME_LENS_DATAMENU1INSERT_BEFORE, 
- wxID_WXMDICHILDFRAME_LENS_DATAMENU1PASTE, 
-] = [wx.NewId() for _ in range(5)]
-
-[wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSITEMS0] = map(lambda _init_coll_menu_thickness_Items: wx.NewId(), range(1))
-
-[wxID_WXMDICHILDFRAME_LENS_DATA, 
- wxID_WXMDICHILDFRAME_LENS_DATABUTTON_COMPUTE_ALL, 
- wxID_WXMDICHILDFRAME_LENS_DATABUTTON_IMAGE, 
- wxID_WXMDICHILDFRAME_LENS_DATABUTTON_SPOT_DIAGRAMS, 
- wxID_WXMDICHILDFRAME_LENS_DATABUTTON_WAVE_LENGTHS, 
- wxID_WXMDICHILDFRAME_LENS_DATACHECKBOX_AUTOFOCUS, 
- wxID_WXMDICHILDFRAME_LENS_DATAGRID1, 
- wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_POWER, 
- wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_RADIUS, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICBOX1, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXTEFFECTIVEFOCALLENGTH, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_EFL, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MAG, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MG, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_OBJ_HEIGHT, 
- wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_PARAXIAL_FOCUS, 
- wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT, 
-] = [wx.NewId() for _init_ctrls in range(17)]
-
-
-class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
-    col_labels = ('f-length','power','curvature','radius','thickness','aperature radius','glass','bending','bent c','bent r')
+class LensData(wx.MDIChildFrame):
+    wxID = wx.NewId()
+    col_labels = ('surf type','comment','radius','thickness','aperature radius','glass')
+    @property 
+    def RADIUS_COL(self): return self.col_labels.index('radius')
+    @property 
+    def THICKNESS_COL(self): return self.col_labels.index('thickness')
+    @property 
+    def APERATURE_RADIUS_COL(self): return self.col_labels.index('aperature radius')
+    @property 
+    def GLASS_COL(self): return self.col_labels.index('aperature radius')
     MENU_GLASSBK7 = wx.NewId()
     MENU_GLASSDIRECT = wx.NewId()
     MENU_THICKNESSPARAXIALFOCUS = wx.NewId()
+
+    [wxID_BUTTON_COMPUTE_ALL, 
+     wxID_BUTTON_IMAGE, 
+     wxID_BUTTON_SPOT_DIAGRAMS, 
+     wxID_BUTTON_WAVE_LENGTHS, 
+     wxID_CHECKBOX_AUTOFOCUS, 
+     wxID_GRID1, 
+     wxID_RADIOBUTTON_CONST_POWER, 
+     wxID_RADIOBUTTON_CONST_RADIUS, 
+     wxID_STATICBOX1, 
+     wxID_STATICTEXT1, 
+     wxID_STATICTEXT_EFL, 
+     wxID_STATICTEXT_MAG, 
+     wxID_STATICTEXT_MG, 
+     wxID_STATICTEXT_OBJ_HEIGHT, 
+     wxID_STATICTEXT_PARAXIAL_FOCUS, 
+     wxID_TEXTCTRL_OBJECT_HEIGHT, 
+    ] = [wx.NewId() for _ in range(16)]
+
+
+
+    wxID_MENU_GLASSITEMS_BK7 = wx.NewId()
+    wxID_MENU_GLASSITEMS_DIRECT = wx.NewId()
+
+    [wxID_MENU1COPY, 
+     wxID_MENU1DELETE, 
+     wxID_MENU1INSERT_AFTER, 
+     wxID_MENU1INSERT_BEFORE, 
+     wxID_MENU1PASTE, 
+    ] = [wx.NewId() for _ in range(5)]
+
+    wxID_MENU_THICKNESSITEMS0 = wx.NewId()
+
+    [wxID_BUTTON_COMPUTE_ALL, 
+     wxID_BUTTON_IMAGE, 
+     wxID_BUTTON_SPOT_DIAGRAMS, 
+     wxID_BUTTON_WAVE_LENGTHS, 
+     wxID_CHECKBOX_AUTOFOCUS, 
+     wxID_GRID1, 
+     wxID_RADIOBUTTON_CONST_POWER, 
+     wxID_RADIOBUTTON_CONST_RADIUS, 
+     wxID_STATICBOX1, 
+     wxID_STATICTEXTEFFECTIVEFOCALLENGTH, 
+     wxID_STATICTEXT_EFL, 
+     wxID_STATICTEXT_MAG, 
+     wxID_STATICTEXT_MG, 
+     wxID_STATICTEXT_OBJ_HEIGHT, 
+     wxID_STATICTEXT_PARAXIAL_FOCUS, 
+     wxID_TEXTCTRL_OBJECT_HEIGHT, 
+    ] = [wx.NewId() for _ in range(16)]
+
 
     [DATAROW_MENUCOPY, 
      DATAROW_MENUDELETE, 
@@ -134,20 +127,17 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
      DATAROW_MENUINSERTBEFORE, 
      DATAROW_MENU_SET_AS_STOP,
      DATAROW_MENUPASTE] = [wx.NewId() for _ in range(6)]
+
     @staticmethod
     def surfToRowData(surf):
         """Given a DataModel.Surface, return the row of values as a dictionary."""
-        getter = {'f-length': lambda s: None,
-                  'power': lambda s: None,
-                  'curvature': lambda s: 1.0/float(s.R) if hasattr(s, 'R') else 0.0,
+        getter = {'surf type': lambda s: s.__class__.__name__.replace('Surface',''),
+                  'comment': lambda s: None,
                   'radius': lambda s: s.R if hasattr(s, 'R') else np.inf,
                   'thickness': lambda s: s.thickness,
                   'aperature radius': lambda s: s.semidiam,
-                  'glass': lambda s: s.n(None),
-                  'bending': lambda s: None,
-                  'bent c': lambda s: None,
-                  'bent r': lambda s: None}
-        return dict((label, getter[label](surf)) for label in wxMDIChildFrame_lens_data.col_labels)
+                  'glass': lambda s: s.n(None)}
+        return dict((label, getter[label](surf)) for label in LensData.col_labels)
             
     def _init_coll_boxSizerBottom_Items(self, parent):
         # generated method, don't edit
@@ -173,31 +163,19 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
     def _init_coll_gridBagSizerTop_Items(self, parent):
         # generated method, don't edit
-
-        parent.AddWindow(self.radioButton_const_power, (0, 0), border=0, flag=0,
-              span=(1, 1))
-        parent.AddWindow(self.radioButton_const_radius, (1, 0), border=0,
-              flag=0, span=(1, 1))
-        parent.AddWindow(self.checkBox_autofocus, (2, 0), border=0, flag=0,
-              span=(1, 1))
-        parent.AddWindow(self.staticText_obj_height, (0, 1), border=0, flag=0,
-              span=(1, 1))
-        parent.AddWindow(self.textCtrl_object_height, (1, 1), border=0, flag=0,
-              span=(1, 1))
-        parent.AddWindow(self.button_wave_lengths, (2, 1), border=0, flag=0,
-              span=(1, 1))
-        parent.AddSizer(self.staticBoxSizer1, (0, 2), border=0, flag=0, span=(3,
-              1))
-        parent.AddWindow(self.staticText_efl, (2, 8), border=0, flag=0, span=(1,
-              1))
-        parent.AddWindow(self.staticText_mg, (1, 7), border=0, flag=0, span=(1,
-              1))
-        parent.AddWindow(self.staticText_mag, (1, 8), border=0, flag=0, span=(1,
-              1))
-        parent.AddWindow(self.staticTextEffectiveFocalLength, (2, 7), border=0,
-              flag=0, span=(1, 1))
-        parent.AddWindow(self.staticText_paraxial_focus, (3, 7), border=0,
-              flag=0, span=(1, 1))
+        parent.AddWindow(self.radioButton_const_power, (0, 0), border=0, flag=0,span=(1, 1))
+        parent.AddWindow(self.radioButton_const_radius, (1, 0), border=0,flag=0, span=(1, 1))
+        parent.AddWindow(self.checkBox_autofocus, (2, 0), border=0, flag=0,span=(1, 1))
+        parent.AddWindow(self.staticText_obj_height, (0, 1), border=0, flag=0,span=(1, 1))
+        parent.AddWindow(self.textCtrl_object_height, (1, 1), border=0, flag=0,span=(1, 1))
+        parent.AddWindow(self.button_wave_lengths, (2, 1), border=0, flag=0,span=(1, 1))
+        parent.AddSizer(self.staticBoxSizer1, (0, 2), border=0, flag=0, span=(3,1))
+        parent.AddWindow(self.staticText_efl, (2, 8), border=0, flag=0, span=(1,1))
+        parent.AddWindow(self.staticText_mg, (1, 7), border=0, flag=0, span=(1,1))
+        parent.AddWindow(self.staticText_mag, (1, 8), border=0, flag=0, span=(1,1))
+        parent.AddWindow(self.staticTextEffectiveFocalLength, (2, 7), border=0,flag=0, span=(1, 1))
+        parent.AddWindow(self.staticText_paraxial_focus, (3, 7), border=0,flag=0, span=(1, 1))
+                         
 
     def _init_coll_boxSizertop_Items(self, parent):
         # generated method, don't edit
@@ -286,15 +264,16 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_LENS_DATA,
-              name='wxMDIChildFrame_lens_data', parent=prnt, pos=wx.Point(505,
-              364), size=wx.Size(847, 373), style=wx.DEFAULT_FRAME_STYLE,
+        wx.MDIChildFrame.__init__(self, id=self.wxID,
+                                  name='LensData', parent=prnt, pos=wx.Point(505,364), 
+                                  size=wx.Size(847, 373), style=wx.DEFAULT_FRAME_STYLE,
+              
               title='Lens Data')
         self._init_utils()
         self.SetClientSize(wx.Size(839, 339))
-        self.Bind(EVT_CLOSE, self.OnWxmdichildframe_lens_dataClose)
+        self.Bind(EVT_CLOSE, lambda event: self.Hide)
 
-        self.grid1 = wx.grid.Grid(id=wxID_WXMDICHILDFRAME_LENS_DATAGRID1,
+        self.grid1 = wx.grid.Grid(id=self.wxID_GRID1,
               name='grid1', parent=self, pos=wx.Point(0, 87), size=wx.Size(839,
               773), style=0)
         self.grid1.Bind(EVT_GRID_CELL_CHANGE, self.OnGrid1GridCellChange)
@@ -304,30 +283,30 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.grid1.Bind(EVT_GRID_LABEL_RIGHT_CLICK,
               self.OnGrid1GridLabelRightClick)
 
-        self.radioButton_const_power = wx.RadioButton(id=wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_POWER,
+        self.radioButton_const_power = wx.RadioButton(id=self.wxID_RADIOBUTTON_CONST_POWER,
               label='Const Power/F-length', name='radioButton_const_power',
               parent=self, pos=wx.Point(0, 0), size=wx.Size(136, 13), style=0)
         self.radioButton_const_power.SetValue(True)
         self.radioButton_const_power.Bind(EVT_RADIOBUTTON,
               self.OnRadiobutton_const_powerRadiobutton)
 
-        self.radioButton_const_radius = wx.RadioButton(id=wxID_WXMDICHILDFRAME_LENS_DATARADIOBUTTON_CONST_RADIUS,
+        self.radioButton_const_radius = wx.RadioButton(id=self.wxID_RADIOBUTTON_CONST_RADIUS,
               label='Const Radius', name='radioButton_const_radius',
               parent=self, pos=wx.Point(0, 22), size=wx.Size(79, 13), style=0)
         self.radioButton_const_radius.SetValue(False)
         self.radioButton_const_radius.Bind(EVT_RADIOBUTTON,
               self.OnRadiobutton_const_radiusRadiobutton)
 
-        self.staticText_paraxial_focus = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_PARAXIAL_FOCUS,
+        self.staticText_paraxial_focus = wx.StaticText(id=self.wxID_STATICTEXT_PARAXIAL_FOCUS,
               label='', name='staticText_paraxial_focus', parent=self,
               pos=wx.Point(436, 67), size=wx.Size(0, 13), style=0)
 
-        self.checkBox_autofocus = wx.CheckBox(id=wxID_WXMDICHILDFRAME_LENS_DATACHECKBOX_AUTOFOCUS,
+        self.checkBox_autofocus = wx.CheckBox(id=self.wxID_CHECKBOX_AUTOFOCUS,
               label='Autofocus (paraxial)', name='checkBox_autofocus',
               parent=self, pos=wx.Point(0, 44), size=wx.Size(120, 13), style=0)
         self.checkBox_autofocus.SetValue(False)
 
-        self.textCtrl_object_height = wx.TextCtrl(id=wxID_WXMDICHILDFRAME_LENS_DATATEXTCTRL_OBJECT_HEIGHT,
+        self.textCtrl_object_height = wx.TextCtrl(id=self.wxID_TEXTCTRL_OBJECT_HEIGHT,
               name='textCtrl_object_height', parent=self, pos=wx.Point(136, 22),
               size=wx.Size(100, 21),
               style=wx.TAB_TRAVERSAL | wx.TE_PROCESS_TAB | wx.TE_PROCESS_ENTER,
@@ -338,51 +317,51 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.textCtrl_object_height.Bind(EVT_TEXT,
               self.OnTextctrl_object_heightText)
 
-        self.button_compute_all = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_COMPUTE_ALL,
+        self.button_compute_all = wx.Button(id=self.wxID_BUTTON_COMPUTE_ALL,
               label='Compute All', name='button_compute_all', parent=self,
               pos=wx.Point(316, 17), size=wx.Size(75, 23), style=0)
         self.button_compute_all.Bind(EVT_BUTTON,
               self.OnButton_compute_allButton)
 
-        self.staticText_obj_height = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_OBJ_HEIGHT,
+        self.staticText_obj_height = wx.StaticText(id=self.wxID_STATICTEXT_OBJ_HEIGHT,
               label='Object Height', name='staticText_obj_height', parent=self,
               pos=wx.Point(136, 0), size=wx.Size(65, 13), style=0)
 
-        self.button_wave_lengths = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_WAVE_LENGTHS,
+        self.button_wave_lengths = wx.Button(id=self.wxID_BUTTON_WAVE_LENGTHS,
               label='Wave Lengths', name='button_wave_lengths', parent=self,
               pos=wx.Point(136, 44), size=wx.Size(88, 23), style=0)
         self.button_wave_lengths.Bind(EVT_BUTTON,
               self.OnButton_wave_lengthsButton)
 
-        self.button_spot_diagrams = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_SPOT_DIAGRAMS,
+        self.button_spot_diagrams = wx.Button(id=self.wxID_BUTTON_SPOT_DIAGRAMS,
               label='Spot Diagram', name='button_spot_diagrams', parent=self,
               pos=wx.Point(241, 17), size=wx.Size(75, 23), style=0)
         self.button_spot_diagrams.Bind(EVT_BUTTON,
               self.OnButton_spot_diagramsButton)
 
-        self.staticBox1 = wx.StaticBox(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICBOX1,
+        self.staticBox1 = wx.StaticBox(id=self.wxID_STATICBOX1,
               label='Computations', name='staticBox1', parent=self,
               pos=wx.Point(236, 0), size=wx.Size(160, 68), style=0)
 
-        self.button_image = wx.Button(id=wxID_WXMDICHILDFRAME_LENS_DATABUTTON_IMAGE,
+        self.button_image = wx.Button(id=self.wxID_BUTTON_IMAGE,
               label='Image', name='button_image', parent=self, pos=wx.Point(241,
               40), size=wx.Size(75, 23), style=0)
         self.button_image.Bind(EVT_BUTTON, self.OnButton_imageButton)
 
-        self.staticText_mg = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MG,
+        self.staticText_mg = wx.StaticText(id=self.wxID_STATICTEXT_MG,
               label='Transverse Magnification', name='staticText_mg',
               parent=self, pos=wx.Point(436, 22), size=wx.Size(160, 13),
               style=0)
 
-        self.staticText_mag = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_MAG,
+        self.staticText_mag = wx.StaticText(id=self.wxID_STATICTEXT_MAG,
               label='', name='staticText_mag', parent=self, pos=wx.Point(596,
               22), size=wx.Size(0, 13), style=0)
 
-        self.staticTextEffectiveFocalLength = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXTEFFECTIVEFOCALLENGTH,
+        self.staticTextEffectiveFocalLength = wx.StaticText(id=self.wxID_STATICTEXTEFFECTIVEFOCALLENGTH,
               label='EFL:', name='staticTextEffectiveFocalLength', parent=self,
               pos=wx.Point(436, 44), size=wx.Size(22, 13), style=0)
 
-        self.staticText_efl = wx.StaticText(id=wxID_WXMDICHILDFRAME_LENS_DATASTATICTEXT_EFL,
+        self.staticText_efl = wx.StaticText(id=self.wxID_STATICTEXT_EFL,
               label='', name='staticText_efl', parent=self, pos=wx.Point(596,
               44), size=wx.Size(0, 13), style=0)
 
@@ -390,11 +369,14 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
     def __init__(self, parent):
         self._init_ctrls(parent)
-        self.waves = wxDialog_wavelengths.create(self)
-        self.__system = DataModel.System([], ndim=3)
-        
-        
-        self.grid1.CreateGrid(max(1,self.rows), self.cols)
+        self.waves = Dialog_wavelengths.Dialog_wavelengths(self)
+        stopSurface = DataModel.StandardSurface(thickness=0.0,R=np.inf,semidiam=1.0)
+        self.__system = DataModel.System([DataModel.StandardSurface(thickness=np.inf,R=np.inf),
+                                          stopSurface,
+                                          DataModel.StandardSurface(thickness=0,R=np.inf)], 
+                                         apertureStop = stopSurface,
+                                         ndim=3)
+        self.grid1.CreateGrid(max(1,self.rows), self.cols)       
 
         for i, label in enumerate(self.col_labels):
             self.grid1.SetColLabelValue(i, label)
@@ -418,6 +400,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.Layout()
         self.Centre()
         self.rays = 100
+        self._sync_grid_to_system()
         
         
     @property
@@ -485,8 +468,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
         self.staticText_mag.SetLabel(str(mag))
         if self.checkBox_autofocus.GetValue():
-            self.grid1.SetCellValue(len(self.t)-1,THICKNESS,str(l))
-            draw = self.fill_in_values(len(self.t)-1,THICKNESS,l)            
+            self.grid1.SetCellValue(len(self.t)-1,self.THICKNESS_COL,str(l))
+            draw = self.fill_in_values(len(self.t)-1,self.THICKNESS_COL,l)            
             self.update_display()                            
 
         print 'stop at', self.__system.surfaces.index(self.__system.apertureStop)
@@ -499,8 +482,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         cnt = 0
 
         surf_i = 0
-        for surf_i in range(len(self.t)): # Make surf_i index the first surface with finite non-zero thickness. 
-            if np.isfinite(self.t[surf_i]) and self.t[surf_i] != 0: break
+        for surf_i in range(len(self.t)): # Make surf_i index the first surface with finite thickness. 
+            if np.isfinite(self.t[surf_i]): break
 
         if len(self.t) > 1:
             # Loop over field points:
@@ -526,18 +509,17 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                 
                 rays = DataModel.Rays(np.transpose([objPt+offset for offset in offsets]),
                                       np.transpose([direction for direction in raydirs]))
-                traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
+                traces, outbound = self.__system[surf_i:].cast(rays)
                 for i, (offset, direction) in enumerate(zip(offsets,
                                                           raydirs)):
                     #go to aperature radius
-                    assert self.t[surf_i] != 0
                     # It looks like it is trying to aim the outermost ray at the clear aperature of the next surface:
                     #direction = [None, (i/(fp_i/2.0)) * self.h[surf_i+1] / norm([self.h[surf_i+1], self.t[surf_i]]), 0.0]
                     #direction[0] = np.sqrt(1.0 - direction[1]**2 - direction[2]**2)
                     #print "direction {}: {} -> {}".format(i, objPt + offset, direction)
                     
                     #rays = DataModel.Rays((objPt+offset)[:,None], direction[:,None]);
-                    #traces, outbound = self._wxMDIChildFrame_lens_data__system[surf_i:].cast(rays)
+                    #traces, outbound = self.__system[surf_i:].cast(rays)
                     z[i], y[i], x[i] = traces[:,:,i].T
                     cnt+=1
                     self.GetParent().ogl.draw_ray(x[i],y[i],z[i],cnt, color=color)
@@ -578,108 +560,13 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     
     def fill_in_values(self,r,c,val):                               
         #AUTOFILL SOME STUFF
-        if (self.grid1.GetCellValue(r,GLASS) == ''):
-            self.grid1.SetCellValue(r,GLASS,str(1))
-            
-        if (self.grid1.GetCellValue(r,THICKNESS) == ''):
-            self.grid1.SetCellValue(r,THICKNESS,str(0))     
-                
-        if (self.grid1.GetCellValue(r,CURVATURE) == ''):
-            self.grid1.SetCellValue(r,CURVATURE,str(0))
-            
-        if (self.grid1.GetCellValue(r,RADIUS) == ''):
-            self.grid1.SetCellValue(r,RADIUS,str(0))            
-        
-        if (self.grid1.GetCellValue(r,APERATURE_RADIUS) == ''):
-            self.grid1.SetCellValue(r,APERATURE_RADIUS,str(1.0))
+        autofills = {self.THICKNESS_COL: '0',
+                     self.RADIUS_COL: '0',
+                     self.APERATURE_RADIUS_COL: '1.0'}
+        for col, default in autofills.iteritems():
+            if self.grid1.GetCellValue(r, col) == '':
+                self.grid1.SetCellValue(r, col, default)
 
-        if (self.grid1.GetCellValue(r,BENDING) == ''):
-            self.grid1.SetCellValue(r,BENDING,str(0.0))
-                    
-        if c == FLENGTH: #focal length changed
-            if val == 0:
-                val = '' # Shorthand for flat is zero.
-            self.grid1.SetCellValue(r,POWER,str(1.0/val)) #set power            
-            if (self.grid1.GetCellValue(r+1,APERATURE_RADIUS) == ''):
-                self.grid1.SetCellValue(r+1,APERATURE_RADIUS,str(1.0))
-            if (self.grid1.GetCellValue(r+1,GLASS) == ''):
-                self.grid1.SetCellValue(r+1,GLASS,str(1))            
-            if (self.grid1.GetCellValue(r+1,THICKNESS) == ''):
-                self.grid1.SetCellValue(r+1,THICKNESS,str(0)) 
-            if (self.grid1.GetCellValue(r+1,BENDING) == ''):
-                self.grid1.SetCellValue(r+1,BENDING,str(0))                                                         
-            self.update_radius(r)            
-                
-        if c == POWER: #power has changed    
-            self.grid1.SetCellValue(r,FLENGTH,str(1.0/val))
-            
-            if (self.grid1.GetCellValue(r+1,APERATURE_RADIUS) == ''):
-                self.grid1.SetCellValue(r+1,APERATURE_RADIUS,str(1.0))
-            if (self.grid1.GetCellValue(r+1,GLASS) == ''):
-                self.grid1.SetCellValue(r+1,GLASS,str(1))            
-            if (self.grid1.GetCellValue(r+1,THICKNESS) == ''):
-                self.grid1.SetCellValue(r+1,THICKNESS,str(0))                 
-            if (self.grid1.GetCellValue(r+1,BENDING) == ''):
-                self.grid1.SetCellValue(r+1,BENDING,str(0))                                                                         
-            self.update_radius(r)
-                                    
-        if(c == CURVATURE): #curvature changed
-            #update the radius
-            if(val != 0):
-                self.grid1.SetCellValue(r,RADIUS,str(1.0/val))
-            else:
-                self.grid1.SetCellValue(r,RADIUS,str(0.0))
-                
-            self.update_power(r)                                            
-                        
-        if(c == RADIUS): #radius changed
-            #update the curvature
-            
-            if(val != 0):
-                self.grid1.SetCellValue(r,CURVATURE,str(1.0/val))
-            else:
-                self.grid1.SetCellValue(r,CURVATURE,str(0.0))
-            
-##            if(self.grid1.GetCellValue(r,POWER) == ''):
-##                self.radioButton_const_radius.SetValue(True)
-##                self.OnRadiobutton_const_radiusRadiobutton()
-            self.update_power(r)                                
-                        
-        if(c == THICKNESS): #thickness changed
-            if(self.hold_power):
-                self.update_radius(r)
-            elif(self.hold_radius):        
-                self.update_power(r)
-                        
-        if(c == GLASS):#GLASS CHANGED            
-            if(self.hold_power):
-                self.update_radius(r)
-            elif(self.hold_radius):                
-                self.update_power(r)                
-        
-        #c = BENDING
-        #if(c == BENDING):#GLASS CHANGED            
-        cnew = float(self.grid1.GetCellValue(r,CURVATURE)) + float( self.grid1.GetCellValue(r,BENDING))
-        #print cnew
-        self.grid1.SetCellValue(r,BENT_C, str(cnew))
-        if(cnew == 0):
-            self.grid1.SetCellValue(r,BENT_R, str(0.0))
-        else:
-            self.grid1.SetCellValue(r,BENT_R, str(1.0/cnew))
-
-        if(c ==POWER or c == FLENGTH):
-            cnew = float(self.grid1.GetCellValue(r+1,CURVATURE)) + float( self.grid1.GetCellValue(r,BENDING))
-            #print cnew
-            self.grid1.SetCellValue(r+1,BENT_C, str(cnew))
-            if(cnew == 0):
-                self.grid1.SetCellValue(r+1,BENT_R, str(0.0))
-            else:
-                self.grid1.SetCellValue(r+1,BENT_R, str(1.0/cnew))
-                        
-            self.update_power(r)
-
-        #self.grid1.SetCellValue(r,BENT_C,self.grid1.GetCellValue(r,CURVATURE))            
-        #self.grid1.SetCellValue(r,BENT_R,self.grid1.GetCellValue(r,RADIUS))            
 
         self._sync_system_to_grid(r, c, val)
 
@@ -706,7 +593,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             if row is not None and row < self.rows:
                 colors[row] = (1.0,0.0,0.0)
         for i, surf in enumerate(self.__system):                        
-            if (surf.thickness is not None or #                bent_c           != '' or
+            if (surf.thickness is not None or
                 surf.semidiam is not None):
                 
                 #if not np.isfinite(float(thickness)): continue # Skip object or image at infinity.
@@ -730,99 +617,12 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         self.GetParent().ogl.draw_lenses(self.t,surf_i,self.t_cum,self.c,self.n,self.h,colors=colors,
                                          stop_index=stop_index)
 
-
-    def update_power(self,r):            
-        print 'update_power',(r,)
-        #import epdb;epdb.st()
-        if(self.grid1.GetCellValue(r+1,CURVATURE) != ''):
-            n = self.grid1.GetCellValue(r,GLASS)
-            if(n != ''):
-                n = float(n)
-            else:
-                return -1
-            
-            if(n != 1):  
-                #update the power
-                c1 = float(self.grid1.GetCellValue(r,CURVATURE))
-                c2 = float(self.grid1.GetCellValue(r+1,CURVATURE))                                            
-            
-                t   = self.grid1.GetCellValue(r,THICKNESS)
-                if(t != ''):
-                    t = float(t)
-                else:
-                    return -1                                    
-                                    
-                phi = (n-1.0) * (c1 - c2)+(n-1.0)*(n-1.0)/n*t*c1*c2
-                self.grid1.SetCellValue(r,POWER,str(phi))
-                self.grid1.SetCellValue(r,FLENGTH,str(1.0/phi))
-            
-        if r and self.grid1.GetCellValue(r-1,CURVATURE) != '': # then we are end of lens
-            n = self.grid1.GetCellValue(r-1,GLASS)                
-            if n != '':
-                n = float(n)
-            else:
-                return -1
-
-            if n != 1:
-                # update the power
-                c1 = float(self.grid1.GetCellValue(r-1,CURVATURE))
-                c2 = float(self.grid1.GetCellValue(r,CURVATURE))            
-
-                t = self.grid1.GetCellValue(r-1,THICKNESS)
-                if t != '':
-                    t = float(t)
-                else:
-                    return -1                                    
-
-                phi = (n-1.0) * (c1 - c2)+(n-1.0)*(n-1.0)/n*t*c1*c2
-                self.grid1.SetCellValue(r-1,POWER,str(phi))
-                self.grid1.SetCellValue(r-1,FLENGTH,str(1.0/phi))
-
-    def update_radius(self,r):        
-            print 'update_radius',(r,)
-            phi = self.grid1.GetCellValue(r,POWER)
-            if(phi != ''):
-                phi = float(phi)
-            else:
-                return -1
-            
-            n   = self.grid1.GetCellValue(r,GLASS)
-            if(n != ''):
-                n = float(n)
-            else:
-                return -1
-            
-            
-            t   = self.grid1.GetCellValue(r,THICKNESS)
-            if(t != ''):
-                t = float(t)
-            else:
-                return -1
-
-            if n**2 - phi * n * t < 0:
-                return -1
-            rad = (2*n+2*math.sqrt(n*n - phi*n*t)*(n-1)) / (2*n*phi)
-            
-            #calc r so that r1 = r2 = r   
-            #rad = val * 2 * ( n - 1 )
-            self.grid1.SetCellValue(r,RADIUS,str(rad))
-            self.grid1.SetCellValue(r+1,RADIUS,str(-rad))
-            
-            if(rad != 0):
-                self.grid1.SetCellValue(r,CURVATURE,str(1.0/rad))
-                self.grid1.SetCellValue(r+1,CURVATURE,str(-1.0/rad))                
-            else:
-                self.grid1.SetCellValue(r,CURVATURE,str(0.0))
-                self.grid1.SetCellValue(r+1,CURVATURE,str(0.0))  
-                
-                
     def get_data(self):
-        t =  []
+        t = []
         tble = self.grid1.GetTable()                     
         for r in range(self.rows):
             t.append([tble.GetValue(r,c) for c in range(len(self.col_labels))])
         
-        #print 'saving unbent as ',self.c_unbent
         return t
         
 
@@ -832,8 +632,6 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             for ci, cell in enumerate(row):
                 strval = str(cell) if cell is not None else ''
                 self.grid1.SetCellValue(ri, ci, strval)
-        for r in range(self.rows):
-            self.OnGrid1GridCellChange(None,r,CURVATURE)
 
     def _sync_grid_to_system(self):
         newNumRows = max(1, self.rows)
@@ -850,10 +648,13 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             for ci, col_label in enumerate(self.col_labels):
                 cell = rowData[col_label]
                 strval = str(cell) if cell is not None else ''
+                if col_label == 'thickness':
+                    if surface is self.__system.surfaces[-1]:
+                        strval = '-'
+                elif col_label == 'glass':
+                    if strval == '1.0':
+                        strval = '' # Don't bother writing the 1.0 for air.
                 self.grid1.SetCellValue(ri, ci, strval)
-        for r in range(self.rows):
-            self.OnGrid1GridCellChange(None,r,CURVATURE)
-
 
     def _sync_system_to_grid(self, r, c=None, val=None):
         """Sync the given entry to the system model."""
@@ -869,8 +670,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
         surface = self.__system.surfaces[r]
         label = self.col_labels[c]
-        if label == 'curvature': surface.R = 1.0 / float(val)
-        elif label == 'radius': surface.R = val
+        if label == 'radius': surface.R = val
         elif label == 'thickness': surface.thickness = val
         elif label == 'aperature radius': surface.semidiam = val
         elif label == 'glass': surface.glass = DataModel.SimpleGlass(val)
@@ -892,9 +692,9 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         pos.x += offset.x
         pos.y += offset.y
         
-        if(c == THICKNESS):             
+        if c == self.THICKNESS_COL:
             self.PopupMenu(self.menu_thickness,pos)
-        elif(c == GLASS):
+        elif c == self.GLASS_COL:
             id = self.PopupMenu(self.menu_glass,pos)
         
         event.Skip()
@@ -934,9 +734,9 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
             self.__system.delete_surface(r)
             
             
-##        if(id ==   wxID_WXMDICHILDFRAME_LENS_DATAMENU1COPY):
+##        if(id ==   self.wxID_MENU1COPY):
 ##            print 'not yet implemented'
-##        if(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU1PASTE):
+##        if(id == self.wxID_MENU1PASTE):
 ##            print 'not yet implemented'
             
         event.Skip()
@@ -945,17 +745,17 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
     def OnMenu_thicknessitems0Menu(self, event):
         (r,c) = (self.grid1.GetGridCursorRow(),self.grid1.GetGridCursorCol())
         id = event.GetId()
-        if(id == wxID_WXMDICHILDFRAME_LENS_DATAMENU_THICKNESSITEMS0):
+        if(id == self.wxID_MENU_THICKNESSITEMS0):
             self.checkBox_autofocus.SetValue(True)
             self.OnGrid1GridCellChange(None,r, c)
             self.checkBox_autofocus.SetValue(False)
     
     def OnMenu_glassitems0Menu(self, event):
-        (r,c) = (self.grid1.GetGridCursorRow(),self.grid1.GetGridCursorCol())
+        r, c = self.grid1.GetGridCursorRow(), self.grid1.GetGridCursorCol()
         id = event.GetId()
-        if(id == self.MENU_GLASSDIRECT):            
+        if id == self.MENU_GLASSDIRECT:
             self.grid1.SetCellValue(r,c,'')
-        elif(id == selfMENU_GLASSBK7):            
+        elif id == self.MENU_GLASSBK7:            
             self.grid1.SetCellValue(r,c,'BK7')
  
  
@@ -963,7 +763,7 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
 
     def OnTextctrl_object_heightText(self, event):
         #self.object_height = float(self.textCtrl_object_height.GetValue())
-        self.OnGrid1GridCellChange() #event=None,r=0,c=THICKNESS)               
+        self.OnGrid1GridCellChange() #event=None,r=0,c=self.THICKNESS_COL)               
         event.Skip()
 
     def OnButton_compute_allButton(self, event):
@@ -981,9 +781,8 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
         
         
 
-    def OnButton_imageButton(self, event= None):           
-        if(not self.GetParent().img.IsShown()):
-            self.GetParent().img.Show()
+    def OnButton_imageButton(self, event=None):           
+        self.GetParent().img.Show()
 
         img = np.array([[1,1,1,1,1],
                         [1,0,1,.8,1],    
@@ -993,47 +792,3 @@ class wxMDIChildFrame_lens_data(wx.MDIChildFrame):
                         [1,1,1,1,1]])                                     
         self.GetParent().img.draw_image(img,self.object_height,self.t,self.n,self.c,self.t_cum,self.h)
 
-    def OnWxmdichildframe_lens_dataClose(self, event):
-        self.Hide()
-
-
-def loadZMXAsTable(zmxfilename):
-    colLabels = dict((label.strip(), i) for i, label in enumerate(wxMDIChildFrame_lens_data.col_labels))
-    surfaces = []
-    with open(zmxfilename, 'r') as fh:
-        lines = fh.readlines()
-    apertureStop = None
-    i = -1
-    while i < len(lines) - 1:
-        i += 1
-        line = lines[i]
-        if line.startswith('SURF'):
-            isStop = False
-            glass_n = 1.0
-            row = [None] * len(colLabels) # New blank row.
-            while i < len(lines) - 1:
-                i += 1
-                line = lines[i]
-                if 'STOP' in line:
-                    isStop = True
-                elif 'TYPE STANDARD' in line or 'TYPE EVENASPH' in line:
-                    pass # Other surfaces not implemented.
-                elif 'CURV' in line:
-                    row[colLabels['curvature']] = float(line.split()[1])
-                elif 'DIAM' in line:
-                    row[colLabels['aperature radius']] = float(line.split()[1]) / 2.0
-                elif 'DISZ' in line:
-                    row[colLabels['thickness']] = float(line.split()[1])
-                elif 'GLAS' in line:
-                    parts = line.split()
-                    row[colLabels['glass']] = float(parts[4])
-                    # glass_name = parts[1]
-                if not line.startswith(' '):
-                    i -= 1
-                    try:
-                        surfaces.append(row)
-                    except Exception as e:
-                        print ctor, e
-                        import epdb; epdb.st()
-                    break
-    return surfaces

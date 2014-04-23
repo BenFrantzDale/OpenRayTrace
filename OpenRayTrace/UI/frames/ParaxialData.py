@@ -1,4 +1,4 @@
-#Boa:MDIChild:wxMDIChildFrame_paraxial_data
+#OpenRayTrace.UI/frames.ParaxialData
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -40,30 +40,28 @@ from wx.grid import *
 
 [Y,U,I,YP,UP,IP] = range(6)
 
-def create(parent):
-    return wxMDIChildFrame_paraxial_data(parent)
 
-[wxID_WXMDICHILDFRAME_PARAXIAL_DATA, wxID_WXMDICHILDFRAME_PARAXIAL_DATAGRID1, 
-] = map(lambda _init_ctrls: wx.NewId(), range(2))
+class ParaxialData(wx.MDIChildFrame):
+    wxID = wx.NewId()
+    wxID_DATAGRID1 = wx.NewId()
 
-class wxMDIChildFrame_paraxial_data(wx.MDIChildFrame):
     def _init_utils(self):
         # generated method, don't edit
         pass
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_PARAXIAL_DATA,
-              name='wxMDIChildFrame_paraxial_data', parent=prnt,
-              pos=wx.Point(311, 198), size=wx.Size(1200, 854),
-              style=DEFAULT_FRAME_STYLE, title='Paraxial Data')
+        wx.MDIChildFrame.__init__(self, id=self.wxID,
+                                  name='ParaxialData', parent=prnt,
+                                  pos=wx.Point(311, 198), size=wx.Size(1200, 854),
+                                  style=DEFAULT_FRAME_STYLE, title='Paraxial Data')
         self._init_utils()
         self.SetClientSize(wx.Size(1192, 820))
-        EVT_CLOSE(self, self.OnWxmdichildframe_paraxial_dataClose)
+        EVT_CLOSE(self, lambda event: self.Hide)
 
-        self.grid1 = Grid(id=wxID_WXMDICHILDFRAME_PARAXIAL_DATAGRID1,
-              name='grid1', parent=self, pos=wx.Point(0, 0), size=wx.Size(1192,
-              820), style=0)
+        self.grid1 = Grid(id=self.wxID_DATAGRID1,
+                          name='grid1', parent=self, pos=wx.Point(0, 0), 
+                          size=wx.Size(1192,820), style=0)
         EVT_GRID_CELL_CHANGE(self.grid1, self.OnGrid1GridCellChange)
 
     def __init__(self, parent):
@@ -127,7 +125,5 @@ class wxMDIChildFrame_paraxial_data(wx.MDIChildFrame):
                     
         event.Skip()
 
-    def OnWxmdichildframe_paraxial_dataClose(self, event):
-        self.Hide()
 
     

@@ -4,14 +4,11 @@ import wx
 from wx import *
 from wx.grid import *
 
-def create(parent):
-    return wxDialog_wavelengths(parent)
-
 [wxID_WXDIALOG_WAVELENGTHS, wxID_WXDIALOG_WAVELENGTHSBUTTON_CANCEL, 
  wxID_WXDIALOG_WAVELENGTHSBUTTON_OK, wxID_WXDIALOG_WAVELENGTHSGRID1, 
 ] = map(lambda _init_ctrls: wx.NewId(), range(4))
 
-class wxDialog_wavelengths(wx.Dialog):
+class Dialog_wavelengths(wx.Dialog):
     def _init_utils(self):
         # generated method, don't edit
         pass

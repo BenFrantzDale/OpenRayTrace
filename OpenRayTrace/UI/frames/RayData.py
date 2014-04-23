@@ -1,4 +1,4 @@
-#Boa:MDIChild:wxMDIChildFrame_ray_data
+#OpenRayTrace.UI.frames.RayData
 ##    OpenRayTrace: Free optical design software
 ##    Copyright (C) 2004 Andrew Wilson
 ##
@@ -54,37 +54,37 @@ S3    = 13
 S4    = 14
 S5    = 15
 
-def create(parent):
-    return wxMDIChildFrame_ray_data(parent)
 
-[wxID_WXMDICHILDFRAME_RAY_DATA, wxID_WXMDICHILDFRAME_RAY_DATAGRID1, 
-] = map(lambda _init_ctrls: wx.NewId(), range(2))
+class RayData(wx.MDIChildFrame):
+    wxID = wx.NewId()
+    wxID_DATAGRID1 = wx.NewId()
 
-class wxMDIChildFrame_ray_data(wx.MDIChildFrame):
     def _init_utils(self):
         # generated method, don't edit
         pass
 
     def _init_ctrls(self, prnt):
         # generated method, don't edit
-        wx.MDIChildFrame.__init__(self, id=wxID_WXMDICHILDFRAME_RAY_DATA,
-              name='wxMDIChildFrame_ray_data', parent=prnt, pos=wx.Point(447,
-              260), size=wx.Size(798, 498), style=DEFAULT_FRAME_STYLE,
-              title='Ray Data')
+        wx.MDIChildFrame.__init__(self, id=RayData.wxID,
+                                  name='RayData', parent=prnt, 
+                                  pos=wx.Point(447,260), size=wx.Size(798, 498), 
+                                  style=DEFAULT_FRAME_STYLE,
+                                  title='Ray Data')
         self._init_utils()
         self.SetClientSize(wx.Size(790, 464))
-        EVT_CLOSE(self, self.OnWxmdichildframe_ray_dataClose)
+        EVT_CLOSE(self, lambda event: self.Hide)
 
-        self.grid1 = Grid(id=wxID_WXMDICHILDFRAME_RAY_DATAGRID1, name='grid1',
-              parent=self, pos=wx.Point(0, 0), size=wx.Size(790, 464), style=0)
+        self.grid1 = Grid(id=self.wxID_DATAGRID1, name='grid1',
+                          parent=self, pos=wx.Point(0, 0), size=wx.Size(790, 464), style=0)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
         
         self.rows = 40
-        col_label = ['TSC  ','SC','CC   ','TAC  ','AC','TPC   ','PC','DC   ','TAchC   ','LchC','TchC  ','S1','S2','S3','S4','S5']
-        self.grid1.CreateGrid(self.rows,len(col_label))
-        [self.grid1.SetColLabelValue(i,col_label[i]) for i in range(len(col_label))]
+        self.col_labels = ['TSC  ','SC','CC   ','TAC  ','AC','TPC   ','PC','DC   ','TAchC   ','LchC','TchC  ','S1','S2','S3','S4','S5']
+        self.grid1.CreateGrid(self.rows,len(self.col_labels))
+        for i, label in enumerate(self.col_labels): 
+            self.grid1.SetColLabelValue(i, label) 
         
         #self.grid1.setRowLabelValue(0,'Total')
         
@@ -183,40 +183,18 @@ class wxMDIChildFrame_ray_data(wx.MDIChildFrame):
             s5 = -dc*2*N[last]*u[last]
             cs5 += s5
             
-            self.grid1.SetCellValue(s + 1,TSC,str(tsc))
-            self.grid1.SetCellValue(s + 1,SC,str(sc))
-            self.grid1.SetCellValue(s + 1,CC,str(cc))
-            self.grid1.SetCellValue(s + 1,TAC,str(tac))
-            self.grid1.SetCellValue(s + 1,AC,str(ac))
-            self.grid1.SetCellValue(s + 1,TPC,str(tpc))
-            self.grid1.SetCellValue(s + 1,PC,str(pc))
-            self.grid1.SetCellValue(s + 1,DC,str(dc))
-            self.grid1.SetCellValue(s + 1,TAchC,str(tachc))
-            self.grid1.SetCellValue(s + 1,LchC,str(lchc))
-            self.grid1.SetCellValue(s + 1,TchC,str(tchc))
-            self.grid1.SetCellValue(s + 1,S1,str(s1))
-            self.grid1.SetCellValue(s + 1,S2,str(s2))
-            self.grid1.SetCellValue(s + 1,S3,str(s3))
-            self.grid1.SetCellValue(s + 1,S4,str(s4))
-            self.grid1.SetCellValue(s + 1,S5,str(s5))
-            
+            for label in self.col_labels:
+                label = label.strip()
         
-        self.grid1.SetCellValue(0,TSC,str(ctsc))
-        self.grid1.SetCellValue(0,SC,str(csc))
-        self.grid1.SetCellValue(0,CC,str(ccc))
-        self.grid1.SetCellValue(0,TAC,str(ctac))
-        self.grid1.SetCellValue(0,AC,str(cac))
-        self.grid1.SetCellValue(0,TPC,str(ctpc))
-        self.grid1.SetCellValue(0,PC,str(cpc))
-        self.grid1.SetCellValue(0,DC,str(cdc))
-        self.grid1.SetCellValue(0,TAchC,str(ctachc))
-        self.grid1.SetCellValue(0,LchC,str(clchc))
-        self.grid1.SetCellValue(0,TchC,str(ctchc))
-        self.grid1.SetCellValue(0,S1,str(cs1))
-        self.grid1.SetCellValue(0,S2,str(cs2))
-        self.grid1.SetCellValue(0,S3,str(cs3))
-        self.grid1.SetCellValue(0,S4,str(cs4))
-        self.grid1.SetCellValue(0,S5,str(cs5))
+                self.grid1.SetCellValue(s+1,
+                                        locals()[label],
+                                        label.lower())
 
-    def OnWxmdichildframe_ray_dataClose(self, event):
-        self.Hide()
+            
+        for label in self.col_labels:
+            label = label.strip()
+        
+            self.grid1.SetCellValue(0,
+                                    locals()[label],
+                                    'c{}'.format(label.lower()))
+
