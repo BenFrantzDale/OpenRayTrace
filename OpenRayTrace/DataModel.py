@@ -248,8 +248,20 @@ class System(object):
     @staticmethod
     def loadZMX(zmxfile, ndim=3):
         surfaces = []
-        with open(zmxfile, 'r') as fh:
-            lines = fh.readlines()
+        try:
+            # First try it as a unicode file.
+            import io
+            with io.open(zmxfile, 'r', encoding='utf-16-le') as fh:
+                lines = fh.readlines()
+            if not lines[0].startswith(u'\ufeffVERS '):
+                raise IOError('This is not a utf-16-le .zmx file.')
+        except IOError:
+            # Fall back to plain text.
+            with open(zmxfile, 'r') as fh:
+                lines = fh.readlines()
+            if not lines[0].startswith('VERS '):
+                raise IOError('This is not a text .zmx file.')
+            
         apertureStop = None
         i = -1
         while i < len(lines) - 1:
